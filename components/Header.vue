@@ -30,6 +30,7 @@
                 </div>
               </div>
             </div>
+            <ColorModeButton />
             <div class="hidden md:block">
               <div class="ml-4 flex items-center md:ml-6">
                 <a href="https://github.com/huulbaek/parlamentet.dk">
@@ -86,11 +87,13 @@
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 import { MenuIcon, XIcon } from '@heroicons/vue/outline/esm/index.js'
 import { useMainStore } from '@/stores/main'
+
 const mainStore = useMainStore()
 
 const navigation = [
   { name: 'Om Parlamentet', href: '/' },
   { name: 'Valgtest', href: '/folketingsvalg-2022-valgtest' },
+  { name: 'Lovforslag', href: '/lovforslag' },
 ]
 </script>
 

@@ -2,7 +2,7 @@
 
 oda_create:
 	@echo "Downloading .bak file..."
-	@python3 download_oda_bak.py
+	@python3 config/download_oda_bak.py
 	@echo "Creating MSSQL docker database..."
 	@docker run -e 'ACCEPT_EULA=Y' -e 'SA_PASSWORD=password' -p 1433:1433 --name sql_server -d mcr.microsoft.com/mssql/server:2019-latest
 	@echo "Waiting for SQL Server to come up..."
@@ -12,11 +12,11 @@ oda_create:
 
 oda_migrate:
 	@echo "Migrating Oda database..."
-	@./migrate_oda.sh
+	@./config/migrate_oda.sh
 
 prisma:
 	@echo "Setting up Prisma..."
-	@./setup_prisma.sh
+	@./config/setup_prisma.sh
 
 help:
 	@echo "Available commands:"

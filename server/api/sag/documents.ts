@@ -4,22 +4,41 @@ import { defineEventHandler } from 'h3'
 import { parse } from 'node-html-parser';
 import fetch from 'node-fetch'
 
+type FileWithContent = {
+    content?: string;
+    error?: string;
+  } & {
+    htmlUrl: string;
+    id: number;
+    dokumentid: number;
+    titel: string | null;
+    versionsdato: Date;
+    filurl: string;
+    opdateringsdato: Date;
+    variantkode: string;
+    format: string;
+  };
+  
 function extractMainText(htmlContent: string): string {
   const root = parse(htmlContent);
   const bodyElement = root.querySelector('body');
 
   if (!bodyElement) return '';
 
-  // Remove all <script> tags
-  bodyElement.querySelectorAll('script').forEach((script) => script.remove());
+  // Remove all <script>, <style> tags, and comments
+  bodyElement.querySelectorAll('script, style').forEach((element) => element.remove());
+  root.structuredText; // This will get the structured text representation of the HTML
 
   // Convert block-level elements to line breaks to preserve basic formatting
-  bodyElement.querySelectorAll('p, br, div, h1, h2, h3, h4, h5, h6').forEach((element) => {
+  bodyElement.querySelectorAll('p, br, div, h1, h2, h3, h4, h5, h6, li').forEach((element) => {
     element.insertAdjacentHTML('beforebegin', '\n');
   });
 
-  // Extract text with preserved line breaks
-  const formattedText = bodyElement.textContent.trim();
+  // Remove any remaining HTML tags to extract the text content
+  const textContent = bodyElement.innerText || bodyElement.textContent;
+
+  // Normalize whitespace and trim the text
+  const formattedText = textContent.replace(/\s+/g, ' ').trim();
 
   return formattedText;
 }
@@ -51,7 +70,7 @@ export default defineEventHandler(async (event) => {
   // })
 
   // Extract Fil records and convert PDF URLs to HTML
-  const files = [...sagDocuments].flatMap((doc) =>
+  const files:FileWithContent[] = [...sagDocuments].flatMap((doc) =>
     doc.Dokument.Fil.map((file) => ({
       ...file,
       htmlUrl: convertPdfUrlToHtmlUrl(file.filurl)
@@ -60,7 +79,20 @@ export default defineEventHandler(async (event) => {
 
   const htmlContents = await Promise.all(files.map(async (file, index) => {
     try {
-      const response = await fetch(file.htmlUrl);
+      const controller = new AbortController();
+      const timeout = setTimeout(() => {
+        controller.abort();
+      }, 5000); // Set timeout to 5 seconds
+  
+      const response = await fetch(file.htmlUrl,{
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3'
+        },
+        signal: controller.signal
+      });
+
+      clearTimeout(timeout);
+
       if (!response.ok) {
         throw new Error(`Failed to fetch HTML content from ${file.htmlUrl}`);
       }
@@ -73,19 +105,17 @@ export default defineEventHandler(async (event) => {
     } catch (error) {
       console.error('Error fetching HTML content:', error);
       // Append the error message to the corresponding file object
-      files[index].content = null;
+      files[index].content = 'Error fetching HTML content';
       files[index].error = error instanceof Error ? error.message : String(error);
       return null;
     }
   }));
 
   // Combine the files structure with their corresponding htmlContents
-  const filesWithContent = files.map((file, index) => ({
+  const documentsWithContent = files.map((file, index) => ({
     ...file,
     htmlContent: htmlContents[index]
   }));
 
-  return filesWithContent;
-  // Return the scraped HTML contents
-  return htmlContents
+  return documentsWithContent;
 })

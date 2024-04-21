@@ -9,3 +9,4 @@ yarn.lock
 dist
 prisma/db*
 .DS_Store
+oda.sql

@@ -1,22 +1,30 @@
 .PHONY: oda_create oda_migrate prisma
 
-oda_create:
+oda_download:
 	@echo "Downloading .bak file..."
 	@python3 config/download_oda_bak.py
 	@echo "Creating MSSQL docker database..."
-	@docker run -e 'ACCEPT_EULA=Y' -e 'SA_PASSWORD=password' -p 1433:1433 --name sql_server -d mcr.microsoft.com/mssql/server:2019-latest
-	@echo "Waiting for SQL Server to come up..."
-	@sleep 15
-	@echo "Importing .bak file..."
-	@docker exec -it sql_server /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P 'password' -Q 'RESTORE DATABASE OdaDB FROM DISK = "/var/opt/mssql/backup/oda.bak" WITH MOVE "OdaDB" TO "/var/opt/mssql/data/OdaDB.mdf", MOVE "OdaDB_log" TO "/var/opt/mssql/data/OdaDB_log.ldf"'
 
 oda_migrate:
 	@echo "Migrating Oda database..."
-	@./config/migrate_oda.sh
+	@docker compose up -d MSSQLDB
+	@docker exec -it MSSQLDB /opt/mssql-tools18/bin/sqlcmd -S localhost -U ${MS_DB_USER} -P ${MS_DB_PASSWORD} -C -Q 'RESTORE FILELISTONLY FROM DISK = "/var/opt/mssql/backup/oda.bak"' \
+   | tr -s ' ' | cut -d ' ' -f 1-2
+	@docker exec -it MSSQLDB /opt/mssql-tools18/bin/sqlcmd -S localhost -U ${MS_DB_USER} -P ${MS_DB_PASSWORD} -C -Q 'RESTORE DATABASE ODA FROM DISK = "/var/opt/mssql/backup/oda.bak" WITH MOVE "ODA" TO "/var/opt/mssql/data/ODA.mdf", MOVE "ODA_log" TO "/var/opt/mssql/data/ODA_log.ldf"'
+
+oda_postgres:
+	@echo "Migrating Oda database..."
+	@docker compose up -d pgsqldb
+	@docker compose up -d oda_pg
+
 
 prisma:
 	@echo "Setting up Prisma..."
 	@./config/setup_prisma.sh
+
+reload_prisma:
+	@echo "Reloading Prisma..."
+	@./config/reload_prisma.sh
 
 help:
 	@echo "Available commands:"

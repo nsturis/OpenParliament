@@ -1,6 +1,6 @@
-# Parlamentet.dk
+# Unfuck The System.dk
 
-Parlamentet.dk var engang et større projekt – et _for stort_ projekt – og det her er et forsøg på at tage det gode fra websitet og putte det ind i et mindre, modulært repo.
+Unfuck The System.dk var engang et større projekt – et _for stort_ projekt – og det her er et forsøg på at tage det gode fra websitet og putte det ind i et mindre, modulært repo.
 
 Indtil videre er det kun _Den Historiske _, som er kommet med.
 

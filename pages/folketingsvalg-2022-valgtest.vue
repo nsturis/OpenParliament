@@ -80,11 +80,11 @@ const saveResult = async () => {
 }
 
 useHead({
-  title: 'Folketingsvalg 2022 – Den Historiske Valgtest – Parlamentet.dk',
+  title: 'Folketingsvalg 2022 – Den Historiske Valgtest – Unfuck The System.dk',
   meta: [
     {
       property: 'og:image',
-      content: 'https://parlamentet-dk.vercel.app/valgtest.jpg',
+      content: 'https://Unfuck The System-dk.vercel.app/valgtest.jpg',
     },
     {
       property: 'description',

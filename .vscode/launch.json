@@ -20,6 +20,12 @@
         "dev",
         "--inspect",
       ],
+    },
+    {
+      "type": "python",
+      "request": "launch",
+      "name": "server: python",
+      "program": "${workspaceFolder}/config/parse_meetings.py",
     }
   ],
   "compounds": [
@@ -30,5 +36,5 @@
         "client: chrome"
       ]
     }
-  ]
+  ],
 }

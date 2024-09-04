@@ -1,0 +1,512 @@
+XML Structure:
+Dokument
+  MetaMeeting (tingdokID: 1920505)
+    ParliamentarySession (tingdokID: 200063)
+    ParliamentaryGroup (tingdokID: 528537)
+    MeetingNumber
+    DateOfSitting
+    Location
+    EdixiDocLocation
+    AudioFileFolder
+  TitelGruppe
+    Titel
+      Linea
+        Char
+    UnderTitel
+      Linea
+        Char
+  DagsordenPlan
+    Rubrica
+      Linea
+        Char
+    PunktTekst
+      Exitus
+        Linea
+          Char
+      Exitus
+        Linea
+          Char
+      Exitus
+        Linea
+          Char
+      Exitus
+        Linea
+          Char
+    PunktTekst
+      Exitus
+        Linea
+          Char
+      Exitus
+        Linea
+          Char
+      Exitus
+        Linea
+          Char
+      Exitus
+        Linea
+          Char
+  DagsordenPunkt
+    MetaFTAgendaItem
+      ItemNo
+      FTCase
+      FTCaseNumber
+      FTCaseType
+      FTCaseStage
+      ShortTitle
+    PunktTekst
+      Exitus
+        Linea
+          Char
+    Aktivitet
+      Rubrica
+        Linea
+          Char
+      Tale
+        Taler
+          MetaSpeakerMP (tingdokID: 100643)
+            OratorFirstName
+            OratorLastName
+            GroupNameShort
+            OratorRole
+          TalerTitel
+            Linea
+              Char
+              Char
+        TaleSegment
+          MetaSpeechSegment
+            LastModified
+            EdixiStatus
+            StartDateTime
+            EndDateTime
+          TekstGruppe
+            Exitus
+              Linea
+                Char
+          TekstGruppe
+            Exitus
+              Linea
+                Char
+          TekstGruppe
+            Exitus
+              Linea
+                Char
+          TekstGruppe
+            Exitus
+              Linea
+                Char
+              Linea
+                Char
+              Linea
+                Char
+          TekstGruppe
+            Exitus
+              Linea
+                Char
+          TekstGruppe
+            Exitus
+              Linea
+                Char
+              Linea
+                Char
+          TekstGruppe
+            Exitus
+              Linea
+                Char
+          TekstGruppe
+            Exitus
+              Linea
+                Char
+              Linea
+                Char
+          TekstGruppe
+            Exitus
+              Linea
+                Char
+              Linea
+                Char
+  DagsordenPunkt
+    MetaFTAgendaItem
+      ItemNo
+      FTCase (tingdokID: 580690)
+      FTCaseNumber
+      FTCaseType
+      FTCaseStage
+      ShortTitle
+    PunktTekst
+      PreTekst
+        Exitus
+          Linea
+            Char
+      Exitus
+        Linea
+          Char
+      Exitus
+        Linea
+          Char
+      Exitus
+        Linea
+          Char
+      Exitus
+        Linea
+          Char
+    Aktivitet
+      Rubrica
+        Linea
+          Char
+      Tale
+        Taler
+          MetaSpeakerMP (tingdokID: 100643)
+            OratorFirstName
+            OratorLastName
+            GroupNameShort
+            OratorRole
+          TalerTitel
+            Linea
+              Char
+              Char
+        TaleSegment
+          MetaSpeechSegment
+            LastModified
+            EdixiStatus
+            StartDateTime
+            EndDateTime
+          TekstGruppe
+            Exitus
+              Linea
+                Char
+              Linea
+                Char
+            Exitus
+              Linea
+                Char
+              Linea
+                Char
+      Tale
+        Taler
+          MetaSpeakerMP (tingdokID: 519107)
+            OratorFirstName
+            OratorLastName
+            GroupNameShort
+            OratorRole
+          TalerTitel
+            Linea
+              Char
+              Char
+        TaleType
+          Linea
+            Char
+        TaleSegment
+          MetaSpeechSegment
+            LastModified
+            EdixiStatus
+            StartDateTime
+            EndDateTime
+          TekstGruppe
+            Exitus
+              Linea
+                Char
+              Linea
+                Char
+              Linea
+                Char
+              Linea
+                Char
+              Linea
+                Char
+              Linea
+                Char
+            Exitus
+              Linea
+                Char
+              Linea
+                Char
+              Linea
+                Char
+              Linea
+                Char
+              Linea
+                Char
+              Linea
+                Char
+              Linea
+                Char
+              Linea
+                Char
+            Exitus
+              Linea
+                Char
+              Linea
+                Char
+              Linea
+                Char
+              Linea
+                Char
+              Linea
+                Char
+              Linea
+                Char
+            Exitus
+              Linea
+                Char
+              Linea
+                Char
+              Linea
+                Char
+              Linea
+                Char
+              Linea
+                Char
+            Exitus
+              Linea
+                Char
+              Linea
+                Char
+              Linea
+                Char
+              Linea
+                Char
+              Linea
+                Char
+              Linea
+                Char
+            Exitus
+              Linea
+                Char
+              Linea
+                Char
+              Linea
+                Char
+              Linea
+                Char
+              Linea
+                Char
+              Linea
+                Char
+            Exitus
+              Linea
+                Char
+              Linea
+                Char
+              Linea
+                Char
+              Linea
+                Char
+              Linea
+                Char
+            Exitus
+              Linea
+                Char
+              Linea
+                Char
+              Linea
+                Char
+              Linea
+                Char
+              Linea
+                Char
+              Linea
+                Char
+            Exitus
+              Linea
+                Char
+      Tale
+        Taler
+          MetaSpeakerMP (tingdokID: 100643)
+            OratorFirstName
+            OratorLastName
+            GroupNameShort
+            OratorRole
+          TalerTitel
+            Linea
+              Char
+              Char
+        TaleSegment
+          MetaSpeechSegment
+            LastModified
+            EdixiStatus
+            StartDateTime
+            EndDateTime
+          TekstGruppe
+            Exitus
+              Linea
+                Char
+            Exitus
+              Linea
+                Char
+            Exitus
+              Linea
+                Char
+              Linea
+                Char
+      Tale
+        Taler
+          MetaSpeakerMP (tingdokID: 106948)
+            OratorFirstName
+            OratorLastName
+            GroupNameShort
+            OratorRole
+          TalerTitel
+            Linea
+              Char
+              Char
+        TaleSegment
+          MetaSpeechSegment
+            LastModified
+            EdixiStatus
+            StartDateTime
+            EndDateTime
+          TekstGruppe
+            Exitus
+              Linea
+                Char
+              Linea
+                Char
+              Linea
+                Char
+              Linea
+                Char
+              Linea
+                Char
+      Tale
+        Taler
+          MetaSpeakerMP (tingdokID: 100643)
+            OratorFirstName
+            OratorLastName
+            GroupNameShort
+            OratorRole
+          TalerTitel
+            Linea
+              Char
+              Char
+        TaleSegment
+          MetaSpeechSegment
+            LastModified
+            EdixiStatus
+            StartDateTime
+            EndDateTime
+          TekstGruppe
+            Exitus
+              Linea
+                Char
+      Tale
+        Taler
+          MetaSpeakerMP (tingdokID: 519107)
+            OratorFirstName
+            OratorLastName
+            GroupNameShort
+            OratorRole
+          TalerTitel
+            Linea
+              Char
+              Char
+        TaleSegment
+          MetaSpeechSegment
+            LastModified
+            EdixiStatus
+            StartDateTime
+            EndDateTime
+          TekstGruppe
+            Exitus
+              Linea
+                Char
+              Linea
+                Char
+              Linea
+                Char
+              Linea
+                Char
+ 
+Data Analysis:
+Dokument/MetaMeeting_tingdokID: 1 unique values
+  Sample values: 1920505
+Dokument/MetaMeeting/ParliamentarySession: 1 unique values
+  Sample values: 20222
+Dokument/MetaMeeting/ParliamentarySession_tingdokID: 1 unique values
+  Sample values: 200063
+Dokument/MetaMeeting/ParliamentaryGroup: 1 unique values
+  Sample values: Folketinget
+Dokument/MetaMeeting/ParliamentaryGroup_tingdokID: 1 unique values
+  Sample values: 528537
+Dokument/MetaMeeting/MeetingNumber: 1 unique values
+  Sample values: 21
+Dokument/MetaMeeting/DateOfSitting: 1 unique values
+  Sample values: 2023-02-02T10:00:00
+Dokument/MetaMeeting/Location: 1 unique values
+  Sample values: Folketingssalen
+Dokument/MetaMeeting/EdixiDocLocation: 1 unique values
+  Sample values: W:\20222\M021\
+Dokument/MetaMeeting/AudioFileFolder: 1 unique values
+  Sample values: X:\Arbor\FT20222\021\SALEN\
+Dokument/TitelGruppe/Titel/Linea/Char: 1 unique values
+  Sample values: 21. møde
+Dokument/TitelGruppe/UnderTitel/Linea/Char: 1 unique values
+  Sample values: Torsdag den 2. februar 2023 kl. 10.00
+Dokument/DagsordenPlan/Rubrica/Linea/Char: 1 unique values
+  Sample values: Dagsorden
+Dokument/DagsordenPlan/PunktTekst/Exitus/Linea/Char: 8 unique values
+Dokument/DagsordenPunkt/MetaFTAgendaItem/ItemNo: 4 unique values
+  Sample values: 2, 0, 1
+Dokument/DagsordenPunkt/MetaFTAgendaItem/FTCaseType: 4 unique values
+  Sample values: L, FM
+Dokument/DagsordenPunkt/MetaFTAgendaItem/ShortTitle: 4 unique values
+  Sample values: 1. behandling af L 13: Om konsekvenser ved afskaffelsen af store bededag som helligdag., 1. behandling af L 14: Om opfølgning på anden delaftale om nytænkning af beskæftigelsesindsatsen fra juni 2022., Punkt 0
+Dokument/DagsordenPunkt/Aktivitet/Rubrica/Linea/Char: 5 unique values
+  Sample values: Meddelelser fra formanden, Forhandling
+Dokument/DagsordenPunkt/Aktivitet/Tale/Taler/MetaSpeakerMP_tingdokID: 944 unique values
+Dokument/DagsordenPunkt/Aktivitet/Tale/Taler/MetaSpeakerMP/OratorFirstName: 944 unique values
+Dokument/DagsordenPunkt/Aktivitet/Tale/Taler/MetaSpeakerMP/OratorLastName: 944 unique values
+Dokument/DagsordenPunkt/Aktivitet/Tale/Taler/MetaSpeakerMP/GroupNameShort: 910 unique values
+Dokument/DagsordenPunkt/Aktivitet/Tale/Taler/MetaSpeakerMP/OratorRole: 944 unique values
+Dokument/DagsordenPunkt/Aktivitet/Tale/Taler/TalerTitel/Linea/Char: 1789 unique values
+Dokument/DagsordenPunkt/Aktivitet/Tale/TaleSegment/MetaSpeechSegment/LastModified: 945 unique values
+Dokument/DagsordenPunkt/Aktivitet/Tale/TaleSegment/MetaSpeechSegment/EdixiStatus: 945 unique values
+Dokument/DagsordenPunkt/Aktivitet/Tale/TaleSegment/MetaSpeechSegment/StartDateTime: 945 unique values
+Dokument/DagsordenPunkt/Aktivitet/Tale/TaleSegment/MetaSpeechSegment/EndDateTime: 944 unique values
+Dokument/DagsordenPunkt/Aktivitet/Tale/TaleSegment/TekstGruppe/Exitus/Linea/Char: 4455 unique values
+Dokument/DagsordenPunkt/MetaFTAgendaItem/FTCase_tingdokID: 2 unique values
+  Sample values: 580690, 580689
+Dokument/DagsordenPunkt/MetaFTAgendaItem/FTCaseNumber: 2 unique values
+  Sample values: 13, 14
+Dokument/DagsordenPunkt/MetaFTAgendaItem/FTCaseStage: 2 unique values
+  Sample values: BEH1
+Dokument/DagsordenPunkt/PunktTekst/PreTekst/Exitus/Linea/Char: 2 unique values
+  Sample values: Det første punkt på dagsordenen er:, Det sidste punkt på dagsordenen er:
+Dokument/DagsordenPunkt/PunktTekst/Exitus/Linea/Char: 8 unique values
+Dokument/DagsordenPunkt/Aktivitet/Tale/TaleType/Linea/Char: 22 unique values
+
+Possible connections to Prisma schema:
+Dokument/MetaMeeting_tingdokID: 1920505
+Dokument/MetaMeeting/ParliamentarySession -> Periode.id
+Dokument/MetaMeeting/ParliamentarySession_tingdokID: 200063
+Dokument/MetaMeeting/ParliamentaryGroup: -> 
+Dokument/MetaMeeting/ParliamentaryGroup_tingdokID: 528537
+Dokument/MetaMeeting/MeetingNumber -> Moede.nummer
+Dokument/MetaMeeting/DateOfSitting -> Moede.dato
+Dokument/MetaMeeting/Location -> Moede.lokale
+Dokument/MetaMeeting/EdixiDocLocation: -> 
+Dokument/MetaMeeting/AudioFileFolder: -> 
+Dokument/TitelGruppe/Titel/Linea/Char: -> 
+Dokument/TitelGruppe/UnderTitel/Linea/Char: -> 
+Dokument/DagsordenPlan/Rubrica/Linea/Char: -> 
+Dokument/DagsordenPlan/PunktTekst/Exitus/Linea/Char: -> 
+Dokument/DagsordenPunkt/MetaFTAgendaItem/ItemNo: -> 
+Dokument/DagsordenPunkt/MetaFTAgendaItem/FTCaseType: -> 
+Dokument/DagsordenPunkt/MetaFTAgendaItem/ShortTitle: -> 
+Dokument/DagsordenPunkt/Aktivitet/Rubrica/Linea/Char: -> 
+Dokument/DagsordenPunkt/Aktivitet/Tale/Taler/MetaSpeakerMP_tingdokID: 106948, 519107, 100643
+Dokument/DagsordenPunkt/Aktivitet/Tale/Taler/MetaSpeakerMP/OratorFirstName: -> 
+Dokument/DagsordenPunkt/Aktivitet/Tale/Taler/MetaSpeakerMP/OratorLastName: -> 
+Dokument/DagsordenPunkt/Aktivitet/Tale/Taler/MetaSpeakerMP/GroupNameShort: -> 
+Dokument/DagsordenPunkt/Aktivitet/Tale/Taler/MetaSpeakerMP/OratorRole: -> 
+Dokument/DagsordenPunkt/Aktivitet/Tale/Taler/TalerTitel/Linea/Char: -> 
+Dokument/DagsordenPunkt/Aktivitet/Tale/TaleSegment/MetaSpeechSegment/LastModified: -> 
+Dokument/DagsordenPunkt/Aktivitet/Tale/TaleSegment/MetaSpeechSegment/EdixiStatus: -> 
+Dokument/DagsordenPunkt/Aktivitet/Tale/TaleSegment/MetaSpeechSegment/StartDateTime: -> 
+Dokument/DagsordenPunkt/Aktivitet/Tale/TaleSegment/MetaSpeechSegment/EndDateTime: -> 
+Dokument/DagsordenPunkt/Aktivitet/Tale/TaleSegment/TekstGruppe/Exitus/Linea/Char: -> 
+Dokument/DagsordenPunkt/MetaFTAgendaItem/FTCase_tingdokID: 580690, 580689
+Dokument/DagsordenPunkt/MetaFTAgendaItem/FTCaseNumber: -> 
+Dokument/DagsordenPunkt/MetaFTAgendaItem/FTCaseStage: -> 
+Dokument/DagsordenPunkt/PunktTekst/PreTekst/Exitus/Linea/Char: -> 
+Dokument/DagsordenPunkt/PunktTekst/Exitus/Linea/Char: -> 
+Dokument/DagsordenPunkt/Aktivitet/Tale/TaleType/Linea/Char: -> 

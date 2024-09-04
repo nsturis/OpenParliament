@@ -3,7 +3,7 @@ import { createLogger, transports, format } from 'winston'
 const logger = createLogger({
   level: 'info',
   format: format.json(),
-  defaultMeta: { service: 'your-service-name' },
+  defaultMeta: { service: 'folketinGPT' },
   transports: [
     new transports.File({ filename: 'error.log', level: 'error' }),
     new transports.File({ filename: 'combined.log' }),

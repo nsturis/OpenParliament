@@ -1,0 +1,102 @@
+services:
+  MSSQLDB:
+    container_name: MSSQLDB
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    environment:
+      MSSQL_SA_PASSWORD: ${MS_DB_PASSWORD}
+      ACCEPT_EULA: 'Y'
+    ports:
+      - '1433:1433'
+    volumes:
+      - MSSQLDB:/var/opt/mssql
+      - ./oda.bak:/var/opt/mssql/backup/oda.bak
+    env_file:
+      - .env
+    networks:
+      - migration_network
+
+  pgsqldb:
+    container_name: pgsqldb
+    build:
+      context: .
+      dockerfile: Dockerfile.pgsql
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - '5432:5432'
+    volumes:
+      - pgsqldb:/var/lib/postgresql/data
+      - ./init-scripts:/docker-entrypoint-initdb.d
+    env_file:
+      - .env
+    networks:
+      - migration_network
+
+  oda_pg:
+    image: dimitri/pgloader:latest
+    command: pgloader /data/loadfile.load
+    mem_limit: 4g
+    volumes:
+      - ./loadfile.load:/data/loadfile.load
+      - pgsqldb:/var/lib/postgresql/data
+    depends_on:
+      - MSSQLDB
+      - pgsqldb
+    env_file:
+      - .env
+    networks:
+      - migration_network
+
+  weaviate:
+    command:
+      - --host
+      - 0.0.0.0
+      - --port
+      - '8080'
+      - --scheme
+      - http
+    image: cr.weaviate.io/semitechnologies/weaviate:1.26.1
+    ports:
+      - 8080:8080
+      - 50051:50051
+    volumes:
+      - weaviate_data:/var/lib/weaviate
+    restart: on-failure:0
+    environment:
+      QUERY_DEFAULTS_LIMIT: 25
+      AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED: 'true'
+      PERSISTENCE_DATA_PATH: '/var/lib/weaviate'
+      DEFAULT_VECTORIZER_MODULE: 'text2vec-ollama'
+      ENABLE_API_BASED_MODULES: 'true'
+      CLUSTER_HOSTNAME: 'weaviate_cluster'
+      ENABLE_MODULES: 'text2vec-ollama'
+    networks:
+      - migration_network
+
+  nuxt_app:
+    container_name: nuxt_app
+    build:
+      context: .
+      dockerfile: Dockerfile.nuxt
+    ports:
+      - '3000:3000'
+    env_file:
+      - .env
+    volumes:
+      - .:/app
+      - /app/node_modules
+    depends_on:
+      - pgsqldb
+    networks:
+      - migration_network
+
+volumes:
+  MSSQLDB:
+  pgsqldb:
+  weaviate_data:
+
+networks:
+  migration_network:
+    driver: bridge

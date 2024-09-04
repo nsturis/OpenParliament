@@ -9,10 +9,15 @@
     "plugin:nuxt/recommended",
     "plugin:prettier/recommended"
   ],
-
   "rules": {
     "vue/multi-word-component-names": 0,
     // "vue/no-multiple-template-root": 0,
-    "prettier/prettier": ["error", { "singleQuote": true, "semi": false }]
+    "prettier/prettier": [
+      "error",
+      {
+        "singleQuote": true,
+        "semi": false
+      }
+    ]
   }
 }

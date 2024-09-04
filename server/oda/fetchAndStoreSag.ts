@@ -1,6 +1,6 @@
 import { loadLastUpdateTimestamp, saveLastUpdateTimestamp } from './utils'
 import { sagGet } from './oda'
-import prisma from '../../prisma/client.js'
+import prisma from '../../backup/prisma_backup/client.js'
 
 async function fetchAndStoreUpdatedEntities() {
   const lastUpdateTimestamp = await loadLastUpdateTimestamp()

@@ -1,67 +1,10 @@
 <script setup lang="ts">
-import { ref, onMounted, reactive } from 'vue'
-
+import { ref, onMounted, reactive, watch } from 'vue'
+import debounce from 'lodash/debounce'
 import { useMainStore } from '@/stores/main'
 
-// const mainStore = useMainStore()
-
-// type Lovforslag = {
-//   id: number
-//   titelkort: string
-//   nummer: string
-//   resume: string
-//   opdateringsdato: string
-// }
-
-
-
-// const fetchPerioder = async () => {
-//   const response = await $fetch('/api/perioder/')
-//   return response.map((periode: any) => ({ id: periode.id, titel: periode.titel }))
-// }
-
-// const {data : perioder} = useAsyncData('perioder', fetchPerioder)
-
-// const selectedPeriode = ref(null)
-
-// // Pagination state
-// const pagination = reactive({
-//   currentPage: 1,
-//   pageSize: 10,
-// })
-
-// // Fetch data with pagination
-// const fetchLovforslag = async () => {
-//   return $fetch('/api/sag/list', {
-//     params: {
-//       periodeid: selectedPeriode.value, 
-//       page: pagination.currentPage,
-//       pageSize: pagination.pageSize,
-//     },
-//   })
-// }
-
-// const { data: lovforslag, pending, refresh } = useAsyncData('lovforslag', fetchLovforslag)
-
-// onMounted(async () => {
-//   mainStore.updateHeaderTitle('Lovforslag')
-//   // Set the default selected period to 158 once the perioder data is loaded
-//   perioder.then((loadedPerioder) => {
-//   const defaultPeriode = loadedPerioder.find(p => p.id === 158)
-//   selectedPeriode.value = defaultPeriode || null
-//   refresh() // Initial fetch with the default period
-
-// })
-
-// })
-
-// // Function to change page
-// const changePage = (newPage) => {
-//   pagination.currentPage = newPage
-//   refresh()
-// }
-
 const mainStore = useMainStore()
+const searchQuery = ref('')
 
 type Lovforslag = {
   id: number
@@ -73,7 +16,10 @@ type Lovforslag = {
 
 const fetchPerioder = async () => {
   const response = await $fetch('/api/perioder/')
-  return response.map((periode: any) => ({ id: periode.id, titel: periode.titel }))
+  return response.map((periode: any) => ({
+    id: periode.id,
+    titel: periode.titel,
+  }))
 }
 
 const { data: perioder } = useAsyncData('perioder', fetchPerioder)
@@ -81,7 +27,9 @@ const { data: perioder } = useAsyncData('perioder', fetchPerioder)
 const selectedPeriode = ref<number | null>(null)
 
 // Computed property for the current period
-const currentPeriode = computed(() => perioder.value?.find((periode) => periode.id === selectedPeriode.value))
+const currentPeriode = computed(() =>
+  perioder.value?.find((periode) => periode.id === selectedPeriode.value)
+)
 
 // Pagination state
 const pagination = reactive({
@@ -89,28 +37,43 @@ const pagination = reactive({
   pageSize: 10,
 })
 
-// Fetch data with pagination
+// Fetch data with pagination and search
 const fetchLovforslag = async () => {
   return $fetch('/api/sag/list', {
     params: {
       periodeid: selectedPeriode.value,
       page: pagination.currentPage,
       pageSize: pagination.pageSize,
+      search: searchQuery.value,
     },
   })
 }
 
-const { data: lovforslag, refresh } = useAsyncData('lovforslag', fetchLovforslag)
+const { data: lovforslag, refresh } = useAsyncData(
+  'lovforslag',
+  fetchLovforslag
+)
+
+// Debounced search function
+const debouncedSearch = debounce(() => {
+  pagination.currentPage = 1 // Reset to first page on new search
+  refresh()
+}, 300)
+
+// Watch for changes in searchQuery and trigger debounced search
+watch(searchQuery, () => {
+  debouncedSearch()
+})
 
 onMounted(async () => {
   mainStore.updateHeaderTitle('Lovforslag')
-  // Set the default selected period to 158 once the perioder data is loaded
   selectedPeriode.value = 158
-  refresh() // Initial fetch with the default period
+  refresh()
 })
 
 // Watch for changes in selectedPeriode and refresh the data
 watch(selectedPeriode, () => {
+  pagination.currentPage = 1 // Reset to first page when changing period
   refresh()
 })
 
@@ -122,12 +85,11 @@ const changePage = (newPage: number) => {
 </script>
 
 <template>
-
   <div class="container mx-auto py-10">
     <USelectMenu
       v-model="selectedPeriode"
       :options="perioder"
-      class="w-full lg:w-96"
+      class="mb-4 w-full lg:w-96"
       placeholder="Vælg en periode"
       searchable
       searchable-placeholder="Search by period title"
@@ -142,6 +104,13 @@ const changePage = (newPage: number) => {
         <span class="truncate">{{ periode.titel }}</span>
       </template>
     </USelectMenu>
+
+    <UInput
+      v-model="searchQuery"
+      placeholder="Search lovforslag..."
+      class="mb-4 w-full lg:w-96"
+    />
+
     <div v-for="item in lovforslag" :key="item.id" class="card">
       <h2>{{ item.titelkort }}</h2>
       <p>{{ item.nummer }}</p>
@@ -149,9 +118,15 @@ const changePage = (newPage: number) => {
       <p>{{ item.opdateringsdato }}</p>
       <nuxt-link :to="`/lovforslag/${item.id}`">View Details</nuxt-link>
     </div>
+
     <!-- Pagination Controls -->
     <div class="pagination">
-      <button @click="changePage(pagination.currentPage - 1)" :disabled="pagination.currentPage === 1">Previous</button>
+      <button
+        :disabled="pagination.currentPage === 1"
+        @click="changePage(pagination.currentPage - 1)"
+      >
+        Previous
+      </button>
       <button @click="changePage(pagination.currentPage + 1)">Next</button>
     </div>
   </div>

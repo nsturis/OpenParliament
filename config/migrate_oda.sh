@@ -12,7 +12,7 @@ PGPASSWORD=root psql -h localhost -U postgres -c "GRANT ALL PRIVILEGES ON DATABA
 docker run --network host --rm --name pgloader -v ./loadfile.load:/data/loadfile.load dimitri/pgloader:latest pgloader --debug /data/loadfile.load
 
 # Run the python script to rename the columns
-python3 rename_postgres.py
+# python3 rename_postgres.py
 
 # Create fresh clone for cache
 PGPASSWORD=root psql -h localhost -U postgres -c "CREATE DATABASE oda_fresh;"

@@ -1,6 +1,6 @@
 # Open both files
 with open("prisma/schema.prisma", "r") as schema_file, open(
-    "./schema_odaclient.prisma", "r"
+    "config/schema_odaclient.prisma", "r"
 ) as odaclient_file:
     schema_lines = schema_file.readlines()
     odaclient_lines = odaclient_file.readlines()

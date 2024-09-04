@@ -1,4 +1,4 @@
-import prisma from '../../prisma/client.js'
+import prisma from '../../backup/prisma_backup/client.js'
 import { createContext, periodeGet } from '../../utils/oda.js'
 
 const ctx = createContext()

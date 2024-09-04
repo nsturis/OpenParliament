@@ -1,9 +1,9 @@
 <template>
   <div>
-    <h1>Velkommen til Parlamentet.dk</h1>
-    <p>Her finder du det nye <em>Parlamentet.dk</em>.</p>
+    <h1>Velkommen til Unfuck The System.dk</h1>
+    <p>Her finder du det nye <em>Unfuck The System.dk</em>.</p>
     <p>
-      Det gamle Parlamentet.dk var en applikation, hvor alle lov- og
+      Det gamle Unfuck The System.dk var en applikation, hvor alle lov- og
       beslutningsforslag fra Folketinget var tilgængelige for alle, så
       kompetente mennesker kunne skrive resumeer af dem og de kunne debatteres
       og til sidst stemmes om.
@@ -23,7 +23,7 @@
     </p>
     <p>
       Hvis du vil arbejde på projektet, så kan du finde det her:
-      <a href="https://github.com/huulbaek/parlamentet.dk">GitHub</a>
+      <a href="https://github.com/huulbaek/Unfuck The System.dk">GitHub</a>
     </p>
   </div>
 </template>
@@ -34,11 +34,11 @@ import { useMainStore } from '@/stores/main'
 const mainStore = useMainStore()
 
 onMounted(() => {
-  mainStore.updateHeaderTitle('Parlamentet.dk – deltagende demokrati')
+  mainStore.updateHeaderTitle('Unfuckthesystem.dk')
 })
 
 useHead({
-  title: 'Parlamentet.dk – deltagende demokrati',
+  title: 'Unfuckthesystem.dk – deltagende demokrati',
   meta: [
     {
       property: 'description',

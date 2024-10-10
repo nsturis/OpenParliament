@@ -15,6 +15,13 @@
       "when": 1724890373483,
       "tag": "0001_flowery_wolfsbane",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1725462410470,
+      "tag": "0002_freezing_romulus",
+      "breakpoints": true
     }
   ]
 }

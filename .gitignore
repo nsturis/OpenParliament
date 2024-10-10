@@ -11,9 +11,8 @@ prisma/db*
 .DS_Store
 oda.sql
 
-backup/
-
-assets/data/meetings
+backup
 
 *.bak
+assets
 

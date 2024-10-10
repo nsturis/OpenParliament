@@ -1,16 +1,16 @@
 import pkg from 'pg'
 import { drizzle } from 'drizzle-orm/node-postgres'
-import { Logger } from 'drizzle-orm'
-import logger from '../../utils/logger'
+import type { Logger } from 'drizzle-orm'
+import { consola } from 'consola'
 import * as schema from '../database/schema'
 import * as relations from '../database/relations'
 
 const { Pool } = pkg
 
-// Custom Drizzle logger using our custom logger
+// Custom Drizzle logger using consola
 class CustomLogger implements Logger {
   logQuery(query: string, params: unknown[]): void {
-    logger.info(`Drizzle Query: ${query} - Params: ${JSON.stringify(params)}`)
+    consola.info(`Drizzle Query: ${query} - Params: ${JSON.stringify(params)}`)
   }
 }
 

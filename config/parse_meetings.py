@@ -2,7 +2,7 @@ from lxml import etree
 
 import os
 import glob
-from typing import List, Dict
+from typing import List, Dict, Any
 
 import xml.etree.ElementTree as ET
 from collections import defaultdict
@@ -12,7 +12,7 @@ def parse_speaker_data(metadata):
     speaker_data = {}
     if metadata is not None:
         if metadata.get("tingdokID"):
-            speaker_data["tingdokID"] = metadata.get("tingdokID")
+            speaker_data["aktørTingdokID"] = metadata.get("tingdokID")
 
         orator_first_name = metadata.xpath("./OratorFirstName/text()")
         if orator_first_name:
@@ -38,70 +38,107 @@ def parse_speaker_data(metadata):
     return speaker_data
 
 
-def parse_meeting_xml(file_path: str) -> List[Dict[str, str]]:
-    """
-    Parse a single XML file and extract speaker metadata and content.
-
-    Args:
-        file_path (str): Path to the XML file.
-
-    Returns:
-        List[Dict[str, str]]: List of dictionaries containing speaker metadata and content.
-    """
+def parse_meeting_xml(file_path: str) -> Dict[str, Any]:
     tree = etree.parse(file_path)
     root = tree.getroot()
 
-    results = []
+    meeting_data = {"metadata": {}, "agendaItems": []}
 
-    for tale in root.xpath("//Tale"):
-        metadata = tale.xpath(".//MetaSpeakerMP")[0]
-        if metadata:
-            speaker_data = parse_speaker_data(metadata)
-        else:
-            speaker_data = {}
+    # Extract meeting metadata
+    meta_meeting = root.xpath("//MetaMeeting")[0]
+    meeting_data["metadata"] = {
+        "parlamentariskSession": meta_meeting.xpath("./ParliamentarySession/text()")[0],
+        "periodeTingdokID": meta_meeting.xpath("./ParliamentarySession/@tingdokID")[0],
+        "aktørGruppe": meta_meeting.xpath("./ParliamentaryGroup/text()")[0],
+        "aktørTingdokID": meta_meeting.xpath("./ParliamentaryGroup/@tingdokID")[0],
+        "mødeDato": meta_meeting.xpath("./DateOfSitting/text()")[0],
+        "mødeNummer": meta_meeting.xpath("./MeetingNumber/text()")[0],
+    }
+    # Extract agenda items and proposals
+    agenda_items = []
+    for dagsorden_punkt in root.xpath("//DagsordenPunkt"):
+        meta_ft_agenda_item = dagsorden_punkt.xpath("./MetaFTAgendaItem")[0]
+        item_data = {}
+        if meta_ft_agenda_item.xpath("./ItemNo/text()"):
+            item_data["ItemNo"] = meta_ft_agenda_item.xpath("./ItemNo/text()")[0]
+        if meta_ft_agenda_item.xpath("./FTCaseNumber/text()"):
+            item_data["FTCaseNumber"] = meta_ft_agenda_item.xpath(
+                "./FTCaseNumber/text()"
+            )[0]
+        if meta_ft_agenda_item.xpath("./FTCaseType/text()"):
+            item_data["FTCaseType"] = meta_ft_agenda_item.xpath("./FTCaseType/text()")[
+                0
+            ]
+        if meta_ft_agenda_item.xpath("./FTCaseStage/text()"):
+            item_data["FTCaseStage"] = meta_ft_agenda_item.xpath(
+                "./FTCaseStage/text()"
+            )[0]
+        if meta_ft_agenda_item.xpath("./ShortTitle/text()"):
+            item_data["ShortTitle"] = meta_ft_agenda_item.xpath("./ShortTitle/text()")[
+                0
+            ]
+        ft_case = meta_ft_agenda_item.xpath("./FTCase")
+        if ft_case:
+            item_data["FTCaseTingdokID"] = ft_case[0].get("tingdokID")
 
-        speech_segment = tale.xpath(".//TaleSegment")[0]
-        speech_metadata = speech_segment.xpath(".//MetaSpeechSegment")[0]
-        speaker_data.update(
-            {
-                "LastModified": (
-                    speech_metadata.xpath("./LastModified/text()")[0]
-                    if speech_metadata.xpath("./LastModified/text()")
-                    else ""
-                ),
-                "EdixiStatus": (
-                    speech_metadata.xpath("./EdixiStatus/text()")[0]
-                    if speech_metadata.xpath("./EdixiStatus/text()")
-                    else ""
-                ),
-                "StartDateTime": (
-                    speech_metadata.xpath("./StartDateTime/text()")[0]
-                    if speech_metadata.xpath("./StartDateTime/text()")
-                    else ""
-                ),
-                "EndDateTime": (
-                    speech_metadata.xpath("./EndDateTime/text()")[0]
-                    if speech_metadata.xpath("./EndDateTime/text()")
-                    else ""
-                ),
-            }
-        )
+        punkt_tekst = dagsorden_punkt.xpath("./PunktTekst")
+        if punkt_tekst:
+            item_data["FullText"] = " ".join(punkt_tekst[0].xpath(".//Char/text()"))
 
-        content = " ".join(speech_segment.xpath(".//Char/text()"))
-        speaker_data["content"] = content
+        taler_data = []
+        for tale in dagsorden_punkt.xpath(".//Tale"):
+            metadata = tale.xpath(".//MetaSpeakerMP")[0]
+            if metadata:
+                speaker_data = parse_speaker_data(metadata)
+            else:
+                speaker_data = {}
 
-        results.append(speaker_data)
+            speech_segment = tale.xpath(".//TaleSegment")[0]
+            speech_metadata = speech_segment.xpath(".//MetaSpeechSegment")[0]
+            speaker_data.update(
+                {
+                    "LastModified": (
+                        speech_metadata.xpath("./LastModified/text()")[0]
+                        if speech_metadata.xpath("./LastModified/text()")
+                        else ""
+                    ),
+                    "EdixiStatus": (
+                        speech_metadata.xpath("./EdixiStatus/text()")[0]
+                        if speech_metadata.xpath("./EdixiStatus/text()")
+                        else ""
+                    ),
+                    "StartDateTime": (
+                        speech_metadata.xpath("./StartDateTime/text()")[0]
+                        if speech_metadata.xpath("./StartDateTime/text()")
+                        else ""
+                    ),
+                    "EndDateTime": (
+                        speech_metadata.xpath("./EndDateTime/text()")[0]
+                        if speech_metadata.xpath("./EndDateTime/text()")
+                        else ""
+                    ),
+                }
+            )
 
-    return results
+            content = " ".join(speech_segment.xpath(".//Char/text()"))
+            speaker_data["content"] = content
+            taler_data.append(speaker_data)
+
+        item_data["speeches"] = taler_data
+        agenda_items.append(item_data)
+
+    meeting_data["agendaItems"] = agenda_items
+
+    return meeting_data
 
 
-def parse_all_meetings() -> Dict[str, List[Dict[str, str]]]:
+def parse_all_meetings() -> Dict[str, Dict[str, Any]]:
     """
     Parse all XML files in the specified directory and extract speaker metadata and content.
 
     Returns:
-        Dict[str, List[Dict[str, str]]]: Dictionary where keys are derived from XML filenames
-        and values are lists of dictionaries containing speaker metadata and content for each speech.
+        Dict[str, Dict[str, Any]]: Dictionary where keys are derived from XML filenames
+        and values are dictionaries containing meeting metadata and a list of speeches.
     """
     directory = "assets/data/meetings/20222"
     all_meetings = {}
@@ -119,103 +156,4 @@ def parse_all_meetings() -> Dict[str, List[Dict[str, str]]]:
     return all_meetings
 
 
-# all_meeting_data = parse_all_meetings()
-# for meeting_key, speeches in all_meeting_data.items():
-#     print(f"\n{meeting_key}:")
-#     for i, speech in enumerate(speeches, 1):
-#         print(f"  Speech {i}:")
-#         print(
-#             f"    Speaker: {speech.get('OratorFirstName', '')} {speech.get('OratorLastName', '')} ({speech.get('GroupNameShort', '')})"
-#         )
-#         print(f"    Role: {speech.get('OratorRole', '')}")
-#         print(
-#             f"    Time: {speech.get('StartDateTime', '')} - {speech.get('EndDateTime', '')}"
-#         )
-#         print(f"    Content: {speech.get('content', '')[:100]}...")
-#         print()
-
-
-def analyze_xml_structure(xml_file_path):
-    tree = ET.parse(xml_file_path)
-    root = tree.getroot()
-
-    def print_structure(element, depth=0):
-        tag_info = element.tag
-        if "tingdokID" in element.attrib:
-            tag_info += f" (tingdokID: {element.attrib['tingdokID']})"
-        return (
-            "  " * depth
-            + tag_info
-            + "\n"
-            + "".join(print_structure(child, depth + 1) for child in element)
-        )
-
-    def analyze_data(element, path=""):
-        data = defaultdict(list)
-        current_path = f"{path}/{element.tag}" if path else element.tag
-
-        if element.text and element.text.strip():
-            data[current_path].append(element.text.strip())
-
-        if "tingdokID" in element.attrib:
-            data[f"{current_path}_tingdokID"].append(element.attrib["tingdokID"])
-
-        for child in element:
-            child_data = analyze_data(child, current_path)
-            for key, value in child_data.items():
-                data[key].extend(value)
-
-        return data
-
-    with open("meeting_minutes_analysis.txt", "w") as f:
-        f.write("XML Structure:\n")
-        f.write(print_structure(root))
-
-        f.write("\nData Analysis:\n")
-        data = analyze_data(root)
-        for path, values in data.items():
-            f.write(f"{path}: {len(values)} unique values\n")
-            if len(values) <= 5:
-                f.write(f"  Sample values: {', '.join(set(values[:5]))}\n")
-
-        f.write("\nPossible connections to Prisma schema:\n")
-
-        # Map XML paths to Prisma models and fields
-        xml_to_prisma_mapping = {
-            "Dokument/MetaMeeting/ParliamentarySession": ("Periode", "id"),
-            "Dokument/MetaMeeting/MeetingNumber": ("Moede", "nummer"),
-            "Dokument/MetaMeeting/DateOfSitting": ("Moede", "dato"),
-            "Dokument/MetaMeeting/Location": ("Moede", "lokale"),
-            "Dokument/Tale/Taler/MetaSpeakerMP/OratorFirstName": ("Aktoer", "fornavn"),
-            "Dokument/Tale/Taler/MetaSpeakerMP/OratorLastName": ("Aktoer", "efternavn"),
-            "Dokument/Tale/Taler/MetaSpeakerMP/GroupNameShort": (
-                "Aktoer",
-                "gruppenavnkort",
-            ),
-            "Dokument/Tale/Taler/MetaSpeakerMP/OratorRole": ("Aktoer", "rolle"),
-            "Dokument/Tale/TaleSegment/MetaSpeechSegment/StartDateTime": (
-                "MoedeAktoer",
-                "starttid",
-            ),
-            "Dokument/Tale/TaleSegment/MetaSpeechSegment/EndDateTime": (
-                "MoedeAktoer",
-                "sluttid",
-            ),
-            "Dokument/Tale/TaleSegment/TekstGruppe/Exitus/Linea/Char": (
-                "FilContent",
-                "content",
-            ),
-        }
-
-        for xml_path, values in data.items():
-            if xml_path.endswith("_tingdokID"):
-                f.write(f"{xml_path}: {', '.join(set(values[:5]))}\n")
-            elif xml_path in xml_to_prisma_mapping:
-                prisma_model, prisma_field = xml_to_prisma_mapping[xml_path]
-                f.write(f"{xml_path} -> {prisma_model}.{prisma_field}\n")
-            else:
-                f.write(f"{xml_path}: -> \n")
-
-
-# Usage
-analyze_xml_structure("assets/data/meetings/20222/20222_M21_helemoedet.xml")
+parsed_meetings = parse_all_meetings()

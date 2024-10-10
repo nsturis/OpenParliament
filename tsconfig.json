@@ -5,6 +5,7 @@
     "types/**/*.d.ts"
   ],
   "compilerOptions": {
+    "noImplicitAny": true,
     "resolveJsonModule": true,
     "moduleResolution": "node",
     "types": [

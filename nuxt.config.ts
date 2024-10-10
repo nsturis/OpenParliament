@@ -14,7 +14,13 @@ export default defineNuxtConfig({
     strict: true,
   },
 
-  modules: ['@pinia/nuxt', '@vueuse/nuxt', '@nuxt/ui', '@nuxt/eslint'],
+  modules: [
+    '@pinia/nuxt',
+    '@vueuse/nuxt',
+    '@nuxt/ui',
+    '@nuxt/eslint',
+    '@nuxt/test-utils/module',
+  ],
 
   postcss: {
     plugins: {

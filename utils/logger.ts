@@ -1,21 +1,9 @@
-import { createLogger, transports, format } from 'winston'
+import { consola } from 'consola'
 
-const logger = createLogger({
-  level: 'info',
-  format: format.json(),
-  defaultMeta: { service: 'folketinGPT' },
-  transports: [
-    new transports.File({ filename: 'error.log', level: 'error' }),
-    new transports.File({ filename: 'combined.log' }),
-  ],
+// Configure consola
+consola.create({
+  level: process.env.NODE_ENV === 'production' ? 3 : 4, // 3 = Info, 4 = Debug
 })
 
-if (process.env.NODE_ENV !== 'production') {
-  logger.add(
-    new transports.Console({
-      format: format.simple(),
-    })
-  )
-}
-
-export default logger
+// Export consola as the default logger
+export default consola

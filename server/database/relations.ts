@@ -42,6 +42,8 @@ import {
   sagstype,
   sambehandlinger,
   stemme,
+  stemmetype,
+  taleSegment,
 } from './schema'
 
 export const afstemningRelations = relations(afstemning, ({ one }) => ({
@@ -75,6 +77,7 @@ export const aktørRelations = relations(aktør, ({ one, many }) => ({
   sagAktør: many(sagAktør),
   sagstrinAktør: many(sagstrinAktør),
   stemme: many(stemme),
+  taleSegment: many(taleSegment),
 }))
 
 export const aktørAktørRelations = relations(aktørAktør, ({ one }) => ({
@@ -192,6 +195,7 @@ export const mødeRelations = relations(møde, ({ one, many }) => ({
   afstemning: many(afstemning),
   dagsordenspunkt: many(dagsordenspunkt),
   mødeAktør: many(mødeAktør),
+  taleSegment: many(taleSegment),
 }))
 
 export const sagRelations = relations(sag, ({ one, many }) => ({
@@ -228,6 +232,7 @@ export const sagRelations = relations(sag, ({ one, many }) => ({
   sagAktør: many(sagAktør),
   sagdokument: many(sagdokument),
   sagstrin: many(sagstrin),
+  taleSegment: many(taleSegment),
 }))
 
 export const sagAktørRelations = relations(sagAktør, ({ one }) => ({
@@ -325,6 +330,10 @@ export const sambehandlingerRelations = relations(
 )
 
 export const stemmeRelations = relations(stemme, ({ one }) => ({
+  stemmetype: one(stemmetype, {
+    fields: [stemme.typeid],
+    references: [stemmetype.id],
+  }),
   afstemning: one(afstemning, {
     fields: [stemme.afstemningid],
     references: [afstemning.id],
@@ -515,3 +524,18 @@ export const sagstrindokumentRelations = relations(
     }),
   })
 )
+
+export const taleSegmentRelations = relations(taleSegment, ({ one }) => ({
+  møde: one(møde, {
+    fields: [taleSegment.mødeid],
+    references: [møde.id],
+  }),
+  sag: one(sag, {
+    fields: [taleSegment.sagid],
+    references: [sag.id],
+  }),
+  aktør: one(aktør, {
+    fields: [taleSegment.aktørid],
+    references: [aktør.id],
+  }),
+}))

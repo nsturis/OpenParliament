@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 
-const { updateSag } = require('../server/oda/fetchAndStoreSag')
+import { logAllEntities } from './logEntities'
 
 const command = process.argv[2]
 
-if (command === 'updateSag') {
-  updateSag()
+if (command === 'logEntities') {
+  logAllEntities()
 } else {
   console.log('Unknown command')
 }

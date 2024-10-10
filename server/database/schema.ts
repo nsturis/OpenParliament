@@ -34,21 +34,17 @@ export const refactorlog = pgTable('__refactorlog', {
 
 export const afstemning = pgTable('afstemning', {
   id: integer('id').primaryKey().notNull(),
-  nummer: integer('nummer').notNull(),
+  nummer: integer('nummer'),
   konklusion: text('konklusion'),
-  vedtaget: boolean('vedtaget').notNull(),
+  vedtaget: boolean('vedtaget'),
   kommentar: text('kommentar'),
-  mødeid: integer('mødeid')
-    .notNull()
-    .references(() => møde.id),
-  typeid: integer('typeid')
-    .notNull()
-    .references(() => afstemningstype.id),
+  mødeid: integer('mødeid').references(() => møde.id),
+  typeid: integer('typeid').references(() => afstemningstype.id),
   sagstrinid: integer('sagstrinid').references(() => sagstrin.id),
   opdateringsdato: timestamp('opdateringsdato', {
     withTimezone: true,
     mode: 'string',
-  }).notNull(),
+  }),
 })
 
 export const afstemningstype = pgTable('afstemningstype', {
@@ -725,3 +721,25 @@ export const idmap = pgTable(
     }
   }
 )
+
+export const taleSegment = pgTable('taleSegment', {
+  id: bigserial('id', { mode: 'number' }).primaryKey().notNull(),
+  content: text('content').notNull(),
+  mødeid: integer('mødeid')
+    .notNull()
+    .references(() => møde.id),
+  starttid: timestamp('starttid', { withTimezone: true, mode: 'string' }),
+  sluttid: timestamp('sluttid', { withTimezone: true, mode: 'string' }),
+  lastModified: timestamp('last_modified', {
+    withTimezone: true,
+    mode: 'string',
+  }),
+  sagid: integer('sagid').references(() => sag.id),
+  aktørid: integer('aktørid')
+    .notNull()
+    .references(() => aktør.id),
+  opdateringsdato: timestamp('opdateringsdato', {
+    withTimezone: true,
+    mode: 'string',
+  }).notNull(),
+})

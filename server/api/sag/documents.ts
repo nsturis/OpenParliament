@@ -1,9 +1,10 @@
-import { defineEventHandler, createError } from 'h3'
+import { defineEventHandler, createError, getQuery } from 'h3'
 import { eq } from 'drizzle-orm'
 import { db } from '../db'
-import { sag, sagdokument, dokument, fil } from '../../database/schema'
+import { sagdokument } from '../../database/schema'
 import { parse } from 'node-html-parser'
 import fetch from 'node-fetch'
+import https from 'https'
 
 type FileWithContent = {
   content?: string
@@ -26,6 +27,8 @@ function extractMainText(htmlContent: string): string {
 
   if (!bodyElement) return ''
 
+  console.log(root.structuredText)
+
   // Remove all <script>, <style> tags, and comments
   bodyElement
     .querySelectorAll('script, style')
@@ -33,11 +36,18 @@ function extractMainText(htmlContent: string): string {
   root.structuredText // This will get the structured text representation of the HTML
 
   // Convert block-level elements to line breaks to preserve basic formatting
-  bodyElement
-    .querySelectorAll('p, br, div, h1, h2, h3, h4, h5, h6, li')
-    .forEach((element) => {
-      element.insertAdjacentHTML('beforebegin', '\n')
-    })
+
+  // It is all withing a <nobr> tag
+  const nobrElement = root.querySelector('nobr')
+  if (nobrElement) {
+    nobrElement.innerHTML = nobrElement.textContent
+  }
+
+  // bodyElement
+  //   .querySelectorAll('p, br, div, h1, h2, h3, h4, h5, h6, li')
+  //   .forEach((element) => {
+  //     element.insertAdjacentHTML('beforebegin', '\n')
+  //   })
 
   // Remove any remaining HTML tags to extract the text content
   const textContent = bodyElement.innerText || bodyElement.textContent
@@ -45,7 +55,11 @@ function extractMainText(htmlContent: string): string {
   // Normalize whitespace and trim the text
   const formattedText = textContent.replace(/\s+/g, ' ').trim()
 
-  return formattedText
+  return {
+    formattedText,
+    textContent: textContent,
+    nobr: nobrElement,
+  }
 }
 
 function convertPdfUrlToHtmlUrl(pdfUrl: string): string {
@@ -60,6 +74,8 @@ function convertPdfUrlToHtmlUrl(pdfUrl: string): string {
 export default defineEventHandler(async (event) => {
   const query = getQuery(event)
   const sagId = parseInt(query.id as string, 10)
+  const page = parseInt(query.page as string, 10) || 1
+  const limit = 10 // Number of documents per page
 
   if (isNaN(sagId)) {
     throw createError({
@@ -69,7 +85,6 @@ export default defineEventHandler(async (event) => {
   }
 
   try {
-    // Fetch related SagDokument and their associated Dokument and Fil
     const sagDocuments = await db.query.sagdokument.findMany({
       where: eq(sagdokument.sagid, sagId),
       with: {
@@ -79,9 +94,10 @@ export default defineEventHandler(async (event) => {
           },
         },
       },
+      limit,
+      offset: (page - 1) * limit,
     })
 
-    // Extract Fil records and convert PDF URLs to HTML
     const files: FileWithContent[] = sagDocuments.flatMap((doc) =>
       doc.dokument.fil.map((file) => ({
         ...file,
@@ -89,49 +105,49 @@ export default defineEventHandler(async (event) => {
       }))
     )
 
-    const htmlContents = await Promise.all(
-      files.map(async (file, index) => {
+    const documentsWithContent = await Promise.all(
+      files.map(async (file) => {
         try {
           const controller = new AbortController()
-          const timeout = setTimeout(() => {
-            controller.abort()
-          }, 5000) // Set timeout to 5 seconds
+          const timeout = setTimeout(() => controller.abort(), 10000) // Increase timeout to 10 seconds
 
           const response = await fetch(file.htmlUrl, {
             headers: {
               'User-Agent':
-                'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3',
+                'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+              Accept:
+                'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+              'Accept-Language': 'en-US,en;q=0.5',
+              Referer: 'https://www.ft.dk/',
             },
             signal: controller.signal,
+            agent: new https.Agent({
+              rejectUnauthorized: false, // Warning: This bypasses SSL certificate validation
+            }),
           })
 
           clearTimeout(timeout)
 
           if (!response.ok) {
-            throw new Error(`Failed to fetch HTML content from ${file.htmlUrl}`)
+            throw new Error(
+              `Failed to fetch HTML content from ${file.htmlUrl}. Status: ${response.status}`
+            )
           }
-          const html = await response.text()
-          const mainText = extractMainText(html)
 
-          // Append the mainText to the corresponding file object
-          files[index].content = mainText
-          return mainText
+          const html = await response.text()
+          const content = extractMainText(html)
+
+          return { ...file, content }
         } catch (error) {
           console.error('Error fetching HTML content:', error)
-          // Append the error message to the corresponding file object
-          files[index].content = 'Error fetching HTML content'
-          files[index].error =
-            error instanceof Error ? error.message : String(error)
-          return null
+          return {
+            ...file,
+            content: 'Error fetching HTML content',
+            error: error instanceof Error ? error.message : String(error),
+          }
         }
       })
     )
-
-    // Combine the files structure with their corresponding htmlContents
-    const documentsWithContent = files.map((file, index) => ({
-      ...file,
-      htmlContent: htmlContents[index],
-    }))
 
     return documentsWithContent
   } catch (error) {

@@ -1,16 +1,23 @@
 <script setup lang="ts">
 import { useRoute } from 'vue-router'
-import { useMainStore } from '@/stores/main'
-import { useSagStore } from '@/stores/sag'
-
+import { useSagDocuments } from '~/composables/useSagDocuments'
 import type { SagQueryResult } from '~/server/api/sag'
 
-const mainStore = useMainStore()
-const sagStore = useSagStore()
-
 const route = useRoute()
-
 const { id } = route.params
+
+const { data: sag } = await useFetch<SagQueryResult>('/api/sag', {
+  params: { id },
+})
+
+const { documents, isLoading, error, fetchDocuments } = useSagDocuments(
+  Number(id)
+)
+
+// Fetch documents when the component is mounted
+onMounted(() => {
+  fetchDocuments()
+})
 
 const getStatusText = (statusId: number) => {
   // Replace with actual status text mapping if available
@@ -20,10 +27,6 @@ const getStatusText = (statusId: number) => {
   }
   return statusMap[statusId] || 'Ukendt'
 }
-
-const { data: sag } = await useFetch<SagQueryResult>('/api/sag', {
-  params: { id },
-})
 </script>
 
 <template>
@@ -67,32 +70,26 @@ const { data: sag } = await useFetch<SagQueryResult>('/api/sag', {
       <div v-else>Ingen sagstrin tilgængelige</div>
 
       <h2 class="mb-4 mt-6 text-xl font-semibold">Dokumenter</h2>
-      <div v-if="sag.sagdokument && sag.sagdokument.length > 0">
+      <div v-if="isLoading">Loading documents...</div>
+      <div v-else-if="error">{{ error }}</div>
+      <div v-else-if="documents.length > 0">
         <ul>
-          <li
-            v-for="dokument in sag.sagdokument"
-            :key="dokument.id"
-            class="mb-4"
-          >
-            <strong>{{ dokument.dokument.titel }}</strong>
-            <p>Bilagsnummer: {{ dokument.bilagsnummer }}</p>
-            <p>
-              Frigivelsesdato:
-              {{ new Date(dokument.frigivelsesdato).toLocaleDateString() }}
-            </p>
-            <p>Rolle: {{ dokument.sagdokumentrolle.rolle }}</p>
-            <div
-              v-if="dokument.dokument.fil && dokument.dokument.fil.length > 0"
+          <li v-for="doc in documents" :key="doc.id" class="mb-4">
+            <strong>{{ doc.titel }}</strong>
+            <p>Format: {{ doc.format }}</p>
+            <a
+              :href="doc.filurl"
+              target="_blank"
+              class="text-blue-500 hover:underline"
+              >Download</a
             >
-              <p class="font-semibold">Filer:</p>
-              <ul class="ml-4">
-                <li v-for="fil in dokument.dokument.fil" :key="fil.id">
-                  <a :href="fil.filurl" target="_blank"
-                    >{{ fil.titel }} ({{ fil.format }})</a
-                  >
-                </li>
-              </ul>
+            <div v-if="doc.content" class="mt-2">
+              <h4 class="font-semibold">Content Preview:</h4>
+              <p class="whitespace-pre-wrap">
+                {{ doc.content.substring(0, 200) }}...
+              </p>
             </div>
+            <p v-if="doc.error" class="text-red-500">{{ doc.error }}</p>
           </li>
         </ul>
       </div>

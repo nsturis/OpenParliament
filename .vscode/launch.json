@@ -24,8 +24,8 @@
     {
       "type": "python",
       "request": "launch",
-      "name": "python – scraper",
-      "program": "${workspaceFolder}/scraper.py",
+      "name": "python – parser",
+      "program": "${workspaceFolder}/document_parser.py",
     },
     {
       "type": "node",

@@ -30,7 +30,7 @@
         </p>
         <div class="h-20 w-20">
           <button v-if="electionQuizStore.step !== 0" @click="previousStep">
-            <RewindIcon class="block h-20 w-20 text-yellow-600" />
+            <Icon name="heroicons:arrow-uturn-left" class="block h-20 w-20 text-yellow-600" />
           </button>
         </div>
       </div>
@@ -39,7 +39,6 @@
 </template>
 
 <script setup lang="ts">
-import { RewindIcon } from '@heroicons/vue/solid/esm/index.js'
 import { useElectionQuizStore } from '@/stores/electionQuiz'
 import { useMainStore } from '@/stores/main'
 

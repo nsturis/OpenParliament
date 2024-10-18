@@ -1,0 +1,1 @@
+CREATE INDEX IF NOT EXISTS "speech_order_idx" ON "taleSegment" USING btree ("mødeid","starttid");

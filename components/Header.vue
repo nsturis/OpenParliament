@@ -15,7 +15,7 @@
                     class="h-8 w-8"
                     src="/favicon.png"
                     alt="Unfuck The System.dk logo"
-                  />
+                  >
                 </NuxtLink>
               </div>
               <div class="hidden md:block">
@@ -34,7 +34,11 @@
             <div class="hidden md:block">
               <div class="ml-4 flex items-center md:ml-6">
                 <a href="https://github.com/huulbaek/Unfuck The System.dk">
-                  <img src="/github.png" class="h-8" alt="Github logo" />
+                  <img
+                    src="/github.png"
+                    class="h-8"
+                    alt="Github logo"
+                  >
                 </a>
               </div>
             </div>
@@ -43,12 +47,18 @@
                 class="inline-flex items-center justify-center rounded-md bg-gray-800 p-2 text-gray-400 hover:bg-gray-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800"
               >
                 <span class="sr-only">Open main menu</span>
-                <MenuIcon
+                <Icon
                   v-if="!open"
+                  name="heroicons:bars-3"
                   class="block h-6 w-6"
                   aria-hidden="true"
                 />
-                <XIcon v-else class="block h-6 w-6" aria-hidden="true" />
+                <Icon
+                  v-else
+                  name="heroicons:x-mark"
+                  class="block h-6 w-6"
+                  aria-hidden="true"
+                />
               </DisclosureButton>
             </div>
           </div>
@@ -70,7 +80,10 @@
     </Disclosure>
     <header class="py-10">
       <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <Transition name="title" mode="out-in">
+        <Transition
+          name="title"
+          mode="out-in"
+        >
           <h1
             :key="mainStore.headerTitle"
             class="tracking-tighest mt-1 bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 bg-clip-text text-4xl font-extrabold uppercase text-transparent sm:text-5xl lg:text-7xl"
@@ -85,7 +98,7 @@
 
 <script setup lang="ts">
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
-import { MenuIcon, XIcon } from '@heroicons/vue/outline/esm/index.js'
+
 import { useMainStore } from '@/stores/main'
 
 const mainStore = useMainStore()

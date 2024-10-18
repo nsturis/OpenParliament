@@ -2,7 +2,9 @@
 import { useRoute } from 'vue-router'
 import { useSagDocuments } from '~/composables/useSagDocuments'
 import type { SagQueryResult } from '~/server/api/sag'
+import PartyStanceVisualization from '~/components/PartyStanceVisualization.vue'
 
+import { onMounted } from 'vue'
 const route = useRoute()
 const { id } = route.params
 
@@ -77,12 +79,7 @@ const getStatusText = (statusId: number) => {
           <li v-for="doc in documents" :key="doc.id" class="mb-4">
             <strong>{{ doc.titel }}</strong>
             <p>Format: {{ doc.format }}</p>
-            <a
-              :href="doc.filurl"
-              target="_blank"
-              class="text-blue-500 hover:underline"
-              >Download</a
-            >
+            <PdfViewer :pdf-url="doc.filurl" :button-text="doc.titel" />
             <div v-if="doc.content" class="mt-2">
               <h4 class="font-semibold">Content Preview:</h4>
               <p class="whitespace-pre-wrap">
@@ -125,5 +122,6 @@ const getStatusText = (statusId: number) => {
       </div>
       <div v-else>Ingen aktører tilgængelige</div>
     </div>
+    <PartyStanceVisualization />
   </div>
 </template>

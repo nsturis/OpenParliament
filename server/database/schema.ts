@@ -10,6 +10,7 @@ import {
   uniqueIndex,
   primaryKey,
   timestamp,
+  vector,
 } from 'drizzle-orm/pg-core'
 
 export const synclogger = pgTable('synclogger', {
@@ -722,24 +723,54 @@ export const idmap = pgTable(
   }
 )
 
-export const taleSegment = pgTable('taleSegment', {
+export const taleSegment = pgTable(
+  'taleSegment',
+  {
+    id: bigserial('id', { mode: 'number' }).primaryKey().notNull(),
+    content: text('content').notNull(),
+    mødeid: integer('mødeid')
+      .notNull()
+      .references(() => møde.id),
+    starttid: timestamp('starttid', { withTimezone: true, mode: 'string' }),
+    sluttid: timestamp('sluttid', { withTimezone: true, mode: 'string' }),
+    lastModified: timestamp('last_modified', {
+      withTimezone: true,
+      mode: 'string',
+    }),
+    sagid: integer('sagid').references(() => sag.id),
+    aktørid: integer('aktørid')
+      .notNull()
+      .references(() => aktør.id),
+    opdateringsdato: timestamp('opdateringsdato', {
+      withTimezone: true,
+      mode: 'string',
+    }).notNull(),
+    embedding: vector('embedding', { dimensions: 768 }).notNull(),
+  },
+  (table) => {
+    return {
+      speechOrderIdx: index('speech_order_idx').on(
+        table.mødeid,
+        table.starttid
+      ),
+    }
+  }
+)
+
+// Add this table definition
+export const filContent = pgTable('FilContent', {
   id: bigserial('id', { mode: 'number' }).primaryKey().notNull(),
+  filId: integer('fil_id')
+    .notNull()
+    .references(() => fil.id),
   content: text('content').notNull(),
-  mødeid: integer('mødeid')
-    .notNull()
-    .references(() => møde.id),
-  starttid: timestamp('starttid', { withTimezone: true, mode: 'string' }),
-  sluttid: timestamp('sluttid', { withTimezone: true, mode: 'string' }),
-  lastModified: timestamp('last_modified', {
+  extractedAt: timestamp('extracted_at', {
     withTimezone: true,
     mode: 'string',
-  }),
-  sagid: integer('sagid').references(() => sag.id),
-  aktørid: integer('aktørid')
+  })
     .notNull()
-    .references(() => aktør.id),
-  opdateringsdato: timestamp('opdateringsdato', {
-    withTimezone: true,
-    mode: 'string',
-  }).notNull(),
+    .defaultNow(),
+  embedding: vector('embedding', { dimensions: 768 }).notNull(),
+  version: integer('version').notNull().default(1),
+  chunkIndex: integer('chunk_index').notNull().default(0),
 })

@@ -14,12 +14,17 @@ export default defineNuxtConfig({
     strict: true,
   },
 
+  imports: {
+    autoImport: true,
+  },
+
   modules: [
     '@pinia/nuxt',
     '@vueuse/nuxt',
     '@nuxt/ui',
     '@nuxt/eslint',
     '@nuxt/test-utils/module',
+    '@nuxt/icon',
   ],
 
   postcss: {
@@ -30,19 +35,36 @@ export default defineNuxtConfig({
   },
 
   css: ['~/assets/css/tailwind.css'],
-  devtools: { enabled: true },
+  devtools: {
+    enabled: true,
 
-  nitro: {
-    experimental: {
-      tasks: true,
+    timeline: {
+      enabled: true,
+    },
+  },
+
+  plugins: ['~/plugins/vue-query.ts'],
+
+  vite: {
+    build: {
+      target: 'esnext',
+    },
+  },
+
+  runtimeConfig: {
+    llmServiceUrl: process.env.LLM_SERVICE_URL || 'http://127.0.0.1:8000',
+    public: {
+      llmServiceUrl: process.env.LLM_SERVICE_URL || 'http://127.0.0.1:8000',
+    },
+  },
+
+  routeRules: {
+    '/llm/**': {
+      proxy: {
+        to: 'http://127.0.0.1:8000/**',
+      },
     },
   },
 
   compatibilityDate: '2024-08-17',
-
-  // runtimeConfig: {
-  //   databaseUrl: process.env.DATABASE_URL,
-  // },
-
-  // logLevel: process.env.NODE_ENV === 'development' ? 'info' : 'warn',
 })

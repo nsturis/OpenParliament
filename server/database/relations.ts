@@ -44,6 +44,7 @@ import {
   stemme,
   stemmetype,
   taleSegment,
+  filContent,
 } from './schema'
 
 export const afstemningRelations = relations(afstemning, ({ one }) => ({
@@ -475,11 +476,12 @@ export const emneordsagRelations = relations(emneordsag, ({ one }) => ({
   }),
 }))
 
-export const filRelations = relations(fil, ({ one }) => ({
+export const filRelations = relations(fil, ({ one, many }) => ({
   dokument: one(dokument, {
     fields: [fil.dokumentid],
     references: [dokument.id],
   }),
+  filContent: many(filContent),
 }))
 
 export const omtrykRelations = relations(omtryk, ({ one }) => ({
@@ -537,5 +539,12 @@ export const taleSegmentRelations = relations(taleSegment, ({ one }) => ({
   aktør: one(aktør, {
     fields: [taleSegment.aktørid],
     references: [aktør.id],
+  }),
+}))
+
+export const filContentRelations = relations(filContent, ({ one }) => ({
+  fil: one(fil, {
+    fields: [filContent.filId],
+    references: [fil.id],
   }),
 }))

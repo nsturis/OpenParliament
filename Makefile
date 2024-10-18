@@ -18,14 +18,6 @@ oda_postgres:
 	@docker compose up -d oda_pg
 
 
-prisma:
-	@echo "Setting up Prisma..."
-	@./config/setup_prisma.sh
-
-reload_prisma:
-	@echo "Reloading Prisma..."
-	@./config/reload_prisma.sh
-
 help:
 	@echo "Available commands:"
 	@echo "  make oda_create  - Set up the Oda database"

@@ -9,27 +9,21 @@
     <div class="mb-10 flex w-full items-center justify-center">
       <div class="h-20 w-20">
         <button v-if="electionQuizStore.step !== 0" @click="previousStep">
-          <RewindIcon class="block h-20 w-20 text-yellow-600" />
+          <Icon name="heroicons:arrow-uturn-left" class="block h-20 w-20 text-yellow-600" />
         </button>
       </div>
-      <button>
-        <ThumbUpIcon
-          class="block h-20 w-20 text-green-500"
-          @click="updateAnswer('yay')"
-        />
+      <button @click="updateAnswer('yay')">
+        <Icon name="heroicons:hand-thumb-up" class="block h-20 w-20 text-green-500" />
       </button>
-      <button>
-        <ThumbDownIcon
-          class="block h-20 w-20 text-red-500"
-          @click="updateAnswer('nay')"
-        />
+      <button @click="updateAnswer('nay')">
+        <Icon name="heroicons:hand-thumb-down" class="block h-20 w-20 text-red-500" />
       </button>
       <div class="h-20 w-20">
         <button
           v-if="electionQuizStore.step < electionQuizStore.quiz.length"
           @click="nextStep"
         >
-          <FastForwardIcon class="block h-20 w-20 text-yellow-600" />
+          <Icon name="heroicons:arrow-uturn-right" class="block h-20 w-20 text-yellow-600" />
         </button>
       </div>
     </div>
@@ -47,12 +41,6 @@
 </template>
 
 <script setup lang="ts">
-import {
-  ThumbUpIcon,
-  ThumbDownIcon,
-  RewindIcon,
-  FastForwardIcon,
-} from '@heroicons/vue/solid/esm/index.js'
 import { useElectionQuizStore } from '@/stores/electionQuiz'
 
 const electionQuizStore = useElectionQuizStore()

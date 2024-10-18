@@ -1,0 +1,3117 @@
+{
+  "id": "9b8f8af8-08d3-491c-8ddc-bcfc51e04e7b",
+  "prevId": "e9dac576-df52-49de-9c17-e12d383c08dd",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.afstemning": {
+      "name": "afstemning",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "nummer": {
+          "name": "nummer",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "konklusion": {
+          "name": "konklusion",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "vedtaget": {
+          "name": "vedtaget",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "kommentar": {
+          "name": "kommentar",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "mødeid": {
+          "name": "mødeid",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "typeid": {
+          "name": "typeid",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "sagstrinid": {
+          "name": "sagstrinid",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "opdateringsdato": {
+          "name": "opdateringsdato",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "afstemning_mødeid_Møde_id_fk": {
+          "name": "afstemning_mødeid_Møde_id_fk",
+          "tableFrom": "afstemning",
+          "columnsFrom": [
+            "mødeid"
+          ],
+          "tableTo": "Møde",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        },
+        "afstemning_typeid_afstemningstype_id_fk": {
+          "name": "afstemning_typeid_afstemningstype_id_fk",
+          "tableFrom": "afstemning",
+          "columnsFrom": [
+            "typeid"
+          ],
+          "tableTo": "afstemningstype",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        },
+        "afstemning_sagstrinid_sagstrin_id_fk": {
+          "name": "afstemning_sagstrinid_sagstrin_id_fk",
+          "tableFrom": "afstemning",
+          "columnsFrom": [
+            "sagstrinid"
+          ],
+          "tableTo": "sagstrin",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.afstemningstype": {
+      "name": "afstemningstype",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "type": {
+          "name": "type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "opdateringsdato": {
+          "name": "opdateringsdato",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.Aktør": {
+      "name": "Aktør",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "typeid": {
+          "name": "typeid",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "gruppenavnkort": {
+          "name": "gruppenavnkort",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "navn": {
+          "name": "navn",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "fornavn": {
+          "name": "fornavn",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "efternavn": {
+          "name": "efternavn",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "biografi": {
+          "name": "biografi",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "periodeid": {
+          "name": "periodeid",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "opdateringsdato": {
+          "name": "opdateringsdato",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "startdato": {
+          "name": "startdato",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "slutdato": {
+          "name": "slutdato",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "Aktør_typeid_Aktørtype_id_fk": {
+          "name": "Aktør_typeid_Aktørtype_id_fk",
+          "tableFrom": "Aktør",
+          "columnsFrom": [
+            "typeid"
+          ],
+          "tableTo": "Aktørtype",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        },
+        "Aktør_periodeid_periode_id_fk": {
+          "name": "Aktør_periodeid_periode_id_fk",
+          "tableFrom": "Aktør",
+          "columnsFrom": [
+            "periodeid"
+          ],
+          "tableTo": "periode",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.AktørAktør": {
+      "name": "AktørAktør",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "bigserial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "fraaktørid": {
+          "name": "fraaktørid",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "tilaktørid": {
+          "name": "tilaktørid",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "startdato": {
+          "name": "startdato",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "slutdato": {
+          "name": "slutdato",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "opdateringsdato": {
+          "name": "opdateringsdato",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "rolleid": {
+          "name": "rolleid",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "AktørAktør_fraaktørid_Aktør_id_fk": {
+          "name": "AktørAktør_fraaktørid_Aktør_id_fk",
+          "tableFrom": "AktørAktør",
+          "columnsFrom": [
+            "fraaktørid"
+          ],
+          "tableTo": "Aktør",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        },
+        "AktørAktør_tilaktørid_Aktør_id_fk": {
+          "name": "AktørAktør_tilaktørid_Aktør_id_fk",
+          "tableFrom": "AktørAktør",
+          "columnsFrom": [
+            "tilaktørid"
+          ],
+          "tableTo": "Aktør",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        },
+        "AktørAktør_rolleid_AktørAktørRolle_id_fk": {
+          "name": "AktørAktør_rolleid_AktørAktørRolle_id_fk",
+          "tableFrom": "AktørAktør",
+          "columnsFrom": [
+            "rolleid"
+          ],
+          "tableTo": "AktørAktørRolle",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.AktørAktørRolle": {
+      "name": "AktørAktørRolle",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "rolle": {
+          "name": "rolle",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "opdateringsdato": {
+          "name": "opdateringsdato",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.Aktørtype": {
+      "name": "Aktørtype",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "type": {
+          "name": "type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "opdateringsdato": {
+          "name": "opdateringsdato",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.dagsordenspunkt": {
+      "name": "dagsordenspunkt",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "kørebemærkning": {
+          "name": "kørebemærkning",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "titel": {
+          "name": "titel",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "kommentar": {
+          "name": "kommentar",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "nummer": {
+          "name": "nummer",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "forhandlingskode": {
+          "name": "forhandlingskode",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "forhandling": {
+          "name": "forhandling",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "superid": {
+          "name": "superid",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "sagstrinid": {
+          "name": "sagstrinid",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "mødeid": {
+          "name": "mødeid",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "offentlighedskode": {
+          "name": "offentlighedskode",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "opdateringsdato": {
+          "name": "opdateringsdato",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "dagsordenspunkt_superid_dagsordenspunkt_id_fk": {
+          "name": "dagsordenspunkt_superid_dagsordenspunkt_id_fk",
+          "tableFrom": "dagsordenspunkt",
+          "columnsFrom": [
+            "superid"
+          ],
+          "tableTo": "dagsordenspunkt",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        },
+        "dagsordenspunkt_sagstrinid_sagstrin_id_fk": {
+          "name": "dagsordenspunkt_sagstrinid_sagstrin_id_fk",
+          "tableFrom": "dagsordenspunkt",
+          "columnsFrom": [
+            "sagstrinid"
+          ],
+          "tableTo": "sagstrin",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        },
+        "dagsordenspunkt_mødeid_Møde_id_fk": {
+          "name": "dagsordenspunkt_mødeid_Møde_id_fk",
+          "tableFrom": "dagsordenspunkt",
+          "columnsFrom": [
+            "mødeid"
+          ],
+          "tableTo": "Møde",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.dagsordenspunktdokument": {
+      "name": "dagsordenspunktdokument",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "bigserial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "dokumentid": {
+          "name": "dokumentid",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "dagsordenspunktid": {
+          "name": "dagsordenspunktid",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "note": {
+          "name": "note",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "opdateringsdato": {
+          "name": "opdateringsdato",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "dagsordenspunktdokument_dokumentid_dokument_id_fk": {
+          "name": "dagsordenspunktdokument_dokumentid_dokument_id_fk",
+          "tableFrom": "dagsordenspunktdokument",
+          "columnsFrom": [
+            "dokumentid"
+          ],
+          "tableTo": "dokument",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        },
+        "dagsordenspunktdokument_dagsordenspunktid_dagsordenspunkt_id_fk": {
+          "name": "dagsordenspunktdokument_dagsordenspunktid_dagsordenspunkt_id_fk",
+          "tableFrom": "dagsordenspunktdokument",
+          "columnsFrom": [
+            "dagsordenspunktid"
+          ],
+          "tableTo": "dagsordenspunkt",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.dagsordenspunktsag": {
+      "name": "dagsordenspunktsag",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "bigserial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "dagsordenspunktid": {
+          "name": "dagsordenspunktid",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "sagid": {
+          "name": "sagid",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "opdateringsdato": {
+          "name": "opdateringsdato",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "dagsordenspunktsag_dagsordenspunktid_dagsordenspunkt_id_fk": {
+          "name": "dagsordenspunktsag_dagsordenspunktid_dagsordenspunkt_id_fk",
+          "tableFrom": "dagsordenspunktsag",
+          "columnsFrom": [
+            "dagsordenspunktid"
+          ],
+          "tableTo": "dagsordenspunkt",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        },
+        "dagsordenspunktsag_sagid_sag_id_fk": {
+          "name": "dagsordenspunktsag_sagid_sag_id_fk",
+          "tableFrom": "dagsordenspunktsag",
+          "columnsFrom": [
+            "sagid"
+          ],
+          "tableTo": "sag",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.dokument": {
+      "name": "dokument",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "typeid": {
+          "name": "typeid",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "kategoriid": {
+          "name": "kategoriid",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "statusid": {
+          "name": "statusid",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "offentlighedskode": {
+          "name": "offentlighedskode",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "titel": {
+          "name": "titel",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "dato": {
+          "name": "dato",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "modtagelsesdato": {
+          "name": "modtagelsesdato",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "frigivelsesdato": {
+          "name": "frigivelsesdato",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "paragraf": {
+          "name": "paragraf",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "paragrafnummer": {
+          "name": "paragrafnummer",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "spørgsmålsordlyd": {
+          "name": "spørgsmålsordlyd",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "spørgsmålstitel": {
+          "name": "spørgsmålstitel",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "spørgsmålsid": {
+          "name": "spørgsmålsid",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "procedurenummer": {
+          "name": "procedurenummer",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "grundnotatstatus": {
+          "name": "grundnotatstatus",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "dagsordenudgavenummer": {
+          "name": "dagsordenudgavenummer",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "opdateringsdato": {
+          "name": "opdateringsdato",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "dokument_typeid_dokumenttype_id_fk": {
+          "name": "dokument_typeid_dokumenttype_id_fk",
+          "tableFrom": "dokument",
+          "columnsFrom": [
+            "typeid"
+          ],
+          "tableTo": "dokumenttype",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        },
+        "dokument_kategoriid_dokumentkategori_id_fk": {
+          "name": "dokument_kategoriid_dokumentkategori_id_fk",
+          "tableFrom": "dokument",
+          "columnsFrom": [
+            "kategoriid"
+          ],
+          "tableTo": "dokumentkategori",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        },
+        "dokument_statusid_dokumentstatus_id_fk": {
+          "name": "dokument_statusid_dokumentstatus_id_fk",
+          "tableFrom": "dokument",
+          "columnsFrom": [
+            "statusid"
+          ],
+          "tableTo": "dokumentstatus",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        },
+        "dokument_spørgsmålsid_dokument_id_fk": {
+          "name": "dokument_spørgsmålsid_dokument_id_fk",
+          "tableFrom": "dokument",
+          "columnsFrom": [
+            "spørgsmålsid"
+          ],
+          "tableTo": "dokument",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.DokumentAktør": {
+      "name": "DokumentAktør",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "bigserial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "dokumentid": {
+          "name": "dokumentid",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "aktørid": {
+          "name": "aktørid",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "opdateringsdato": {
+          "name": "opdateringsdato",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "rolleid": {
+          "name": "rolleid",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "DokumentAktør_dokumentid_dokument_id_fk": {
+          "name": "DokumentAktør_dokumentid_dokument_id_fk",
+          "tableFrom": "DokumentAktør",
+          "columnsFrom": [
+            "dokumentid"
+          ],
+          "tableTo": "dokument",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        },
+        "DokumentAktør_aktørid_Aktør_id_fk": {
+          "name": "DokumentAktør_aktørid_Aktør_id_fk",
+          "tableFrom": "DokumentAktør",
+          "columnsFrom": [
+            "aktørid"
+          ],
+          "tableTo": "Aktør",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        },
+        "DokumentAktør_rolleid_DokumentAktørRolle_id_fk": {
+          "name": "DokumentAktør_rolleid_DokumentAktørRolle_id_fk",
+          "tableFrom": "DokumentAktør",
+          "columnsFrom": [
+            "rolleid"
+          ],
+          "tableTo": "DokumentAktørRolle",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.DokumentAktørRolle": {
+      "name": "DokumentAktørRolle",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "rolle": {
+          "name": "rolle",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "opdateringsdato": {
+          "name": "opdateringsdato",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.dokumentkategori": {
+      "name": "dokumentkategori",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "kategori": {
+          "name": "kategori",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "opdateringsdato": {
+          "name": "opdateringsdato",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.dokumentstatus": {
+      "name": "dokumentstatus",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "status": {
+          "name": "status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "opdateringsdato": {
+          "name": "opdateringsdato",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.dokumenttype": {
+      "name": "dokumenttype",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "type": {
+          "name": "type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "opdateringsdato": {
+          "name": "opdateringsdato",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.emneord": {
+      "name": "emneord",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "typeid": {
+          "name": "typeid",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "emneord": {
+          "name": "emneord",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "opdateringsdato": {
+          "name": "opdateringsdato",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "idx_19768_ix_fk_emneord_emneordstype": {
+          "name": "idx_19768_ix_fk_emneord_emneordstype",
+          "columns": [
+            {
+              "expression": "typeid",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.emneorddokument": {
+      "name": "emneorddokument",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "bigserial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "emneordid": {
+          "name": "emneordid",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "dokumentid": {
+          "name": "dokumentid",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "opdateringsdato": {
+          "name": "opdateringsdato",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.emneordsag": {
+      "name": "emneordsag",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "bigserial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "emneordid": {
+          "name": "emneordid",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "sagid": {
+          "name": "sagid",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "opdateringsdato": {
+          "name": "opdateringsdato",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.emneordstype": {
+      "name": "emneordstype",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "type": {
+          "name": "type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "opdateringsdato": {
+          "name": "opdateringsdato",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.entitetbeskrivelse": {
+      "name": "entitetbeskrivelse",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "bigserial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "entitetnavn": {
+          "name": "entitetnavn",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "beskrivelse": {
+          "name": "beskrivelse",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "opdateringsdato": {
+          "name": "opdateringsdato",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.fil": {
+      "name": "fil",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "dokumentid": {
+          "name": "dokumentid",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "titel": {
+          "name": "titel",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "versionsdato": {
+          "name": "versionsdato",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "filurl": {
+          "name": "filurl",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "opdateringsdato": {
+          "name": "opdateringsdato",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "variantkode": {
+          "name": "variantkode",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "format": {
+          "name": "format",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.FilContent": {
+      "name": "FilContent",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "bigserial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "fil_id": {
+          "name": "fil_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "content": {
+          "name": "content",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "extracted_at": {
+          "name": "extracted_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "FilContent_fil_id_fil_id_fk": {
+          "name": "FilContent_fil_id_fil_id_fk",
+          "tableFrom": "FilContent",
+          "columnsFrom": [
+            "fil_id"
+          ],
+          "tableTo": "fil",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.idmap": {
+      "name": "idmap",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "originalid": {
+          "name": "originalid",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "entity": {
+          "name": "entity",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "idx_19800_ix_idmap_originalid_entity": {
+          "name": "idx_19800_ix_idmap_originalid_entity",
+          "columns": [
+            {
+              "expression": "originalid",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "entity",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "idx_19800_pk_idmap": {
+          "name": "idx_19800_pk_idmap",
+          "columns": [
+            "id",
+            "entity"
+          ]
+        }
+      },
+      "uniqueConstraints": {}
+    },
+    "public.kollonebeskrivelse": {
+      "name": "kollonebeskrivelse",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "bigserial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "entitetnavn": {
+          "name": "entitetnavn",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "kollonenavn": {
+          "name": "kollonenavn",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "beskrivelse": {
+          "name": "beskrivelse",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "opdateringsdato": {
+          "name": "opdateringsdato",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.Møde": {
+      "name": "Møde",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "titel": {
+          "name": "titel",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "lokale": {
+          "name": "lokale",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "nummer": {
+          "name": "nummer",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "dagsordenurl": {
+          "name": "dagsordenurl",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "starttidsbemærkning": {
+          "name": "starttidsbemærkning",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "offentlighedskode": {
+          "name": "offentlighedskode",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "dato": {
+          "name": "dato",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "statusid": {
+          "name": "statusid",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "typeid": {
+          "name": "typeid",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "periodeid": {
+          "name": "periodeid",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "opdateringsdato": {
+          "name": "opdateringsdato",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "Møde_statusid_Mødestatus_id_fk": {
+          "name": "Møde_statusid_Mødestatus_id_fk",
+          "tableFrom": "Møde",
+          "columnsFrom": [
+            "statusid"
+          ],
+          "tableTo": "Mødestatus",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        },
+        "Møde_typeid_Mødetype_id_fk": {
+          "name": "Møde_typeid_Mødetype_id_fk",
+          "tableFrom": "Møde",
+          "columnsFrom": [
+            "typeid"
+          ],
+          "tableTo": "Mødetype",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        },
+        "Møde_periodeid_periode_id_fk": {
+          "name": "Møde_periodeid_periode_id_fk",
+          "tableFrom": "Møde",
+          "columnsFrom": [
+            "periodeid"
+          ],
+          "tableTo": "periode",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.MødeAktør": {
+      "name": "MødeAktør",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "bigserial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "mødeid": {
+          "name": "mødeid",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "aktørid": {
+          "name": "aktørid",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "opdateringsdato": {
+          "name": "opdateringsdato",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "MødeAktør_mødeid_Møde_id_fk": {
+          "name": "MødeAktør_mødeid_Møde_id_fk",
+          "tableFrom": "MødeAktør",
+          "columnsFrom": [
+            "mødeid"
+          ],
+          "tableTo": "Møde",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        },
+        "MødeAktør_aktørid_Aktør_id_fk": {
+          "name": "MødeAktør_aktørid_Aktør_id_fk",
+          "tableFrom": "MødeAktør",
+          "columnsFrom": [
+            "aktørid"
+          ],
+          "tableTo": "Aktør",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.Mødestatus": {
+      "name": "Mødestatus",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "status": {
+          "name": "status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "opdateringsdato": {
+          "name": "opdateringsdato",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.Mødetype": {
+      "name": "Mødetype",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "type": {
+          "name": "type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "opdateringsdato": {
+          "name": "opdateringsdato",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.omtryk": {
+      "name": "omtryk",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "dokumentid": {
+          "name": "dokumentid",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "dato": {
+          "name": "dato",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "begrundelse": {
+          "name": "begrundelse",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "opdateringsdato": {
+          "name": "opdateringsdato",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.periode": {
+      "name": "periode",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "startdato": {
+          "name": "startdato",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "slutdato": {
+          "name": "slutdato",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "type": {
+          "name": "type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "kode": {
+          "name": "kode",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "titel": {
+          "name": "titel",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "opdateringsdato": {
+          "name": "opdateringsdato",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.__refactorlog": {
+      "name": "__refactorlog",
+      "schema": "",
+      "columns": {
+        "operationkey": {
+          "name": "operationkey",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.sag": {
+      "name": "sag",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "typeid": {
+          "name": "typeid",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "kategoriid": {
+          "name": "kategoriid",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "statusid": {
+          "name": "statusid",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "titel": {
+          "name": "titel",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "titelkort": {
+          "name": "titelkort",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "offentlighedskode": {
+          "name": "offentlighedskode",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "nummer": {
+          "name": "nummer",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "nummerprefix": {
+          "name": "nummerprefix",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "nummernumerisk": {
+          "name": "nummernumerisk",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "nummerpostfix": {
+          "name": "nummerpostfix",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "resume": {
+          "name": "resume",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "afstemningskonklusion": {
+          "name": "afstemningskonklusion",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "periodeid": {
+          "name": "periodeid",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "afgørelsesresultatkode": {
+          "name": "afgørelsesresultatkode",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "baggrundsmateriale": {
+          "name": "baggrundsmateriale",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "opdateringsdato": {
+          "name": "opdateringsdato",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "statsbudgetsag": {
+          "name": "statsbudgetsag",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "begrundelse": {
+          "name": "begrundelse",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "paragrafnummer": {
+          "name": "paragrafnummer",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "paragraf": {
+          "name": "paragraf",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "afgørelsesdato": {
+          "name": "afgørelsesdato",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "afgørelse": {
+          "name": "afgørelse",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "rådsmødedato": {
+          "name": "rådsmødedato",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "lovnummer": {
+          "name": "lovnummer",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "lovnummerdato": {
+          "name": "lovnummerdato",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "retsinformationsurl": {
+          "name": "retsinformationsurl",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "fremsatundersagid": {
+          "name": "fremsatundersagid",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "deltundersagid": {
+          "name": "deltundersagid",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "idx_19842_ix_fk_deltundersag_sag": {
+          "name": "idx_19842_ix_fk_deltundersag_sag",
+          "columns": [
+            {
+              "expression": "deltundersagid",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        },
+        "idx_19842_ix_fk_fremsatundersag_sag": {
+          "name": "idx_19842_ix_fk_fremsatundersag_sag",
+          "columns": [
+            {
+              "expression": "fremsatundersagid",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        },
+        "idx_19842_ix_fk_sag_sagskategori": {
+          "name": "idx_19842_ix_fk_sag_sagskategori",
+          "columns": [
+            {
+              "expression": "kategoriid",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        },
+        "idx_19842_ix_fk_sag_sagsstatus": {
+          "name": "idx_19842_ix_fk_sag_sagsstatus",
+          "columns": [
+            {
+              "expression": "statusid",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        },
+        "idx_19842_ix_fk_sag_sagstype": {
+          "name": "idx_19842_ix_fk_sag_sagstype",
+          "columns": [
+            {
+              "expression": "typeid",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        }
+      },
+      "foreignKeys": {
+        "sag_typeid_sagstype_id_fk": {
+          "name": "sag_typeid_sagstype_id_fk",
+          "tableFrom": "sag",
+          "columnsFrom": [
+            "typeid"
+          ],
+          "tableTo": "sagstype",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        },
+        "sag_kategoriid_sagskategori_id_fk": {
+          "name": "sag_kategoriid_sagskategori_id_fk",
+          "tableFrom": "sag",
+          "columnsFrom": [
+            "kategoriid"
+          ],
+          "tableTo": "sagskategori",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        },
+        "sag_statusid_sagsstatus_id_fk": {
+          "name": "sag_statusid_sagsstatus_id_fk",
+          "tableFrom": "sag",
+          "columnsFrom": [
+            "statusid"
+          ],
+          "tableTo": "sagsstatus",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        },
+        "sag_periodeid_periode_id_fk": {
+          "name": "sag_periodeid_periode_id_fk",
+          "tableFrom": "sag",
+          "columnsFrom": [
+            "periodeid"
+          ],
+          "tableTo": "periode",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        },
+        "sag_fremsatundersagid_sag_id_fk": {
+          "name": "sag_fremsatundersagid_sag_id_fk",
+          "tableFrom": "sag",
+          "columnsFrom": [
+            "fremsatundersagid"
+          ],
+          "tableTo": "sag",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        },
+        "sag_deltundersagid_sag_id_fk": {
+          "name": "sag_deltundersagid_sag_id_fk",
+          "tableFrom": "sag",
+          "columnsFrom": [
+            "deltundersagid"
+          ],
+          "tableTo": "sag",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.SagAktør": {
+      "name": "SagAktør",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "bigserial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "aktørid": {
+          "name": "aktørid",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "sagid": {
+          "name": "sagid",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "opdateringsdato": {
+          "name": "opdateringsdato",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "rolleid": {
+          "name": "rolleid",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "SagAktør_aktørid_Aktør_id_fk": {
+          "name": "SagAktør_aktørid_Aktør_id_fk",
+          "tableFrom": "SagAktør",
+          "columnsFrom": [
+            "aktørid"
+          ],
+          "tableTo": "Aktør",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        },
+        "SagAktør_sagid_sag_id_fk": {
+          "name": "SagAktør_sagid_sag_id_fk",
+          "tableFrom": "SagAktør",
+          "columnsFrom": [
+            "sagid"
+          ],
+          "tableTo": "sag",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        },
+        "SagAktør_rolleid_SagAktørRolle_id_fk": {
+          "name": "SagAktør_rolleid_SagAktørRolle_id_fk",
+          "tableFrom": "SagAktør",
+          "columnsFrom": [
+            "rolleid"
+          ],
+          "tableTo": "SagAktørRolle",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.SagAktørRolle": {
+      "name": "SagAktørRolle",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "rolle": {
+          "name": "rolle",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "opdateringsdato": {
+          "name": "opdateringsdato",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.sagdokument": {
+      "name": "sagdokument",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "bigserial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "sagid": {
+          "name": "sagid",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "dokumentid": {
+          "name": "dokumentid",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "bilagsnummer": {
+          "name": "bilagsnummer",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "frigivelsesdato": {
+          "name": "frigivelsesdato",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "opdateringsdato": {
+          "name": "opdateringsdato",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "rolleid": {
+          "name": "rolleid",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "sagdokument_sagid_sag_id_fk": {
+          "name": "sagdokument_sagid_sag_id_fk",
+          "tableFrom": "sagdokument",
+          "columnsFrom": [
+            "sagid"
+          ],
+          "tableTo": "sag",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        },
+        "sagdokument_dokumentid_dokument_id_fk": {
+          "name": "sagdokument_dokumentid_dokument_id_fk",
+          "tableFrom": "sagdokument",
+          "columnsFrom": [
+            "dokumentid"
+          ],
+          "tableTo": "dokument",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        },
+        "sagdokument_rolleid_sagdokumentrolle_id_fk": {
+          "name": "sagdokument_rolleid_sagdokumentrolle_id_fk",
+          "tableFrom": "sagdokument",
+          "columnsFrom": [
+            "rolleid"
+          ],
+          "tableTo": "sagdokumentrolle",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.sagdokumentrolle": {
+      "name": "sagdokumentrolle",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "rolle": {
+          "name": "rolle",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "opdateringsdato": {
+          "name": "opdateringsdato",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.sagskategori": {
+      "name": "sagskategori",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "kategori": {
+          "name": "kategori",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "opdateringsdato": {
+          "name": "opdateringsdato",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.sagsstatus": {
+      "name": "sagsstatus",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "status": {
+          "name": "status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "opdateringsdato": {
+          "name": "opdateringsdato",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.sagstrin": {
+      "name": "sagstrin",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "titel": {
+          "name": "titel",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "dato": {
+          "name": "dato",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "sagid": {
+          "name": "sagid",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "typeid": {
+          "name": "typeid",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "folketingstidendeurl": {
+          "name": "folketingstidendeurl",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "folketingstidende": {
+          "name": "folketingstidende",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "folketingstidendesidenummer": {
+          "name": "folketingstidendesidenummer",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "statusid": {
+          "name": "statusid",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "opdateringsdato": {
+          "name": "opdateringsdato",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "sagstrin_sagid_sag_id_fk": {
+          "name": "sagstrin_sagid_sag_id_fk",
+          "tableFrom": "sagstrin",
+          "columnsFrom": [
+            "sagid"
+          ],
+          "tableTo": "sag",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        },
+        "sagstrin_typeid_sagstrinstype_id_fk": {
+          "name": "sagstrin_typeid_sagstrinstype_id_fk",
+          "tableFrom": "sagstrin",
+          "columnsFrom": [
+            "typeid"
+          ],
+          "tableTo": "sagstrinstype",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        },
+        "sagstrin_statusid_sagstrinsstatus_id_fk": {
+          "name": "sagstrin_statusid_sagstrinsstatus_id_fk",
+          "tableFrom": "sagstrin",
+          "columnsFrom": [
+            "statusid"
+          ],
+          "tableTo": "sagstrinsstatus",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.SagstrinAktør": {
+      "name": "SagstrinAktør",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "bigserial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "sagstrinid": {
+          "name": "sagstrinid",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "aktørid": {
+          "name": "aktørid",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "opdateringsdato": {
+          "name": "opdateringsdato",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "rolleid": {
+          "name": "rolleid",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "SagstrinAktør_sagstrinid_sagstrin_id_fk": {
+          "name": "SagstrinAktør_sagstrinid_sagstrin_id_fk",
+          "tableFrom": "SagstrinAktør",
+          "columnsFrom": [
+            "sagstrinid"
+          ],
+          "tableTo": "sagstrin",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        },
+        "SagstrinAktør_aktørid_Aktør_id_fk": {
+          "name": "SagstrinAktør_aktørid_Aktør_id_fk",
+          "tableFrom": "SagstrinAktør",
+          "columnsFrom": [
+            "aktørid"
+          ],
+          "tableTo": "Aktør",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        },
+        "SagstrinAktør_rolleid_SagstrinAktørRolle_id_fk": {
+          "name": "SagstrinAktør_rolleid_SagstrinAktørRolle_id_fk",
+          "tableFrom": "SagstrinAktør",
+          "columnsFrom": [
+            "rolleid"
+          ],
+          "tableTo": "SagstrinAktørRolle",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.SagstrinAktørRolle": {
+      "name": "SagstrinAktørRolle",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "rolle": {
+          "name": "rolle",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "opdateringsdato": {
+          "name": "opdateringsdato",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.sagstrindokument": {
+      "name": "sagstrindokument",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "bigserial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "sagstrinid": {
+          "name": "sagstrinid",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "dokumentid": {
+          "name": "dokumentid",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "opdateringsdato": {
+          "name": "opdateringsdato",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "sagstrindokument_sagstrinid_sagstrin_id_fk": {
+          "name": "sagstrindokument_sagstrinid_sagstrin_id_fk",
+          "tableFrom": "sagstrindokument",
+          "columnsFrom": [
+            "sagstrinid"
+          ],
+          "tableTo": "sagstrin",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        },
+        "sagstrindokument_dokumentid_dokument_id_fk": {
+          "name": "sagstrindokument_dokumentid_dokument_id_fk",
+          "tableFrom": "sagstrindokument",
+          "columnsFrom": [
+            "dokumentid"
+          ],
+          "tableTo": "dokument",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.sagstrinsstatus": {
+      "name": "sagstrinsstatus",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "status": {
+          "name": "status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "opdateringsdato": {
+          "name": "opdateringsdato",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.sagstrinstype": {
+      "name": "sagstrinstype",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "type": {
+          "name": "type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "opdateringsdato": {
+          "name": "opdateringsdato",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.sagstype": {
+      "name": "sagstype",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "type": {
+          "name": "type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "opdateringsdato": {
+          "name": "opdateringsdato",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.sambehandlinger": {
+      "name": "sambehandlinger",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "bigserial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "førstesagstrinid": {
+          "name": "førstesagstrinid",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "andetsagstrinid": {
+          "name": "andetsagstrinid",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "opdateringsdato": {
+          "name": "opdateringsdato",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "sambehandlinger_førstesagstrinid_sagstrin_id_fk": {
+          "name": "sambehandlinger_førstesagstrinid_sagstrin_id_fk",
+          "tableFrom": "sambehandlinger",
+          "columnsFrom": [
+            "førstesagstrinid"
+          ],
+          "tableTo": "sagstrin",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        },
+        "sambehandlinger_andetsagstrinid_sagstrin_id_fk": {
+          "name": "sambehandlinger_andetsagstrinid_sagstrin_id_fk",
+          "tableFrom": "sambehandlinger",
+          "columnsFrom": [
+            "andetsagstrinid"
+          ],
+          "tableTo": "sagstrin",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.slettet": {
+      "name": "slettet",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "bigserial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "slettetmapid": {
+          "name": "slettetmapid",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "opdateringsdato": {
+          "name": "opdateringsdato",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "objektid": {
+          "name": "objektid",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.slettetmap": {
+      "name": "slettetmap",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "bigserial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "datatype": {
+          "name": "datatype",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "opdateringsdato": {
+          "name": "opdateringsdato",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.stemme": {
+      "name": "stemme",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "bigserial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "typeid": {
+          "name": "typeid",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "afstemningid": {
+          "name": "afstemningid",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "aktørid": {
+          "name": "aktørid",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "opdateringsdato": {
+          "name": "opdateringsdato",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "stemme_typeid_stemmetype_id_fk": {
+          "name": "stemme_typeid_stemmetype_id_fk",
+          "tableFrom": "stemme",
+          "columnsFrom": [
+            "typeid"
+          ],
+          "tableTo": "stemmetype",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        },
+        "stemme_afstemningid_afstemning_id_fk": {
+          "name": "stemme_afstemningid_afstemning_id_fk",
+          "tableFrom": "stemme",
+          "columnsFrom": [
+            "afstemningid"
+          ],
+          "tableTo": "afstemning",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        },
+        "stemme_aktørid_Aktør_id_fk": {
+          "name": "stemme_aktørid_Aktør_id_fk",
+          "tableFrom": "stemme",
+          "columnsFrom": [
+            "aktørid"
+          ],
+          "tableTo": "Aktør",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.stemmetype": {
+      "name": "stemmetype",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "bigserial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "type": {
+          "name": "type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "opdateringsdato": {
+          "name": "opdateringsdato",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.synclogger": {
+      "name": "synclogger",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "bigserial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "entitet": {
+          "name": "entitet",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "internid": {
+          "name": "internid",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "eksternid": {
+          "name": "eksternid",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "opdateringsdato": {
+          "name": "opdateringsdato",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "antal": {
+          "name": "antal",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "godkendtdato": {
+          "name": "godkendtdato",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.taleSegment": {
+      "name": "taleSegment",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "bigserial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "content": {
+          "name": "content",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "mødeid": {
+          "name": "mødeid",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "starttid": {
+          "name": "starttid",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "sluttid": {
+          "name": "sluttid",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "last_modified": {
+          "name": "last_modified",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "sagid": {
+          "name": "sagid",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "aktørid": {
+          "name": "aktørid",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "opdateringsdato": {
+          "name": "opdateringsdato",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "taleSegment_mødeid_Møde_id_fk": {
+          "name": "taleSegment_mødeid_Møde_id_fk",
+          "tableFrom": "taleSegment",
+          "columnsFrom": [
+            "mødeid"
+          ],
+          "tableTo": "Møde",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        },
+        "taleSegment_sagid_sag_id_fk": {
+          "name": "taleSegment_sagid_sag_id_fk",
+          "tableFrom": "taleSegment",
+          "columnsFrom": [
+            "sagid"
+          ],
+          "tableTo": "sag",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        },
+        "taleSegment_aktørid_Aktør_id_fk": {
+          "name": "taleSegment_aktørid_Aktør_id_fk",
+          "tableFrom": "taleSegment",
+          "columnsFrom": [
+            "aktørid"
+          ],
+          "tableTo": "Aktør",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    }
+  },
+  "enums": {},
+  "schemas": {},
+  "sequences": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}

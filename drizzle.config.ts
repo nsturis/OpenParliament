@@ -12,7 +12,7 @@ export default defineConfig({
     user: process.env.DB_USER!,
     password: process.env.DB_PASSWORD!,
   },
-  verbose: true,
+  verbose: false,
   ssl: false,
   strict: true,
 })

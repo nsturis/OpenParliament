@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { ref, onMounted, reactive, watch } from 'vue'
 import debounce from 'lodash/debounce'
 import { useMainStore } from '@/stores/main'
+import { ref, computed, reactive, watch, onMounted } from 'vue'
 
 const mainStore = useMainStore()
 const searchQuery = ref('')
@@ -82,6 +82,11 @@ const changePage = (newPage: number) => {
   pagination.currentPage = newPage
   refresh()
 }
+
+const handleSearch = (query: string) => {
+  searchQuery.value = query
+  debouncedSearch()
+}
 </script>
 
 <template>
@@ -105,11 +110,7 @@ const changePage = (newPage: number) => {
       </template>
     </USelectMenu>
 
-    <UInput
-      v-model="searchQuery"
-      placeholder="Search lovforslag..."
-      class="mb-4 w-full lg:w-96"
-    />
+    <Search class="mb-4" @search="handleSearch" />
 
     <div v-for="item in lovforslag" :key="item.id" class="card">
       <h2>{{ item.titelkort }}</h2>

@@ -1,7 +1,7 @@
 import { defineEventHandler, getQuery, createError } from 'h3'
-import { sql, eq } from 'drizzle-orm'
+import { sql } from 'drizzle-orm'
 import { db } from './db'
-import { filContent, taleSegment, fil } from '../database/schema'
+import { filContent, taleSegment } from '../database/schema'
 import { $fetch } from 'ofetch'
 
 export default defineEventHandler(async (event) => {

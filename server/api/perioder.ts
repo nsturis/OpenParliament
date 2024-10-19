@@ -1,5 +1,5 @@
 import { defineEventHandler } from 'h3'
-import { eq, and, gte, lte, desc } from 'drizzle-orm'
+import { eq, desc } from 'drizzle-orm'
 import { periode } from '../database/schema'
 import { db } from './db'
 

@@ -1,5 +1,5 @@
 <template>
-  <UAccordion :items="files">
+  <UAccordion :items="accordionItems">
     <template #default="{ item, index, open }">
       <UButton
         color="gray"
@@ -15,7 +15,7 @@
           </div>
         </template>
 
-        <span class="truncate">{{ index + 1 }}. {{ item.titel }}</span>
+        <span class="truncate">{{ index + 1 }}. {{ item.label }}</span>
 
         <template #trailing>
           <Icon
@@ -30,9 +30,23 @@
 </template>
 
 <script setup lang="ts">
-defineProps({
-  files: Array,
-})
+import type { AccordionItem } from '@nuxt/ui/dist/runtime/types/accordion';
+
+
+const props = defineProps<{
+  files: Array<{
+    id: number;
+    title: string;
+    // Add other properties as needed
+  }>
+}>()
+
+const accordionItems = computed<AccordionItem[]>(() => 
+  props.files.map(file => ({
+    label: file.title,
+    content: JSON.stringify(file) // Convert the file object to a string
+  }))
+)
 </script>
 
 <style scoped>

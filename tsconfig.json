@@ -1,9 +1,6 @@
 {
   // https://v3.nuxtjs.org/concepts/typescript
   "extends": "./.nuxt/tsconfig.json",
-  "include": [
-    "types/**/*.d.ts"
-  ],
   "compilerOptions": {
     "noImplicitAny": true,
     "resolveJsonModule": true,

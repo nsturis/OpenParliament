@@ -1,50 +1,60 @@
-
 **Code Style and Structure**
+
 - Write concise, technical TypeScript code with accurate examples.
 - Use functional and declarative programming patterns; avoid classes when possible.
 - Prefer iteration and modularization over code duplication.
 - Use descriptive variable names with auxiliary verbs (e.g., isLoading, hasError).
 - Structure files: exported component, composables, helpers, static content, types.
+- Remember that Nuxt auto-imports a lot of stuff, so you don't need to import things like useRoute, useRouter, etc.
 
 **Naming Conventions**
+
 - Use kebab-case for directories and Vue component filenames (e.g., components/auth-wizard.vue).
 - Use PascalCase for component names in template and script.
 - Use camelCase for variables, functions, and props.
 
 **TypeScript Usage**
+
 - Use TypeScript for all code; prefer interfaces over types when possible.
 - Utilize TypeScript's advanced features like generics and utility types.
 - Define prop types and emits in Vue components using TypeScript.
 
 **Vue.js and Nuxt Conventions**
+
 - Use Composition API with <script setup> in Vue components.
 - Leverage Nuxt modules and built-in composables for common functionalities.
 - Follow Nuxt 3 best practices for routing, layouts, and middleware.
 
 **UI and Styling**
+
 - Use Nuxt UI for pre-built components and utilities.
 - Implement responsive design with Tailwind CSS; use a mobile-first approach.
 - Utilize Tailwind's @apply directive for reusable styles in components.
 
 **Performance Optimization**
+
 - Use Nuxt's built-in performance features like automatic code-splitting and lazy-loading.
 - Implement SSR (Server-Side Rendering) where appropriate for improved initial load times.
 - Optimize images using Nuxt Image module with WebP format and lazy loading.
 
 **Database and API Integration**
+
 - Use Drizzle ORM for type-safe database queries and schema management with Postgres.
 - Implement API routes using Nuxt's server routes for backend functionality.
 - Utilize Nuxt's $fetch for making API calls on both client and server.
 
 **State Management**
+
 - Use Pinia for global state management in larger applications.
 - Leverage Vue's Reactivity API for local state management.
 
 **Testing**
+
 - Write unit tests using Vitest for Vue components and utility functions.
 - Use Cypress for end-to-end testing of critical user flows.
 
 **Build and Development**
+
 - Utilize Bun for fast JavaScript/TypeScript runtime and package management.
 - Optimize Nuxt build configuration for production deployments.
 

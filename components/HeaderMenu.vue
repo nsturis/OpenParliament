@@ -99,7 +99,6 @@
 <script setup lang="ts">
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 
-import { useMainStore } from '@/stores/main'
 
 const mainStore = useMainStore()
 

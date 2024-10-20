@@ -2,9 +2,7 @@ import { defineEventHandler, createError, getQuery } from 'h3'
 import { eq } from 'drizzle-orm'
 import { db } from '../db'
 import { sag } from '../../database/schema'
-// import {  } from '../../database/schema'
-// import logger from '../../../utils/logger'
-import type { SagWithRelations, SagApiResponse } from '@/types/sag'
+import type { SagWithRelations, SagApiResponse } from '~/types/sag'
 
 export default defineEventHandler(async (event): Promise<SagApiResponse> => {
   const query = getQuery(event)
@@ -36,7 +34,11 @@ export default defineEventHandler(async (event): Promise<SagApiResponse> => {
           with: {
             dokument: {
               with: {
-                fil: true,
+                fil: {
+                  with: {
+                    filContent: true,
+                  },
+                },
               },
             },
             sagdokumentrolle: true,

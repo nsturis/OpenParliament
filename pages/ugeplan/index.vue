@@ -43,6 +43,20 @@
 
 <script setup lang="ts">
 import { useAktørStore } from '~/stores/aktør'
+import type { Meeting, MeetingType } from '~/types/meeting'
+import type { Aktør } from '~/types/aktør'
+
+interface weeklyDocket {
+  date: string
+  title: string
+  startTid: string
+  lokale: string
+  agendaItems: {
+    nummer: number
+    titel: string
+    kommentar: string
+  }[]
+}
 
 const aktørStore = useAktørStore()
 
@@ -61,7 +75,7 @@ const columns = [
 ]
 
 const fetchDocket = async () => {
-  const { data } = await useFetch<{ weeklyDocket: Meeting[], persons: Person[], meetingTypes: MeetingType[] }>('/api/ugeplan', {
+  const { data } = await useFetch<{ weeklyDocket: Meeting[], persons: Aktør[], meetingTypes: MeetingType[] }>('/api/ugeplan', {
     params: {
       date: startDate.value,
       aktørId: selectedPerson.value,
@@ -69,8 +83,8 @@ const fetchDocket = async () => {
     }
   })
   weeklyDocket.value = data.value?.weeklyDocket ?? []
-  aktørStore.setAktører(data.value?.persons ?? [])
-  meetingTypes.value = data.value?.meetingTypes ?? []
+  aktørStore.setAktører(data.value?.persons as Aktør[])
+  meetingTypes.value = data.value?.meetingTypes as MeetingType[]
 }
 
 onMounted(fetchDocket)

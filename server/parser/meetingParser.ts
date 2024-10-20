@@ -65,7 +65,7 @@ interface Speech {
 // Utility functions
 async function extractTingdokID(
   tingdokID: string,
-  entity: string
+  entity: string,
 ): Promise<number | undefined> {
   consola.info(`Extracting TingdokID for ${entity}:`, { tingdokID })
 
@@ -118,7 +118,7 @@ async function processSpeechSegment(
   segment: any,
   tale: any,
   mødeid: number,
-  sagId: number | undefined
+  sagId: number | undefined,
 ): Promise<Speech> {
   const speechMetadata = segment.MetaSpeechSegment || {}
   const content = extractTextContent(segment.TekstGruppe)
@@ -133,8 +133,10 @@ async function processSpeechSegment(
   const existingSpeech = await db.query.taleSegment.findFirst({
     where: and(
       eq(taleSegment.mødeid, mødeid),
-      eq(taleSegment.aktørid, aktørTingdokID),
-      eq(taleSegment.starttid, speechMetadata.StartDateTime)
+      aktørTingdokID !== undefined
+        ? eq(taleSegment.aktørid, aktørTingdokID)
+        : undefined,
+      eq(taleSegment.starttid, speechMetadata.StartDateTime),
     ),
   })
 
@@ -171,7 +173,7 @@ async function processSpeechSegment(
 
 async function saveSpeechToDatabase(
   speech: Speech,
-  mødeid: number
+  mødeid: number,
 ): Promise<void> {
   consola.info(`Attempting to save or update speech in database:`, {
     aktørTingdokID: speech.aktørTingdokID,
@@ -185,7 +187,7 @@ async function saveSpeechToDatabase(
       where: and(
         eq(taleSegment.mødeid, mødeid),
         eq(taleSegment.aktørid, speech.aktørTingdokID),
-        eq(taleSegment.starttid, speech.StartDateTime)
+        eq(taleSegment.starttid, speech.StartDateTime),
       ),
     })
 
@@ -245,7 +247,7 @@ async function saveSpeechToDatabase(
 async function parseSpeechesFromTale(
   speeches: any[],
   mødeid: number,
-  sagId: number | undefined
+  sagId: number | undefined,
 ): Promise<Speech[]> {
   consola.info(`Parsing speeches:`, {
     mødeid,
@@ -297,7 +299,7 @@ function createParserOptions(): X2jOptions {
 }
 
 async function extractMeetingMetadata(
-  metaMeeting: any
+  metaMeeting: any,
 ): Promise<MeetingData['metadata']> {
   return {
     parlamentariskSession: metaMeeting.ParliamentarySession,
@@ -311,7 +313,7 @@ async function extractMeetingMetadata(
 }
 
 async function findMødeId(
-  metadata: MeetingData['metadata']
+  metadata: MeetingData['metadata'],
 ): Promise<number | undefined> {
   consola.info('Finding møde ID for:', metadata)
 
@@ -330,8 +332,8 @@ async function findMødeId(
       .where(
         and(
           eq(periode.kode, metadata.parlamentariskSession),
-          eq(periode.type, 'samling')
-        )
+          eq(periode.type, 'samling'),
+        ),
       )
       .limit(1)
 
@@ -342,7 +344,7 @@ async function findMødeId(
 
   if (!periodeId) {
     consola.warn(
-      `No periode found for parlamentariskSession: ${metadata.parlamentariskSession}`
+      `No periode found for parlamentariskSession: ${metadata.parlamentariskSession}`,
     )
     return undefined
   }
@@ -360,8 +362,8 @@ async function findMødeId(
       and(
         eq(møde.periodeid, periodeId),
         eq(møde.nummer, metadata.mødeNummer.toString()),
-        eq(møde.typeid, 1)
-      )
+        eq(møde.typeid, 1),
+      ),
     )
     .limit(1)
 
@@ -369,7 +371,7 @@ async function findMødeId(
 
   if (!mødeResult.length) {
     consola.warn(
-      `No møde found for periode: ${periodeId}, mødeNummer: ${metadata.mødeNummer}, typeid: 1`
+      `No møde found for periode: ${periodeId}, mødeNummer: ${metadata.mødeNummer}, typeid: 1`,
     )
     return undefined
   }
@@ -403,7 +405,7 @@ async function parseMeetingXML(filePath: string): Promise<MeetingData> {
     mødeid,
   })
   meetingData.agendaItems = await Promise.all(
-    agendaItems.map((item) => parseAgendaItem(item, mødeid))
+    agendaItems.map((item) => parseAgendaItem(item, mødeid)),
   )
 
   consola.info(`Parsed meeting data:`, {
@@ -416,7 +418,7 @@ async function parseMeetingXML(filePath: string): Promise<MeetingData> {
 
 async function findSagId(
   agendaItem: AgendaItem,
-  mødeid: number
+  mødeid: number,
 ): Promise<number | undefined> {
   consola.info('Finding sagId for:', { agendaItem, mødeid })
 
@@ -445,8 +447,8 @@ async function findSagId(
         and(
           eq(sag.nummernumerisk, agendaItem.FTCaseNumber),
           eq(sag.nummerprefix, agendaItem.FTCaseType),
-          eq(sag.periodeid, periodeId)
-        )
+          eq(sag.periodeid, periodeId),
+        ),
       )
       .limit(1)
 
@@ -463,7 +465,7 @@ async function findSagId(
     consola.warn(
       `No sag found for FTCaseNumber: ${agendaItem.FTCaseNumber}, FTCaseType: ${
         agendaItem.FTCaseType
-      }, periodeId: ${await findPeriodeId(mødeid)}`
+      }, periodeId: ${await findPeriodeId(mødeid)}`,
     )
   }
 
@@ -521,7 +523,7 @@ async function parseAgendaItem(item: any, mødeid: number): Promise<AgendaItem> 
         agendaItem.subItems = await parseSubItems(
           aktivitet.DagsordenUnderpunkt,
           mødeid,
-          sagId
+          sagId,
         )
       }
 
@@ -532,7 +534,7 @@ async function parseAgendaItem(item: any, mødeid: number): Promise<AgendaItem> 
         agendaItem.speeches = await parseSpeechesFromTale(
           speeches,
           mødeid,
-          sagId
+          sagId,
         )
       }
     }
@@ -549,7 +551,7 @@ async function parseAgendaItem(item: any, mødeid: number): Promise<AgendaItem> 
 async function parseSubItems(
   subItems: any[],
   mødeid: number,
-  parentSagId: number | undefined
+  parentSagId: number | undefined,
 ): Promise<SubItem[]> {
   consola.info(`Parsing sub-items:`, {
     mødeid,
@@ -584,7 +586,7 @@ async function parseSubItems(
         newSubItem.speeches = await parseSpeechesFromTale(
           speeches,
           mødeid,
-          sagId
+          sagId,
         )
       }
 
@@ -593,7 +595,7 @@ async function parseSubItems(
         speechesCount: newSubItem.speeches.length,
       })
       return newSubItem
-    })
+    }),
   )
 }
 
@@ -642,7 +644,7 @@ async function findAktørId(item: any): Promise<number | undefined> {
 }
 
 export async function parseMeetings(
-  meetingKey?: string
+  meetingKey?: string,
 ): Promise<Record<string, MeetingData>> {
   const directory = 'assets/data/meetings/'
   consola.info(`Parsing meetings from ${directory}`)
@@ -666,7 +668,7 @@ export async function parseMeetings(
     xmlFiles.map(async (xmlFile) => {
       const key = path.parse(xmlFile).name.replace('_helemoedet', '')
       allMeetings[key] = await parseMeetingXML(xmlFile)
-    })
+    }),
   )
 
   consola.info(`Parsed ${Object.keys(allMeetings).length} meeting(s)`)

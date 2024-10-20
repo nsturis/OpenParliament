@@ -1,4 +1,3 @@
-import { db } from '../api/db'
 import { sag } from '../database/schema'
 import { BaseRepository } from './baseRepository'
 import type { FtDomainModelsSag } from '../../utils/oda'

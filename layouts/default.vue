@@ -1,11 +1,11 @@
 <template>
   <div>
-    <nav>
-      <NuxtLink to="/">Home</NuxtLink>
-      <NuxtLink to="/ugeplan">Ugeplan</NuxtLink>
-      <NuxtLink to="/sag">Sag</NuxtLink>
-      <NuxtLink to="/test-api">Test API</NuxtLink>
-    </nav>
+    <UNavbar>
+      <UNavbarItem to="/">Home</UNavbarItem>
+      <UNavbarItem to="/ugeplan">Ugeplan</UNavbarItem>
+      <UNavbarItem to="/sag">Sag</UNavbarItem>
+      <UNavbarItem to="/test-api">Test API</UNavbarItem>
+    </UNavbar>
     <slot />
   </div>
 </template>

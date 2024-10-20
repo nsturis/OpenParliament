@@ -91,17 +91,9 @@ const handleSearch = (query: string) => {
 
 <template>
   <div class="container mx-auto py-10">
-    <USelectMenu
-      v-model="selectedPeriode"
-      :options="perioder"
-      class="mb-4 w-full lg:w-96"
-      placeholder="Vælg en periode"
-      searchable
-      searchable-placeholder="Search by period title"
-      option-attribute="titel"
-      value-attribute="id"
-      :search-attributes="['titel']"
-    >
+    <USelectMenu v-model="selectedPeriode" :options="perioder" class="mb-4 w-full lg:w-96" placeholder="Vælg en periode"
+      searchable searchable-placeholder="Search by period title" option-attribute="titel" value-attribute="id"
+      :search-attributes="['titel']">
       <template #label>
         {{ currentPeriode?.titel }}
       </template>
@@ -110,7 +102,7 @@ const handleSearch = (query: string) => {
       </template>
     </USelectMenu>
 
-    <Search class="mb-4" @search="handleSearch" />
+    <SearchBar class="mb-4" @search="handleSearch" />
 
     <div v-for="item in lovforslag" :key="item.id" class="card">
       <h2>{{ item.titelkort }}</h2>
@@ -122,10 +114,7 @@ const handleSearch = (query: string) => {
 
     <!-- Pagination Controls -->
     <div class="pagination">
-      <button
-        :disabled="pagination.currentPage === 1"
-        @click="changePage(pagination.currentPage - 1)"
-      >
+      <button :disabled="pagination.currentPage === 1" @click="changePage(pagination.currentPage - 1)">
         Previous
       </button>
       <button @click="changePage(pagination.currentPage + 1)">Next</button>
@@ -140,6 +129,7 @@ const handleSearch = (query: string) => {
   padding: 20px;
   margin-bottom: 20px;
 }
+
 .pagination {
   display: flex;
   justify-content: space-between;

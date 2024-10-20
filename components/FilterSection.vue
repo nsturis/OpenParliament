@@ -1,40 +1,21 @@
 <template>
   <div class="mb-6 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-    <USelectMenu
-      v-model="periode"
-      :options="perioder"
-      placeholder="Vælg en periode"
-      searchable
-      searchable-placeholder="Search by period title"
-      option-attribute="titel"
-      value-attribute="id"
-      :search-attributes="['titel']"
-    >
+    <USelectMenu v-model="periode" :options="perioder" placeholder="Vælg en periode" searchable
+      searchable-placeholder="Search by period title" option-attribute="titel" value-attribute="id"
+      :search-attributes="['titel']">
       <template #label>
         {{ currentPeriode?.titel }}
       </template>
-      <template #option="{ option: periode }">
-        <span class="truncate">{{ periode.titel }}</span>
+      <template #option="{ option: periodeOption }">
+        <span class="truncate">{{ periodeOption.titel }}</span>
       </template>
     </USelectMenu>
 
-    <USelectMenu
-      v-model="committee"
-      :options="committees"
-      placeholder="Vælg en komité"
-    />
+    <USelectMenu v-model="committee" :options="committees" placeholder="Vælg en komité" />
 
-    <USelectMenu
-      v-model="politician"
-      :options="politicians"
-      placeholder="Vælg en politiker"
-    />
+    <USelectMenu v-model="politician" :options="politicians" placeholder="Vælg en politiker" />
 
-    <USelectMenu
-      v-model="ministry"
-      :options="ministries"
-      placeholder="Vælg et ministerium"
-    />
+    <USelectMenu v-model="ministry" :options="ministries" placeholder="Vælg et ministerium" />
 
     <UInput v-model="date" type="date" placeholder="Vælg en dato" />
 

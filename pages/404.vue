@@ -1,6 +1,6 @@
 <template>
   <div class="flex">
-    <img src="/404.png" />
+    <img src="/404.png" >
     <div class="ml-4">
       <h1>Oh ohno!</h1>
       <p>

@@ -1,4 +1,3 @@
-import { db } from '../api/db'
 import { møde } from '../database/schema'
 import type { FtDomainModelsMode } from '../../utils/oda'
 import { BaseRepository } from './baseRepository'

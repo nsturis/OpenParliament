@@ -30,9 +30,6 @@
 </template>
 
 <script setup lang="ts">
-import type { AccordionItem } from '@nuxt/ui/dist/runtime/types/accordion';
-
-
 const props = defineProps<{
   files: Array<{
     id: number;
@@ -41,7 +38,7 @@ const props = defineProps<{
   }>
 }>()
 
-const accordionItems = computed<AccordionItem[]>(() => 
+const accordionItems = computed<{ label: string; content: string }[]>(() => 
   props.files.map(file => ({
     label: file.title,
     content: JSON.stringify(file) // Convert the file object to a string

@@ -11,21 +11,14 @@ interface AktørQueryParams {
 
 interface Aktør {
   id: number
-
   navn: string
   // Add other properties as needed
-}
-
-function isAktør(item: unknown): item is Aktør {
-  return (
-    typeof item === 'object' && item !== null && 'id' in item && 'navn' in item
-  )
 }
 
 export function useAktorer(params: AktørQueryParams = {}) {
   const aktørStore = useAktørStore()
 
-  const fetchAktører = async () => {
+  const getAktører = async () => {
     const queryParams = new URLSearchParams()
     if (params.sagId) queryParams.append('sagId', params.sagId.toString())
     if (params.periodId)
@@ -33,27 +26,26 @@ export function useAktorer(params: AktørQueryParams = {}) {
     if (params.aktørType) queryParams.append('aktørType', params.aktørType)
     if (params.rolle) queryParams.append('rolle', params.rolle)
     if (params.searchTerm) queryParams.append('search', params.searchTerm)
-
-    const response = await $fetch(`/api/aktører?${queryParams.toString()}`)
-    return response
+    return await $fetch<Aktør[]>('/api/actors', {
+      method: 'GET',
+      params: queryParams,
+    })
   }
 
-  const queryKey = ['aktører', params]
+  const { data, isLoading, error, refetch } = useQuery({
+    queryKey: ['actors', params],
+    queryFn: getAktører,
+  })
 
-  const { isLoading, error, refetch } = useQuery({
-    queryKey,
-    queryFn: fetchAktører,
-    select: (data: unknown) => {
-      if (Array.isArray(data) && data.every((item) => isAktør(item))) {
-        aktørStore.setAktører(data)
-        return data
-      }
-      throw new Error('Invalid data format')
-    },
+  // Update Pinia store when data changes
+  watch(data, (newData) => {
+    if (newData) {
+      aktørStore.setAktører(newData)
+    }
   })
 
   return {
-    aktører: computed(() => aktørStore.aktører),
+    aktører: computed(() => data.value || []),
     isLoading,
     error,
     refetch,

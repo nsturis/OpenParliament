@@ -1,43 +1,49 @@
 <template>
-  <div class="flex h-full flex-col items-center justify-center">
-    <h1
+  <UCard class="flex h-full flex-col items-center justify-center">
+    <UTypography
+      variant="h1"
       class="mb-10 mt-8 text-center text-3xl font-bold italic md:mt-0"
       style="word-break: break-word"
     >
       {{ question.title }}
-    </h1>
+    </UTypography>
     <div class="mb-10 flex w-full items-center justify-center">
-      <div class="h-20 w-20">
-        <button v-if="electionQuizStore.step !== 0" @click="previousStep">
-          <Icon name="heroicons:arrow-uturn-left" class="block h-20 w-20 text-yellow-600" />
-        </button>
-      </div>
-      <button @click="updateAnswer('yay')">
-        <Icon name="heroicons:hand-thumb-up" class="block h-20 w-20 text-green-500" />
-      </button>
-      <button @click="updateAnswer('nay')">
-        <Icon name="heroicons:hand-thumb-down" class="block h-20 w-20 text-red-500" />
-      </button>
-      <div class="h-20 w-20">
-        <button
-          v-if="electionQuizStore.step < electionQuizStore.quiz.length"
-          @click="nextStep"
-        >
-          <Icon name="heroicons:arrow-uturn-right" class="block h-20 w-20 text-yellow-600" />
-        </button>
-      </div>
+      <UButton
+        v-if="electionQuizStore.step !== 0"
+        icon="i-heroicons-arrow-uturn-left"
+        color="yellow"
+        variant="ghost"
+        @click="previousStep"
+      />
+      <UButton
+        icon="i-heroicons-hand-thumb-up"
+        color="green"
+        variant="ghost"
+        @click="updateAnswer('yay')"
+      />
+      <UButton
+        icon="i-heroicons-hand-thumb-down"
+        color="red"
+        variant="ghost"
+        @click="updateAnswer('nay')"
+      />
+      <UButton
+        v-if="electionQuizStore.step < electionQuizStore.quiz.length"
+        icon="i-heroicons-arrow-uturn-right"
+        color="yellow"
+        variant="ghost"
+        @click="nextStep"
+      />
     </div>
-    <div class="hidden md:block">
-      <a
-        :href="question.link"
-        target="_blank"
-        type="button"
-        class="inline-flex items-center rounded-full border border-transparent bg-gray-700 px-5 py-2 text-base font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-      >
-        LÆS MERE OM FORSLAGET
-      </a>
-    </div>
-  </div>
+    <UButton
+      :to="question.link"
+      target="_blank"
+      class="hidden md:inline-flex"
+      color="gray"
+    >
+      LÆS MERE OM FORSLAGET
+    </UButton>
+  </UCard>
 </template>
 
 <script setup lang="ts">

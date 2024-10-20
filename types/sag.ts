@@ -1,15 +1,16 @@
-import type { InferModel } from 'drizzle-orm'
+import type { InferSelectModel } from 'drizzle-orm'
 import type * as schema from '../server/database/schema'
 
 // Base types from schema
-export interface Sag extends InferModel<typeof schema.sag> {}
-export type Sagstrin = InferModel<typeof schema.sagstrin>
-export type Dagsordenspunkt = InferModel<typeof schema.dagsordenspunkt>
-export type Aktør = InferModel<typeof schema.aktør>
-export type AktørRolle = InferModel<typeof schema.sagAktørRolle>
-export type Dokument = InferModel<typeof schema.dokument>
-export type Fil = InferModel<typeof schema.fil>
-export type Periode = InferModel<typeof schema.periode>
+export type Sag = InferSelectModel<typeof schema.sag>
+export type Sagstrin = InferSelectModel<typeof schema.sagstrin>
+export type Dagsordenspunkt = InferSelectModel<typeof schema.dagsordenspunkt>
+export type Aktør = InferSelectModel<typeof schema.aktør>
+export type AktørRolle = InferSelectModel<typeof schema.sagAktørRolle>
+export type Dokument = InferSelectModel<typeof schema.dokument>
+export type Fil = InferSelectModel<typeof schema.fil>
+export type FilContent = InferSelectModel<typeof schema.filContent>
+export type Periode = InferSelectModel<typeof schema.periode>
 
 // Extended types with relations
 export interface SagstrinWithRelations extends Sagstrin {
@@ -22,6 +23,7 @@ export interface SagstrinWithRelations extends Sagstrin {
 
 export interface DokumentWithRelations extends Dokument {
   fil: Fil[]
+  filContent: FilContent[]
 }
 
 export interface SagdokumentWithRelations {

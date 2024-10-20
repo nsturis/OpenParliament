@@ -1,12 +1,4 @@
 {
   // https://v3.nuxtjs.org/concepts/typescript
-  "extends": "./.nuxt/tsconfig.json",
-  "compilerOptions": {
-    "noImplicitAny": true,
-    "resolveJsonModule": true,
-    "moduleResolution": "node",
-    "types": [
-      "@pinia/nuxt"
-    ]
-  }
+  "extends": "./.nuxt/tsconfig.json"
 }

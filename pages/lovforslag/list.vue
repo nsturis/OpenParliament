@@ -6,7 +6,7 @@
       v-model:politician="selectedPolitician"
       v-model:ministry="selectedMinistry"
       v-model:date="selectedDate"
-      v-model:searchQuery="searchQuery"
+      v-model:search-query="searchQuery"
       :perioder="perioder"
     />
 

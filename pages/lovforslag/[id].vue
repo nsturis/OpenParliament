@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import type { SagApiResponse, SagWithRelations } from '@/types/sag'
+import type { SagWithRelations, SagApiResponse } from '~/types/sag'
 
 const route = useRoute()
 const { id } = route.params
 
-const { data: sagData, error: sagError } = await useFetch<SagApiResponse>('/api/sag', {
+const { data: sagData} = await useFetch<SagApiResponse>('/api/sag', {
   params: { id: Number(id) },
 })
 
@@ -81,14 +81,14 @@ const getStatusText = (statusId: number) => {
         <ul>
           <li v-for="sagstrin in sag.sagstrin" :key="sagstrin.id" class="mb-4">
             <strong>{{ sagstrin.titel }}</strong>
-            <p>Dato: {{ new Date(sagstrin.dato).toLocaleDateString() }}</p>
+            <p>Dato: {{ new Date(sagstrin.dato?.toString() ?? '').toLocaleDateString() }}</p>
             <p>Type ID: {{ sagstrin.typeid }}</p>
             <div
               v-if="sagstrin.sagstrinAktør && sagstrin.sagstrinAktør.length > 0"
             >
               <p class="font-semibold">Aktører:</p>
               <ul class="ml-4">
-                <li v-for="aktør in sagstrin.sagstrinAktør" :key="aktør.id">
+                <li v-for="aktør in sagstrin.sagstrinAktør" :key="aktør.aktør.id">
                   {{ aktør.aktør.navn }} ({{ aktør.sagstrinAktørRolle.rolle }})
                 </li>
               </ul>

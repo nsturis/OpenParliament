@@ -18,6 +18,7 @@ export default defineEventHandler(async (event) => {
   const mødetypeIds = query.mødetypeIds
     ? (query.mødetypeIds as string).split(',').map(Number)
     : undefined
+  const periodeId = query.periodeId ? Number(query.periodeId) : undefined
 
   // Fetch meetings for the week starting from the given date
   let meetingsQuery = db
@@ -45,6 +46,10 @@ export default defineEventHandler(async (event) => {
     meetingsQuery = meetingsQuery
       .innerJoin(mødeAktør, eq(mødeAktør.mødeid, møde.id))
       .where(eq(mødeAktør.aktørid, aktørId))
+  }
+
+  if (periodeId) {
+    meetingsQuery = meetingsQuery.where(eq(møde.periodeid, periodeId))
   }
 
   const upcomingMeetings = await meetingsQuery.orderBy(møde.dato)

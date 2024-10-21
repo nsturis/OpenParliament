@@ -757,20 +757,32 @@ export const taleSegment = pgTable(
   }
 )
 
-// Add this table definition
-export const filContent = pgTable('FilContent', {
-  id: bigserial('id', { mode: 'number' }).primaryKey().notNull(),
-  filId: integer('fil_id')
-    .notNull()
-    .references(() => fil.id),
-  content: text('content').notNull(),
-  extractedAt: timestamp('extracted_at', {
-    withTimezone: true,
-    mode: 'string',
-  })
-    .notNull()
-    .defaultNow(),
-  embedding: vector('embedding', { dimensions: 768 }).notNull(),
-  version: integer('version').notNull().default(1),
-  chunkIndex: integer('chunk_index').notNull().default(0),
-})
+export const filContent = pgTable(
+  'FilContent',
+  {
+    id: bigserial('id', { mode: 'number' }).primaryKey().notNull(),
+    filId: integer('filid')
+      .notNull()
+      .references(() => fil.id),
+    content: text('content').notNull(),
+    embedding: vector('embedding', { dimensions: 768 }).notNull(),
+    chunkIndex: integer('chunkindex').notNull(),
+    totalChunks: integer('totalchunks').notNull(),
+    version: integer('version').notNull().default(1),
+    extractedAt: timestamp('extracted_at', {
+      withTimezone: true,
+      mode: 'string',
+    })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => {
+    return {
+      filContentIndex: index('fil_content_index').on(
+        table.filId,
+        table.version,
+        table.chunkIndex
+      ),
+    }
+  }
+)

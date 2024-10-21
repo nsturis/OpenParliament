@@ -1,14 +1,13 @@
-import { createConfigForNuxt } from '@nuxt/eslint-config/flat'
+import { createConfigForNuxt } from '@nuxt/eslint-config/flat';
 
 export default createConfigForNuxt(
   {
     rules: {
       'no-console': 'off',
       'vue/multi-word-component-names': 'off',
-      'prettier/prettier': 'off',
-    },
-    features: {
-      stylelint: true,
+      'prettier/prettier': 'on',
+      '@typescript-eslint/no-explicit-any': 'off',
+      '@typescript-eslint/no-unused-vars': 'off',
     },
 
     extends: ['@nuxtjs/eslint-config-typescript', 'plugin:nuxt/recommended'],
@@ -17,5 +16,5 @@ export default createConfigForNuxt(
   },
   {
     ignores: ['**/.*', 'utils/oda.ts'],
-  },
-)
+  }
+);

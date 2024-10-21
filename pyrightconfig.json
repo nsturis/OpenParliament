@@ -1,0 +1,5 @@
+{
+  "include": ["llm_service"],
+  "exclude": ["**/node_modules"],
+  "pythonVersion": "3.10"
+}

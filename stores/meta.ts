@@ -1,33 +1,50 @@
-// stores/meta.ts
 import { defineStore } from 'pinia'
+import type {
+  Periode,
+  Committee,
+  Politician,
+  Ministry,
+  Party,
+  MinisterArea,
+  Actor,
+  ActorType,
+} from '~/types/actors'
 
-interface Periode {
-  id: number
-  titel: string | null
-  titelkort: string | null
-  typeid: number
-  kategoriid: number | null
-  offentlighedskode: string | null
-  nummer: string | null
-  nummerprefix: string | null
-  nummernumerisk: string | null
-  nummerpostfix: string | null
-  resume: string | null
-  afstemningskonklusion: string | null
-}
 export const useMetaStore = defineStore('meta', {
   state: () => ({
     perioder: [] as Periode[],
-    selectedPeriode: null as Periode | null,
+    currentPeriode: null as Periode | null,
+    committees: [] as Committee[],
+    politicians: [] as Politician[],
+    ministries: [] as Ministry[],
+    parties: [] as Party[],
+    ministerAreas: [] as MinisterArea[],
+    actors: {} as Record<ActorType, Actor[]>,
   }),
-  getters: {
-    getPerioder(state) {
-      return state.perioder
-    },
-  },
   actions: {
-    setSelectedPeriode(periode: Periode) {
-      this.selectedPeriode = periode
+    setPerioder(perioder: Periode[]) {
+      this.perioder = perioder
+    },
+    setCurrentPeriode(periode: Periode | null) {
+      this.currentPeriode = periode
+    },
+    setCommittees(committees: Committee[]) {
+      this.committees = committees
+    },
+    setPoliticians(politicians: Politician[]) {
+      this.politicians = politicians
+    },
+    setMinistries(ministries: Ministry[]) {
+      this.ministries = ministries
+    },
+    setParties(parties: Party[]) {
+      this.parties = parties
+    },
+    setMinisterAreas(ministerAreas: MinisterArea[]) {
+      this.ministerAreas = ministerAreas
+    },
+    setActors(actors: Record<ActorType, Actor[]>) {
+      this.actors = actors
     },
   },
 })

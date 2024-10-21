@@ -3,12 +3,18 @@
 import fs from 'fs'
 import path from 'path'
 import { db } from '../server/api/db'
-import { filContent } from '../server/database/schema'
-import { sql, eq } from 'drizzle-orm'
+import { dokument, fil, filContent } from '../server/database/schema'
+import { sql, eq, gt, and } from 'drizzle-orm'
 import { $fetch } from 'ofetch'
 import type { Worker } from 'bun:worker'
 
 declare let self: Worker
+
+type DocumentResponse = {
+  status: string
+  chunks: string[]
+  embeddings: number[][]
+}
 
 // Function to clean up text content by removing fluff
 function extractMainContent(content: string): string {
@@ -33,12 +39,7 @@ function extractMainContent(content: string): string {
       /^Miljøministeriet\.?$/i,
       /^København,\s*den\s*\d+\.\s*\w+\s*\d+\.?$/i,
       /^DD\d+$/i,
-      /^Til\s+Finansudvalget\.$/i,
-      /^Indtægt$/i,
-      /^\(mio\. kr\.\)$/i,
-      /^Udgift$/i,
-      /^e\.$/i,
-      /^f\.$/i,
+
       /^PDF to HTML - Convert PDF files to HTML files$/i,
       /^På Folketingets formands vegne$/i,
       /^Lovsekretariatet$/i,
@@ -70,6 +71,22 @@ function extractMainContent(content: string): string {
   return cleanedLines.join(' ')
 }
 
+async function generateEmbedding(text: string): Promise<DocumentResponse> {
+  const response: DocumentResponse = await $fetch(
+    'http://localhost:8000/process_document_embeddings',
+    {
+      method: 'POST',
+      body: { text },
+    }
+  )
+
+  if (!response) {
+    throw new Error(`Failed to generate embedding: ${JSON.stringify(response)}`)
+  }
+
+  return response
+}
+
 async function processDocument(filePath: string) {
   try {
     const fileName = path.basename(filePath)
@@ -77,12 +94,24 @@ async function processDocument(filePath: string) {
 
     // Check if the document has already been processed
     const existingDoc = await db
-      .select({ id: filContent.id })
+      .select()
       .from(filContent)
       .where(eq(filContent.filId, parseInt(fileId)))
       .limit(1)
+    // Also only process files that are younger than 01-01-2022 by looking up in hte database for the fileId and filter by date
+    const shouldProcess = await db
+      .select()
+      .from(fil)
+      .innerJoin(dokument, eq(fil.dokumentid, dokument.id))
+      .where(
+        and(
+          eq(fil.id, parseInt(fileId)),
+          gt(dokument.dato, new Date('2022-01-01'))
+        )
+      )
+      .limit(1)
 
-    if (existingDoc.length > 0) {
+    if (existingDoc.length > 0 && shouldProcess.length === 0) {
       console.log(`Skipping ${fileName} as it has already been processed`)
       return
     }
@@ -90,50 +119,37 @@ async function processDocument(filePath: string) {
     const textContent = fs.readFileSync(filePath, 'utf-8')
     const mainContent = extractMainContent(textContent)
 
-    // For simplicity, we'll assume no chunking here.
-    const chunks = [mainContent]
+    // Get the latest version for this file
+    const latestVersion = await db
+      .select({ maxVersion: sql`MAX(version)` })
+      .from(filContent)
+      .where(eq(filContent.filId, parseInt(fileId)))
+      .then((result) => ((result[0]?.maxVersion as number) ?? 0) + 1)
 
-    for (let i = 0; i < chunks.length; i++) {
-      const chunk = chunks[i]
-
-      // Call FastAPI service to process the document and generate embedding
-      const response = await $fetch(`http://localhost:8000/process_document`, {
-        method: 'POST',
-        body: JSON.stringify({
-          content: chunk,
-          file_id: fileId,
-        }),
+    const result: DocumentResponse = await generateEmbedding(mainContent)
+    const totalChunks = result.chunks.length
+    console.log(`Attempting to insert FilContent with filId: ${fileId}`)
+    for (let i = 0; i < result.chunks.length; i++) {
+      // Store in database
+      await db.insert(filContent).values({
+        filId: parseInt(fileId),
+        content: result.chunks[i],
+        embedding: result.embeddings[i],
+        extractedAt: new Date().toISOString(),
+        version: latestVersion,
+        chunkIndex: i,
+        totalChunks,
       })
 
-      if (response.status === 'success') {
-        // Get the latest version for this file
-        const latestVersion = await db
-          .select({ maxVersion: sql`MAX(version)` })
-          .from(filContent)
-          .where(eq(filContent.filId, parseInt(fileId)))
-          .then((result) => ((result[0]?.maxVersion as number) ?? 0) + 1)
-
-        // Store in database
-        await db.insert(filContent).values({
-          filId: parseInt(fileId),
-          content: chunk,
-          embedding: response.embedding,
-          extractedAt: new Date().toISOString(),
-          version: latestVersion,
-          chunkIndex: i,
-        })
-
-        console.log(
-          `Processed and stored embedding for ${fileName} (chunk ${i + 1}/${
-            chunks.length
-          }, version ${latestVersion})`
-        )
-      } else {
-        throw new Error(`Failed to process document: ${response.error}`)
-      }
+      console.log(
+        `Processed and stored embedding for ${fileName} (chunk ${
+          i + 1
+        }/${totalChunks}, version ${latestVersion})`
+      )
     }
   } catch (error) {
     console.error(`Error processing ${filePath}:`, error)
+    throw error
   }
 }
 
@@ -145,6 +161,6 @@ self.onmessage = async (event: MessageEvent) => {
     }
     self.postMessage({ type: 'done' })
   } catch (error) {
-    self.postMessage({ type: 'error', error: error.message })
+    self.postMessage({ type: 'error', error: (error as Error).message })
   }
 }

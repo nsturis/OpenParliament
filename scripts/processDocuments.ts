@@ -1,5 +1,8 @@
 import fs from 'fs'
 import path from 'path'
+import { db } from '../server/api/db'
+import { filContent, fil } from '../server/database/schema'
+import { eq } from 'drizzle-orm'
 
 function getDocumentFiles(directory: string): string[] {
   const files: string[] = []
@@ -22,7 +25,7 @@ function getDocumentFiles(directory: string): string[] {
 
 async function processDocuments() {
   const documentFiles = getDocumentFiles('assets/data/html')
-  const numWorkers = Math.min(documentFiles.length, 4)
+  const numWorkers = Math.min(documentFiles.length, 8)
   const workerPool: Worker[] = []
   const chunkSize = Math.ceil(documentFiles.length / numWorkers)
 

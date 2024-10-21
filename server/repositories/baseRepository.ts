@@ -1,11 +1,15 @@
-import { sql } from 'drizzle-orm'
-import { db } from '../api/db'
+import { sql } from 'drizzle-orm';
+import { db } from '../api/db';
 
-export class BaseRepository<T> {
-  protected table: any
+interface Table {
+  id: string;
+}
+
+export class BaseRepository<T extends Table> {
+  protected table: any;
 
   constructor(table: any) {
-    this.table = table
+    this.table = table;
   }
 
   async upsert(data: T) {
@@ -15,13 +19,13 @@ export class BaseRepository<T> {
       .onConflictDoUpdate({
         target: this.table.id,
         set: data as any,
-      })
+      });
   }
 
   async getLastUpdate(): Promise<Date> {
     const result = await db
       .select({ max: sql`MAX(${this.table.opdateringsdato})` })
-      .from(this.table)
-    return result[0]?.max || new Date(0)
+      .from(this.table);
+    return result[0]?.max || new Date(0);
   }
 }

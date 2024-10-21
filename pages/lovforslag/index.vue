@@ -1,52 +1,36 @@
 <script setup lang="ts">
-import debounce from 'lodash/debounce'
+import { ref, watch } from 'vue'
 import { useMainStore } from '@/stores/main'
-import { ref, computed, reactive, watch, onMounted } from 'vue'
+import { useMetadata } from '~/composables/useMetadata'
+import type { Sag } from '~/types/sag'
 
 const mainStore = useMainStore()
+const { perioder, currentPeriode, committees, politicians, ministries, fetchAllMetadata, setCurrentPeriode } = useMetadata()
+
 const searchQuery = ref('')
-
-type Lovforslag = {
-  id: number
-  titelkort: string
-  nummer: string
-  resume: string
-  opdateringsdato: string
-}
-
-const fetchPerioder = async () => {
-  const response = await $fetch('/api/perioder/')
-  return response.map((periode: any) => ({
-    id: periode.id,
-    titel: periode.titel,
-  }))
-}
-
-const { data: perioder } = useAsyncData('perioder', fetchPerioder)
-
-const selectedPeriode = ref<number | null>(null)
-
-// Computed property for the current period
-const currentPeriode = computed(() =>
-  perioder.value?.find((periode) => periode.id === selectedPeriode.value)
-)
 
 // Pagination state
 const pagination = reactive({
   currentPage: 1,
   pageSize: 10,
+  totalPages: 1,
 })
 
-// Fetch data with pagination and search
 const fetchLovforslag = async () => {
-  return $fetch('/api/sag/list', {
+  const { data } = await useFetch<{ items: Sag[], totalPages: number }>('/api/sag/list', {
     params: {
-      periodeid: selectedPeriode.value,
+      periodeid: currentPeriode.value?.id,
       page: pagination.currentPage,
       pageSize: pagination.pageSize,
       search: searchQuery.value,
     },
   })
+
+  if (data.value) {
+    pagination.totalPages = data.value.totalPages
+    return data.value.items
+  }
+  return []
 }
 
 const { data: lovforslag, refresh } = useAsyncData(
@@ -54,71 +38,45 @@ const { data: lovforslag, refresh } = useAsyncData(
   fetchLovforslag
 )
 
-// Debounced search function
-const debouncedSearch = debounce(() => {
+const handleSearch = (query: string) => {
+  searchQuery.value = query
   pagination.currentPage = 1 // Reset to first page on new search
   refresh()
-}, 300)
+}
 
-// Watch for changes in searchQuery and trigger debounced search
-watch(searchQuery, () => {
-  debouncedSearch()
-})
-
-onMounted(async () => {
-  mainStore.updateHeaderTitle('Lovforslag')
-  selectedPeriode.value = 158
-  refresh()
-})
-
-// Watch for changes in selectedPeriode and refresh the data
-watch(selectedPeriode, () => {
-  pagination.currentPage = 1 // Reset to first page when changing period
-  refresh()
-})
-
-// Function to change page
 const changePage = (newPage: number) => {
   pagination.currentPage = newPage
   refresh()
 }
 
-const handleSearch = (query: string) => {
-  searchQuery.value = query
-  debouncedSearch()
-}
+onMounted(async () => {
+  mainStore.updateHeaderTitle('Lovforslag')
+  await fetchAllMetadata()
+  setCurrentPeriode(perioder.value[0]?.id ?? null)
+  refresh()
+})
+
+watch(currentPeriode, () => {
+  setCurrentPeriode(currentPeriode.value?.id ?? null)
+  pagination.currentPage = 1 // Reset to first page when changing period
+  refresh()
+})
 </script>
 
 <template>
   <div class="container mx-auto py-10">
-    <USelectMenu v-model="selectedPeriode" :options="perioder" class="mb-4 w-full lg:w-96" placeholder="Vælg en periode"
+    <USelectMenu v-model="currentPeriode" :options="perioder" class="mb-4 w-full lg:w-96" placeholder="Vælg en periode"
       searchable searchable-placeholder="Search by period title" option-attribute="titel" value-attribute="id"
       :search-attributes="['titel']">
       <template #label>
         {{ currentPeriode?.titel }}
       </template>
-      <template #option="{ option: periode }">
-        <span class="truncate">{{ periode.titel }}</span>
-      </template>
     </USelectMenu>
-
-    <SearchBar class="mb-4" @search="handleSearch" />
-
-    <div v-for="item in lovforslag" :key="item.id" class="card">
-      <h2>{{ item.titelkort }}</h2>
-      <p>{{ item.nummer }}</p>
-      <p>{{ item.resume }}</p>
-      <p>{{ item.opdateringsdato }}</p>
-      <nuxt-link :to="`/lovforslag/${item.id}`">View Details</nuxt-link>
-    </div>
-
-    <!-- Pagination Controls -->
-    <div class="pagination">
-      <button :disabled="pagination.currentPage === 1" @click="changePage(pagination.currentPage - 1)">
-        Previous
-      </button>
-      <button @click="changePage(pagination.currentPage + 1)">Next</button>
-    </div>
+    <AdvancedSearch :committees="committees" :politicians="politicians" :ministries="ministries"
+      @search="handleSearch" />
+    <ProposalList :proposals="lovforslag" />
+    <PaginationControls :current-page="pagination.currentPage" :total-pages="pagination.totalPages"
+      @change-page="changePage" />
   </div>
 </template>
 
@@ -128,11 +86,5 @@ const handleSearch = (query: string) => {
   border-radius: 4px;
   padding: 20px;
   margin-bottom: 20px;
-}
-
-.pagination {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 20px;
 }
 </style>

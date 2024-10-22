@@ -746,6 +746,7 @@ export const taleSegment = pgTable(
       mode: 'string',
     }).notNull(),
     embedding: vector('embedding', { dimensions: 768 }).notNull(),
+    chunkIndex: integer('chunk_index').notNull(), // Add this line
   },
   (table) => {
     return {

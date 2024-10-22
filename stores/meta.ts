@@ -1,25 +1,11 @@
 import { defineStore } from 'pinia'
-import type {
-  Periode,
-  Committee,
-  Politician,
-  Ministry,
-  Party,
-  MinisterArea,
-  Actor,
-  ActorType,
-} from '~/types/actors'
+import type { Periode, Actor } from '~/types/actors'
 
 export const useMetaStore = defineStore('meta', {
   state: () => ({
     perioder: [] as Periode[],
     currentPeriode: null as Periode | null,
-    committees: [] as Committee[],
-    politicians: [] as Politician[],
-    ministries: [] as Ministry[],
-    parties: [] as Party[],
-    ministerAreas: [] as MinisterArea[],
-    actors: {} as Record<ActorType, Actor[]>,
+    actors: {} as Record<number, Record<string, Actor[]>>,
   }),
   actions: {
     setPerioder(perioder: Periode[]) {
@@ -28,23 +14,8 @@ export const useMetaStore = defineStore('meta', {
     setCurrentPeriode(periode: Periode | null) {
       this.currentPeriode = periode
     },
-    setCommittees(committees: Committee[]) {
-      this.committees = committees
-    },
-    setPoliticians(politicians: Politician[]) {
-      this.politicians = politicians
-    },
-    setMinistries(ministries: Ministry[]) {
-      this.ministries = ministries
-    },
-    setParties(parties: Party[]) {
-      this.parties = parties
-    },
-    setMinisterAreas(ministerAreas: MinisterArea[]) {
-      this.ministerAreas = ministerAreas
-    },
-    setActors(actors: Record<ActorType, Actor[]>) {
-      this.actors = actors
+    setActors(periodeId: number, actors: Record<string, Actor[]>) {
+      this.actors[periodeId] = actors
     },
   },
 })

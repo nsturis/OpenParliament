@@ -37,8 +37,8 @@ export default defineEventHandler(async (event) => {
       })
       .from(aktør)
       .innerJoin(aktørtype, eq(aktør.typeid, aktørtype.id))
-      .leftJoin(sagAktør, eq(sagAktør.aktørid, aktør.id))
-      .leftJoin(sagAktørRolle, eq(sagAktør.rolleid, sagAktørRolle.id))
+      .innerJoin(sagAktør, eq(sagAktør.aktørid, aktør.id))
+      .innerJoin(sagAktørRolle, eq(sagAktør.rolleid, sagAktørRolle.id))
       .where(and(...conditions))
       .orderBy(aktør.navn)
 

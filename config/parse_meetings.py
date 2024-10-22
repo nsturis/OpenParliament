@@ -54,7 +54,7 @@ def parse_meeting_xml(file_path: str) -> Dict[str, Any]:
         "mødeDato": meta_meeting.xpath("./DateOfSitting/text()")[0],
         "mødeNummer": meta_meeting.xpath("./MeetingNumber/text()")[0],
     }
-    # Extract agenda items and proposals
+    # Extract agenda items and cases
     agenda_items = []
     for dagsorden_punkt in root.xpath("//DagsordenPunkt"):
         meta_ft_agenda_item = dagsorden_punkt.xpath("./MetaFTAgendaItem")[0]

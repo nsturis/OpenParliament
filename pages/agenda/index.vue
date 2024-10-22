@@ -31,9 +31,8 @@
 
 <script setup lang="ts">
 import { useAktørStore } from '~/stores/aktør'
-import { useCurrentPeriode } from '~/composables/usePerioder'
+import { useMetadata } from '~/composables/useMetadata'
 import type { Meeting, MeetingType } from '~/types/meeting'
-import type { Aktør } from '~/types/aktør'
 
 interface weeklyDocket {
   date: string
@@ -48,7 +47,7 @@ interface weeklyDocket {
 }
 
 const aktørStore = useAktørStore()
-const { currentPeriode } = useCurrentPeriode()
+const { currentPeriode } = useMetadata()
 
 const weeklyDocket = ref<Meeting[]>([])
 const meetingTypes = ref<MeetingType[]>([])

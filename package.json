@@ -16,6 +16,7 @@
     "cli": "tsx utils/cli.ts",
     "parse-meetings": "tsx scripts/parseMeetings.ts",
     "process-documents": "tsx scripts/processDocuments.ts",
+    "update-embeddings": "tsx scripts/update_embeddings.ts",
     "new:page": "hygen page new",
     "new:component": "hygen component new"
   },

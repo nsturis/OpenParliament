@@ -1,18 +1,11 @@
 import { useMetaStore } from '~/stores/meta'
 import { storeToRefs } from 'pinia'
-import type { Periode, Actor, ActorType } from '~/types/actors'
+import { ref, watch } from 'vue'
+import type { Periode, Actor } from '~/types/actors'
 
 export function useMetadata() {
   const metaStore = useMetaStore()
-  const {
-    perioder,
-    currentPeriode,
-    committees,
-    politicians,
-    ministries,
-    parties,
-    ministerAreas,
-  } = storeToRefs(metaStore)
+  const { perioder, currentPeriode, actors } = storeToRefs(metaStore)
 
   const fetchCurrentPeriodeAndMetadata = async () => {
     if (perioder.value.length === 0) {
@@ -34,29 +27,40 @@ export function useMetadata() {
     }
   }
 
+  const actorTypes = ref<string[]>([])
+
   const fetchActorsForPeriode = async (periodeId: number) => {
-    const fetchedActors = await $fetch<Actor[]>('/api/actors', {
+    if (metaStore.actors[periodeId]) {
+      // Actors for this period are already fetched.
+      return
+    }
+
+    const fetchedActors = await $fetch<Actor[]>('/api/actors/by-period', {
       params: { periodeId },
     })
 
-    const groupedActors = fetchedActors.reduce((acc, actor) => {
-      if (!acc[actor.type]) acc[actor.type] = []
-      acc[actor.type].push(actor)
-      return acc
-    }, {} as Record<ActorType, Actor[]>)
+    // Extract unique actor types
+    const typesSet = new Set<string>()
+    fetchedActors.forEach((actor) => typesSet.add(actor.type))
+    actorTypes.value = Array.from(typesSet)
 
-    metaStore.setActors(groupedActors)
+    // Group actors by their type
+    const groupedActors = fetchedActors.reduce((acc, actor) => {
+      const actorType = actor.type || 'Unknown'
+      if (!acc[actorType]) acc[actorType] = []
+      acc[actorType].push(actor)
+      return acc
+    }, {} as Record<string, Actor[]>)
+
+    metaStore.setActors(periodeId, groupedActors)
   }
 
   return {
     perioder,
     currentPeriode,
-    committees,
-    politicians,
-    ministries,
-    parties,
-    ministerAreas,
+    actors,
     fetchCurrentPeriodeAndMetadata,
     setCurrentPeriode,
+    actorTypes,
   }
 }

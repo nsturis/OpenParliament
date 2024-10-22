@@ -41,7 +41,6 @@ model = AutoModel.from_pretrained(model_name)
 
 def preprocess_danish_text(text):
     # Convert to lowercase
-    text = text.lower()
 
     # # Remove special characters and digits
     # text = re.sub(r"[^a-zæøå\s]", "", text)

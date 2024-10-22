@@ -99,19 +99,19 @@ async function processDocument(filePath: string) {
       .where(eq(filContent.filId, parseInt(fileId)))
       .limit(1)
     // Also only process files that are younger than 01-01-2022 by looking up in hte database for the fileId and filter by date
-    const shouldProcess = await db
-      .select()
-      .from(fil)
-      .innerJoin(dokument, eq(fil.dokumentid, dokument.id))
-      .where(
-        and(
-          eq(fil.id, parseInt(fileId)),
-          gt(dokument.dato, new Date('2022-01-01'))
-        )
-      )
-      .limit(1)
+    // const shouldProcess = await db
+    //   .select()
+    //   .from(fil)
+    //   .innerJoin(dokument, eq(fil.dokumentid, dokument.id))
+    //   .where(
+    //     and(
+    //       eq(fil.id, parseInt(fileId)),
+    //       gt(dokument.dato, new Date('2022-01-01'))
+    //     )
+    //   )
+    //   .limit(1)
 
-    if (existingDoc.length > 0 && shouldProcess.length === 0) {
+    if (existingDoc.length > 0) {
       console.log(`Skipping ${fileName} as it has already been processed`)
       return
     }

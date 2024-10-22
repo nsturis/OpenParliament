@@ -1,5 +1,5 @@
-import { defineNuxtConfig } from 'nuxt/config';
-
+import { defineNuxtConfig } from 'nuxt/config'
+import consola from 'consola'
 // https://v3.nuxtjs.org/api/configuration/nuxt.config
 export default defineNuxtConfig({
   srcDir: '',
@@ -67,4 +67,4 @@ export default defineNuxtConfig({
   },
 
   compatibilityDate: '2024-08-17',
-});
+})

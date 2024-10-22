@@ -1,11 +1,15 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref, reactive, watch } from 'vue'
 import { useMainStore } from '@/stores/main'
 import { useMetadata } from '~/composables/useMetadata'
 import type { Sag } from '~/types/sag'
+import PeriodSelector from '~/components/PeriodSelector.vue'
+import AdvancedSearch from '~/components/AdvancedSearch.vue'
+import CaseTable from '~/components/CaseTable.vue'
+import PaginationControls from '~/components/PaginationControls.vue'
 
 const mainStore = useMainStore()
-const { perioder, currentPeriode, committees, politicians, ministries, fetchAllMetadata, setCurrentPeriode } = useMetadata()
+const { perioder, currentPeriode, setCurrentPeriode } = useMetadata()
 
 const searchQuery = ref('')
 
@@ -33,50 +37,44 @@ const fetchLovforslag = async () => {
   return []
 }
 
-const { data: lovforslag, refresh } = useAsyncData(
-  'lovforslag',
-  fetchLovforslag
-)
+const { data: lovforslag } = await useAsyncData('lovforslag', fetchLovforslag)
 
 const handleSearch = (query: string) => {
   searchQuery.value = query
   pagination.currentPage = 1 // Reset to first page on new search
-  refresh()
 }
 
 const changePage = (newPage: number) => {
   pagination.currentPage = newPage
-  refresh()
 }
 
-onMounted(async () => {
-  mainStore.updateHeaderTitle('Lovforslag')
-  await fetchAllMetadata()
-  setCurrentPeriode(perioder.value[0]?.id ?? null)
-  refresh()
-})
+watch(
+  [currentPeriode, searchQuery, pagination.currentPage],
+  async () => {
+    lovforslag.value = await fetchLovforslag()
+  },
+  { immediate: true }
+)
 
-watch(currentPeriode, () => {
-  setCurrentPeriode(currentPeriode.value?.id ?? null)
-  pagination.currentPage = 1 // Reset to first page when changing period
-  refresh()
+onMounted(() => {
+  mainStore.updateHeaderTitle('Lovforslag')
 })
 </script>
 
 <template>
   <div class="container mx-auto py-10">
-    <USelectMenu v-model="currentPeriode" :options="perioder" class="mb-4 w-full lg:w-96" placeholder="Vælg en periode"
-      searchable searchable-placeholder="Search by period title" option-attribute="titel" value-attribute="id"
-      :search-attributes="['titel']">
-      <template #label>
-        {{ currentPeriode?.titel }}
-      </template>
-    </USelectMenu>
-    <AdvancedSearch :committees="committees" :politicians="politicians" :ministries="ministries"
-      @search="handleSearch" />
-    <ProposalList :proposals="lovforslag" />
-    <PaginationControls :current-page="pagination.currentPage" :total-pages="pagination.totalPages"
-      @change-page="changePage" />
+    <PeriodSelector
+      :current-periode="currentPeriode"
+      :perioder="perioder"
+      @update:current-periode="setCurrentPeriode"
+    />
+    <AdvancedSearch @search="handleSearch" />
+    <CaseTable :cases="lovforslag" />
+    <PaginationControls
+      :current-page="pagination.currentPage"
+      :total-pages="pagination.totalPages"
+      @change-page="changePage"
+    />
   </div>
 </template>
 

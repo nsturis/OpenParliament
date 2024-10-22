@@ -2,10 +2,11 @@ import { useMetaStore } from '~/stores/meta'
 import { storeToRefs } from 'pinia'
 import { ref, watch } from 'vue'
 import type { Periode, Actor } from '~/types/actors'
+import type { Sagstype } from '~/types/sag'
 
 export function useMetadata() {
   const metaStore = useMetaStore()
-  const { perioder, currentPeriode, actors } = storeToRefs(metaStore)
+  const { perioder, currentPeriode, actors, sagstyper, currentSagstype } = storeToRefs(metaStore)
 
   const fetchCurrentPeriodeAndMetadata = async () => {
     if (perioder.value.length === 0) {
@@ -17,6 +18,14 @@ export function useMetadata() {
         await setCurrentPeriode(mostRecentPeriode.id)
       }
     }
+
+    if (sagstyper.value.length === 0) {
+      const fetchedSagstyper = await $fetch<Sagstype[]>('/api/sag/types')
+      metaStore.setSagstyper(fetchedSagstyper)
+      if (fetchedSagstyper.length > 0) {
+        setCurrentSagstype(fetchedSagstyper[0].id)
+      }
+    }
   }
 
   const setCurrentPeriode = async (periodeId: number) => {
@@ -25,6 +34,12 @@ export function useMetadata() {
       metaStore.setCurrentPeriode(periode)
       await fetchActorsForPeriode(periodeId)
     }
+  }
+
+  const setCurrentSagstype = (sagstypeId: number) => {
+    const sagstype = sagstyper.value.find((s) => s.id === sagstypeId)
+    metaStore.setCurrentSagstype(sagstype || null)
+    // await fetchSag(sagstypeId)
   }
 
   const actorTypes = ref<string[]>([])
@@ -59,8 +74,11 @@ export function useMetadata() {
     perioder,
     currentPeriode,
     actors,
+    sagstyper,
+    currentSagstype,
     fetchCurrentPeriodeAndMetadata,
     setCurrentPeriode,
+    setCurrentSagstype,
     actorTypes,
   }
 }

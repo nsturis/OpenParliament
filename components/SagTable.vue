@@ -1,7 +1,7 @@
 <template>
-  <UTable :rows="cases" :columns="columns">
+  <UTable :rows="sager" :columns="columns">
     <template #title-data="{ row }">
-      <nuxt-link :to="`/lovforslag/${row.id}`" class="text-blue-600 hover:text-blue-800 transition-colors duration-200">
+      <nuxt-link :to="`/sag/${row.id}`" class="text-blue-600 hover:text-blue-800 transition-colors duration-200">
         {{ row.titelkort }}
       </nuxt-link>
     </template>
@@ -9,21 +9,19 @@
       {{ formatDate(row.opdateringsdato) }}
     </template>
     <template #actions-data="{ row }">
-      <UButton :to="`/lovforslag/${row.id}`" color="primary" variant="soft" size="sm">
+      <UButton :to="`/sager/${row.id}`" color="primary" variant="soft" size="sm">
         Se detaljer
       </UButton>
     </template>
   </UTable>
 </template>
 
-<script setup>
+<script setup lang="ts">
+import type { Sag } from '~/types/sag'
 
-const props = defineProps({
-  cases: {
-    type: Array,
-    required: true,
-  },
-})
+defineProps<{
+  sager: Sag[]
+}>()
 
 const columns = [
   {
@@ -44,7 +42,7 @@ const columns = [
   },
 ]
 
-const formatDate = (dateString) => {
+const formatDate = (dateString: string) => {
   const date = new Date(dateString)
   return date.toLocaleDateString('da-DK', {
     year: 'numeric',

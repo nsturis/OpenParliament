@@ -1,27 +1,24 @@
 <template>
-  <client-only>
-    <USelectMenu
-      v-model="localCurrentPeriode"
-      :options="perioder"
-      class="mb-4 w-full lg:w-96"
-      placeholder="Vælg en periode"
-      searchable
-      searchable-placeholder="Search by period title"
-      option-attribute="titel"
-      value-attribute="id"
-      :search-attributes="['titel']"
-      @change="emitChange"
-    >
-      <template #label>
-        {{ currentPeriode?.titel }}
-      </template>
-    </USelectMenu>
-  </client-only>
+  <USelectMenu
+    v-model="localCurrentPeriode"
+    :options="perioder"
+    class="mb-4 w-full lg:w-96"
+    placeholder="Vælg en periode"
+    searchable
+    searchable-placeholder="Søg efter periode"
+    option-attribute="titel"
+    value-attribute="id"
+    :search-attributes="['titel']"
+    @change="emitChange"
+  >
+    <template #label>
+      {{ currentPeriode?.titel }}
+    </template>
+  </USelectMenu>
 </template>
 
 <script setup lang="ts">
 import type { Periode } from '~/types/actors'
-import { ref, watch } from 'vue'
 
 const props = defineProps<{
   currentPeriode: Periode | null
@@ -31,15 +28,14 @@ const props = defineProps<{
 const emits = defineEmits(['update:currentPeriode'])
 const localCurrentPeriode = ref(props.currentPeriode)
 
-watch(
-  () => props.currentPeriode,
-  (newVal) => {
-    localCurrentPeriode.value = newVal
-  }
-)
+
+watch(props.currentPeriode, (newVal) => {
+  localCurrentPeriode.value = newVal
+})
 
 const emitChange = () => {
   emits('update:currentPeriode', localCurrentPeriode.value)
+  console.log('emitChange', localCurrentPeriode.value)
 }
 </script>
 

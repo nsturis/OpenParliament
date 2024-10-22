@@ -1,20 +1,18 @@
 import { defineEventHandler, getQuery } from 'h3';
-import { eq, and, desc, or, ilike, gte, lte, sql } from 'drizzle-orm';
+import { eq, desc, or, ilike, sql } from 'drizzle-orm';
 import logger from '../../../utils/logger';
 import { db } from '../db';
-import { sag, sagAktør, aktør, aktørtype } from '../../database/schema';
+import { sag } from '../../database/schema';
 
 export default defineEventHandler(async (event) => {
   const query = getQuery(event);
+  console.log(query);
+  const typeid = parseInt(query.typeid as string, 10) || null;
   const periodeid = parseInt(query.periodeid as string, 10) || null;
-  const committee = parseInt(query.committee as string, 10) || null;
-  const politician = parseInt(query.politician as string, 10) || null;
-  const ministry = parseInt(query.ministry as string, 10) || null;
-  const date = (query.date as string) || null;
   const searchQuery = (query.search as string) || '';
   const page = parseInt(query.page as string) || 1;
   const pageSize = parseInt(query.pageSize as string) || 10;
-
+  console.log(typeid, periodeid, searchQuery, page, pageSize);
   try {
     const skip = (page - 1) * pageSize;
     let sagQuery = db
@@ -26,45 +24,17 @@ export default defineEventHandler(async (event) => {
         opdateringsdato: sag.opdateringsdato,
         resume: sag.resume,
         afstemningskonklusion: sag.afstemningskonklusion,
+        typeid: sag.typeid,
+        periodeid: sag.periodeid,
       })
-      .from(sag)
-      .where(eq(sag.typeid, 3));
+      .from(sag);
+
+    if (typeid) {
+      sagQuery = sagQuery.where(eq(sag.typeid, typeid));
+    }
 
     if (periodeid) {
       sagQuery = sagQuery.where(eq(sag.periodeid, periodeid));
-    }
-
-    if (committee) {
-      sagQuery = sagQuery
-        .innerJoin(sagAktør, eq(sagAktør.sagid, sag.id))
-        .innerJoin(aktør, eq(sagAktør.aktørid, aktør.id))
-        .innerJoin(aktørtype, eq(aktør.typeid, aktørtype.id))
-        .where(and(eq(aktørtype.id, 3), eq(aktør.id, committee))); // 3 is for "Udvalg"
-    }
-
-    if (politician) {
-      sagQuery = sagQuery
-        .innerJoin(sagAktør, eq(sagAktør.sagid, sag.id))
-        .innerJoin(aktør, eq(sagAktør.aktørid, aktør.id))
-        .innerJoin(aktørtype, eq(aktør.typeid, aktørtype.id))
-        .where(and(eq(aktørtype.id, 5), eq(aktør.id, politician))); // 5 is for "Person"
-    }
-
-    if (ministry) {
-      sagQuery = sagQuery
-        .innerJoin(sagAktør, eq(sagAktør.sagid, sag.id))
-        .innerJoin(aktør, eq(sagAktør.aktørid, aktør.id))
-        .innerJoin(aktørtype, eq(aktør.typeid, aktørtype.id))
-        .where(and(eq(aktørtype.id, 8), eq(aktør.id, ministry))); // 8 is for "Ministerium"
-    }
-
-    if (date) {
-      sagQuery = sagQuery.where(
-        and(
-          gte(sag.opdateringsdato, new Date(date)),
-          lte(sag.opdateringsdato, new Date(date + 'T23:59:59'))
-        )
-      );
     }
 
     if (searchQuery) {

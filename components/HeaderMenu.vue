@@ -71,7 +71,10 @@ const mainStore = useMainStore()
 const navigation = [
   { name: 'Om Unfuck The System', href: '/' },
   { name: 'Valgtest', href: '/folketingsvalg-2022-valgtest' },
+  { name: 'Ugeplan', href: '/agenda' },
+  { name: 'Sager', href: '/sager' },
   { name: 'Lovforslag', href: '/lovforslag' },
+  { name: 'Møder', href: '/moder' },
 ]
 </script>
 

@@ -5,11 +5,13 @@
         <UInput v-model="startDate" type="date" @change="fetchDocket" />
       </UFormGroup>
       <UFormGroup label="Vælg person">
-        <USelectMenu v-model="selectedPerson" :options="aktørStore.aktører" option-attribute="navn" searchable
+        <USelectMenu
+v-model="selectedPerson" :options="aktører" option-attribute="navn" searchable
           placeholder="Vælg person" @change="fetchDocket" />
       </UFormGroup>
       <UFormGroup label="Vælg mødetype">
-        <UCheckbox v-for="type in meetingTypes" :key="type.id" v-model="selectedMeetingTypes" :label="type.type"
+        <UCheckbox
+v-for="type in meetingTypes" :key="type.id" v-model="selectedMeetingTypes" :label="type.type"
           :value="type.id" @change="fetchDocket" />
       </UFormGroup>
     </div>
@@ -30,11 +32,11 @@
 </template>
 
 <script setup lang="ts">
-import { useAktørStore } from '~/stores/aktør'
 import { useMetadata } from '~/composables/useMetadata'
 import type { Meeting, MeetingType } from '~/types/meeting'
+import type { Actor } from '~/types/actors'
 
-interface weeklyDocket {
+interface WeeklyDocket {
   date: string
   title: string
   startTid: string
@@ -46,8 +48,7 @@ interface weeklyDocket {
   }[]
 }
 
-const aktørStore = useAktørStore()
-const { currentPeriode } = useMetadata()
+const { currentPeriode, actors } = useMetadata()
 
 const weeklyDocket = ref<Meeting[]>([])
 const meetingTypes = ref<MeetingType[]>([])
@@ -63,8 +64,15 @@ const columns = [
   { key: 'agendaItems', label: 'Dagsorden' },
 ]
 
+const aktører = computed(() => {
+  if (currentPeriode.value && actors.value[currentPeriode.value.id]) {
+    return actors.value[currentPeriode.value.id]['Person'] || []
+  }
+  return []
+})
+
 const fetchDocket = async () => {
-  const { data } = await useFetch<{ weeklyDocket: Meeting[], persons: Aktør[], meetingTypes: MeetingType[] }>('/api/ugeplan', {
+  const { data } = await useFetch<{ weeklyDocket: Meeting[], meetingTypes: MeetingType[] }>('/api/ugeplan', {
     params: {
       date: startDate.value,
       aktørId: selectedPerson.value,
@@ -73,19 +81,10 @@ const fetchDocket = async () => {
     }
   })
   weeklyDocket.value = data.value?.weeklyDocket ?? []
-  aktørStore.setAktører(data.value?.persons as Aktør[])
-  meetingTypes.value = data.value?.meetingTypes as MeetingType[]
-}
-
-const fetchPersons = async () => {
-  const persons = await $fetch<Aktør[]>('/api/actors', {
-    params: { typeId: 5 } // 5 is for "Person"
-  })
-  aktørStore.setAktører(persons)
+  meetingTypes.value = data.value?.meetingTypes ?? []
 }
 
 onMounted(async () => {
-  await fetchPersons()
   await fetchDocket()
 })
 

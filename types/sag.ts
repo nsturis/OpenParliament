@@ -53,3 +53,7 @@ export type SagDetails = {
   dokumenter: DokumentWithRelations[];
   taler: TaleSegment[];
 };
+
+export interface Sagstype extends InferSelectModel<typeof schema.sagstype> {}
+
+}

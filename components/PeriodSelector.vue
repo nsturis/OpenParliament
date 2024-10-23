@@ -9,7 +9,7 @@
     option-attribute="titel"
     value-attribute="id"
     :search-attributes="['titel']"
-    @change="emitChange"
+    @change="emitChangePeriode"
   >
     <template #label>
       {{ currentPeriode?.titel }}
@@ -25,17 +25,18 @@ const props = defineProps<{
   perioder: Periode[]
 }>()
 
-const emits = defineEmits(['update:currentPeriode'])
+const emits = defineEmits(['update:current-periode'])
 const localCurrentPeriode = ref(props.currentPeriode)
 
+watch(
+  () => props.currentPeriode,
+  (newVal) => {
+    localCurrentPeriode.value = newVal
+  },
+)
 
-watch(props.currentPeriode, (newVal) => {
-  localCurrentPeriode.value = newVal
-})
-
-const emitChange = () => {
-  emits('update:currentPeriode', localCurrentPeriode.value)
-  console.log('emitChange', localCurrentPeriode.value)
+const emitChangePeriode = () => {
+  emits('update:current-periode', localCurrentPeriode.value)
 }
 </script>
 

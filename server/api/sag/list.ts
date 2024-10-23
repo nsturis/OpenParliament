@@ -6,13 +6,13 @@ import { sag } from '../../database/schema';
 
 export default defineEventHandler(async (event) => {
   const query = getQuery(event);
-  console.log(query);
-  const typeid = parseInt(query.typeid as string, 10) || null;
-  const periodeid = parseInt(query.periodeid as string, 10) || null;
+  console.log(query.typeid, query.periodeid, query.search, query.page, query.pageSize);
+  const typeid = parseInt(query.typeid as string, 10);
+  const periodeid = parseInt(query.periodeid as string, 10);
   const searchQuery = (query.search as string) || '';
   const page = parseInt(query.page as string) || 1;
   const pageSize = parseInt(query.pageSize as string) || 10;
-  console.log(typeid, periodeid, searchQuery, page, pageSize);
+
   try {
     const skip = (page - 1) * pageSize;
     let sagQuery = db
@@ -29,11 +29,11 @@ export default defineEventHandler(async (event) => {
       })
       .from(sag);
 
-    if (typeid) {
+    if (!Number.isNaN(typeid)) {
       sagQuery = sagQuery.where(eq(sag.typeid, typeid));
     }
 
-    if (periodeid) {
+    if (!Number.isNaN(periodeid)) {
       sagQuery = sagQuery.where(eq(sag.periodeid, periodeid));
     }
 
@@ -67,12 +67,7 @@ export default defineEventHandler(async (event) => {
       totalCount,
     };
   } catch (error) {
-    if (error instanceof Error) {
-      logger.error(error);
-      return { error: error.message };
-    } else {
-      logger.error('An unknown error occurred');
-      return { error: 'An unknown error occurred' };
-    }
+    logger.error(error);
+    return { error: error instanceof Error ? error.message : 'An unknown error occurred' };
   }
 });

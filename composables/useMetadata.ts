@@ -8,7 +8,7 @@ export function useMetadata() {
   const metaStore = useMetaStore()
   const { perioder, currentPeriode, actors, sagstyper, currentSagstype } = storeToRefs(metaStore)
 
-  const fetchCurrentPeriodeAndMetadata = async () => {
+  const fetchMetadata = async () => {
     if (perioder.value.length === 0) {
       const fetchedPerioder = await $fetch<Periode[]>('/api/perioder')
       metaStore.setPerioder(fetchedPerioder)
@@ -23,7 +23,7 @@ export function useMetadata() {
       const fetchedSagstyper = await $fetch<Sagstype[]>('/api/sag/types')
       metaStore.setSagstyper(fetchedSagstyper)
       if (fetchedSagstyper.length > 0) {
-        setCurrentSagstype(fetchedSagstyper[0].id)
+        setCurrentSagstype(fetchedSagstyper[2].id)
       }
     }
   }
@@ -76,7 +76,7 @@ export function useMetadata() {
     actors,
     sagstyper,
     currentSagstype,
-    fetchCurrentPeriodeAndMetadata,
+    fetchMetadata,
     setCurrentPeriode,
     setCurrentSagstype,
     actorTypes,

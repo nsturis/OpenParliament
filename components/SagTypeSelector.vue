@@ -1,15 +1,14 @@
 <template>
   <USelectMenu
-    v-model="localSelectedSagType"
+    v-model="selectedSagtypeId"
     :options="sagTypes"
     class="mb-4 w-full lg:w-64"
     placeholder="Vælg en sagstype"
     option-attribute="type"
     value-attribute="id"
-    @change="emitChange"
   >
     <template #label>
-      {{ localSelectedSagType?.type || 'Vælg en sagstype' }}
+      {{ currentSagstype?.type || 'Vælg en sagstype' }}
     </template>
   </USelectMenu>
 </template>
@@ -18,21 +17,17 @@
 import type { Sagstype } from '~/types/sag'
 
 const props = defineProps<{
-  selectedSagType: Sagstype | null
+  currentSagstype: Sagstype | null
   sagTypes: Sagstype[]
 }>()
 
-const emits = defineEmits(['update:selectedSagType'])
-const localSelectedSagType = ref(props.selectedSagType)
+const emit = defineEmits(['update:currentSagstype'])
 
-watch(
-  () => props.selectedSagType,
-  (newVal) => {
-    localSelectedSagType.value = newVal
+const selectedSagtypeId = computed({
+  get: () => props.currentSagstype?.id,
+  set: (newId: number | undefined) => {
+    const newSagstype = props.sagTypes.find(st => st.id === newId) || null
+    emit('update:currentSagstype', newSagstype)
   }
-)
-
-const emitChange = () => {
-  emits('update:selectedSagType', localSelectedSagType.value)
-}
+})
 </script>

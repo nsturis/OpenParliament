@@ -72,8 +72,8 @@ def split_text_into_chunks(text, chunk_size=512, overlap=50) -> List[str]:
     return chunks
 
 
-# # Lead Ministral 8B
-# llm_model, llm_tokenizer = load("mlx-community/Ministral-8B-Instruct-2410-8bit")
+# Load Ministral 8B
+llm_model, llm_tokenizer = load("mlx-community/Ministral-8B-Instruct-2410-8bit")
 
 
 # Modify the DocumentRequest and DocumentResponse classes
@@ -156,26 +156,26 @@ async def get_embedding(request: TextEmbeddingRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-# @app.post("/generate_question", response_model=QuestionResponse)
-# async def generate_question(request: QuestionRequest):
-#     try:
-#         # Preprocess the text before generating question
-#         preprocessed_text = preprocess_danish_text(request.text)
-#         prompt = f"Based on the following Danish text, generate a relevant question:\n\n{preprocessed_text}\n\nQuestion:"
+@app.post("/generate_question", response_model=QuestionResponse)
+async def generate_question(request: QuestionRequest):
+    try:
+        # Preprocess the text before generating question
+        preprocessed_text = preprocess_danish_text(request.text)
+        prompt = f"Based on the following Danish text, generate a relevant question:\n\n{preprocessed_text}\n\nQuestion:"
 
-#         response = generate(
-#             llm_model,
-#             llm_tokenizer,
-#             prompt=prompt,
-#             max_tokens=100,
-#             verbose=True,
-#             temp=0.7,
-#         )
-#         generated_question = response.strip()
-#         return QuestionResponse(question=generated_question)
-#     except Exception as e:
-#         print(f"Error in generate_question: {str(e)}")
-#         raise HTTPException(status_code=500, detail=str(e))
+        response = generate(
+            llm_model,
+            llm_tokenizer,
+            prompt=prompt,
+            max_tokens=100,
+            verbose=True,
+            temp=0.7,
+        )
+        generated_question = response.strip()
+        return QuestionResponse(question=generated_question)
+    except Exception as e:
+        print(f"Error in generate_question: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.get("/health")

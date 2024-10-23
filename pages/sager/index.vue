@@ -4,22 +4,22 @@ import { useMetadata } from '~/composables/useMetadata'
 import type { Sag } from '~/types/sag'
 
 const mainStore = useMainStore()
-const { perioder, currentPeriode, setCurrentPeriode, sagstyper, currentSagstype, setCurrentSagstype, fetchCurrentPeriodeAndMetadata } = useMetadata()
+const {
+  perioder,
+  currentPeriode,
+  setCurrentPeriode,
+  sagstyper,
+  currentSagstype,
+  setCurrentSagstype,
+  fetchMetadata,
+} = useMetadata()
 
-await fetchCurrentPeriodeAndMetadata()
+await fetchMetadata()
 
 const filters = reactive({
-  periodeid: currentPeriode.value?.id || null,
-  typeid: currentSagstype.value?.id || null,
   search: '',
-})
-
-watch(currentPeriode, (newVal) => {
-  filters.periodeid = newVal?.id || null
-})
-
-watch(currentSagstype, (newVal) => {
-  filters.typeid = newVal?.id || null
+  typeid: currentSagstype?.id || null,
+  periodeid: currentPeriode?.id || null,
 })
 
 const pagination = reactive({
@@ -28,26 +28,25 @@ const pagination = reactive({
   totalPages: 1,
 })
 
-const { data: sagData, refresh } = await useAsyncData('sag', () => fetchSager())
-
-async function fetchSager() {
-  const { data } = await useFetch<{ items: Sag[]; totalPages: number }>('/api/sag/list', {
-    params: {
-      ...filters,
-      page: pagination.currentPage,
-      pageSize: pagination.pageSize,
+const { data: sagData, refresh: refreshSagData } = await useAsyncData(
+  'sager',
+  () =>
+    $fetch<{ items: Sag[]; totalPages: number }>('/api/sag/list', {
+      query: {
+        ...filters,
+        page: pagination.currentPage,
+        pageSize: pagination.pageSize,
+      },
+    }),
+  {
+    watch: [filters, () => pagination.currentPage],
+    immediate: true,
+    transform: (response) => {
+      pagination.totalPages = response.totalPages
+      return response.items
     },
-    key: `sager-${JSON.stringify(filters)}-${pagination.currentPage}`,
-  })
-
-  if (data.value) {
-    pagination.totalPages = data.value.totalPages
-    return data.value.items
-  } else {
-    pagination.totalPages = 1
-    return []
   }
-}
+)
 
 const sager = computed(() => sagData.value || [])
 
@@ -61,12 +60,21 @@ const changePage = (newPage: number) => {
 }
 
 watch(
-  [filters, () => pagination.currentPage],
-  () => {
-    refresh()
-  },
-  { deep: true }
+  () => currentSagstype.value,
+  (newVal) => {
+    filters.typeid = newVal?.id || null
+    pagination.currentPage = 1
+  }
 )
+
+watch(
+  () => currentPeriode.value,
+  (newVal) => {
+    filters.periodeid = newVal?.id || null
+    pagination.currentPage = 1
+  }
+)
+
 
 onMounted(() => {
   mainStore.updateHeaderTitle('Sager')
@@ -82,9 +90,9 @@ onMounted(() => {
         @update:current-periode="setCurrentPeriode"
       />
       <SagTypeSelector
-        :selected-sag-type="currentSagstype"
+        :current-sagstype="currentSagstype"
         :sag-types="sagstyper"
-        @update:selected-sag-type="setCurrentSagstype"
+        @update:current-sagtype="setCurrentSagstype"
       />
     </div>
     <AdvancedSearch @search="handleSearch" />
@@ -96,12 +104,3 @@ onMounted(() => {
     />
   </div>
 </template>
-
-<style scoped>
-.card {
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  padding: 20px;
-  margin-bottom: 20px;
-}
-</style>

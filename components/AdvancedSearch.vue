@@ -1,11 +1,11 @@
 <template>
     <div class="advanced-search">
-        <Mentionable v-model="searchQuery" @search="performSearch" />
+        <MentionableSearch v-model="searchQuery" @search="performSearch" />
     </div>
 </template>
 
 <script setup lang="ts">
-import Mentionable from '~/components/Mentionable.vue'
+import MentionableSearch from '~/components/MentionableSearch.vue'
 
 const searchQuery = ref('')
 

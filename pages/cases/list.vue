@@ -1,13 +1,15 @@
 <template>
   <div class="container mx-auto py-10">
-    <FilterSection v-model:periode="currentPeriode" v-model:committee="selectedCommittee"
+    <FilterSection
+v-model:periode="currentPeriode" v-model:committee="selectedCommittee"
       v-model:politician="selectedPolitician" v-model:ministry="selectedMinistry" v-model:date="selectedDate"
       v-model:search-query="searchQuery" :perioder="perioder" :committees="committees" :politicians="politicians"
       :ministries="ministries" />
 
     <ProposalList :cases="lovforslag" />
 
-    <PaginationControls :current-page="pagination.currentPage" :total-pages="pagination.totalPages"
+    <PaginationControls
+:current-page="pagination.currentPage" :total-pages="pagination.totalPages"
       @change-page="changePage" />
   </div>
 </template>
@@ -26,7 +28,7 @@ const {
   committees,
   politicians,
   ministries,
-  fetchCurrentPeriodeAndMetadata,
+  fetchMetadata,
   setCurrentPeriode,
 } = useMetadata()
 
@@ -72,7 +74,7 @@ watch(lovforslagQuery.data, (newData) => {
 })
 
 onMounted(async () => {
-  await fetchCurrentPeriodeAndMetadata()
+  await fetchMetadata()
   mainStore.updateHeaderTitle('Sager')
 })
 

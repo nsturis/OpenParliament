@@ -3,7 +3,7 @@ import { setup } from '@nuxt/test-utils/e2e'
 import {
   startSyncScheduler,
   runManualSync,
-} from '../../../server/oda/scheduler'
+} from '~/server/oda/scheduler'
 
 describe('ODA Scheduler Tests', async () => {
   await setup({

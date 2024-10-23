@@ -8,23 +8,29 @@ export function useMetadata() {
   const metaStore = useMetaStore()
   const { perioder, currentPeriode, actors, sagstyper, currentSagstype } = storeToRefs(metaStore)
 
+  const isLoading = ref(false)
+
   const fetchMetadata = async () => {
-    if (perioder.value.length === 0) {
-      const fetchedPerioder = await $fetch<Periode[]>('/api/perioder')
-      metaStore.setPerioder(fetchedPerioder)
+    isLoading.value = true
+    try {
+      if (perioder.value.length === 0) {
+        const fetchedPerioder = await $fetch<Periode[]>('/api/perioder')
+        metaStore.setPerioder(fetchedPerioder)
 
-      if (fetchedPerioder.length > 0) {
-        const mostRecentPeriode = fetchedPerioder[0]
-        await setCurrentPeriode(mostRecentPeriode.id)
+        if (fetchedPerioder.length > 0) {
+          await setCurrentPeriode(fetchedPerioder[0].id)
+        }
       }
-    }
 
-    if (sagstyper.value.length === 0) {
-      const fetchedSagstyper = await $fetch<Sagstype[]>('/api/sag/types')
-      metaStore.setSagstyper(fetchedSagstyper)
-      if (fetchedSagstyper.length > 0) {
-        setCurrentSagstype(fetchedSagstyper[2].id)
+      if (sagstyper.value.length === 0) {
+        const fetchedSagstyper = await $fetch<Sagstype[]>('/api/sag/types')
+        metaStore.setSagstyper(fetchedSagstyper)
+        if (fetchedSagstyper.length > 0) {
+          setCurrentSagstype(fetchedSagstyper[2].id)
+        }
       }
+    } finally {
+      isLoading.value = false
     }
   }
 
@@ -80,5 +86,6 @@ export function useMetadata() {
     setCurrentPeriode,
     setCurrentSagstype,
     actorTypes,
+    isLoading,
   }
 }

@@ -12,14 +12,13 @@ const {
   currentSagstype,
   setCurrentSagstype,
   fetchMetadata,
+  isLoading: isMetadataLoading,
 } = useMetadata()
-
-await fetchMetadata()
 
 const filters = reactive({
   search: '',
-  typeid: currentSagstype?.id || null,
-  periodeid: currentPeriode?.id || null,
+  typeid: null,
+  periodeid: null,
 })
 
 const pagination = reactive({
@@ -28,25 +27,34 @@ const pagination = reactive({
   totalPages: 1,
 })
 
-const { data: sagData, refresh: refreshSagData } = await useAsyncData(
-  'sager',
-  () =>
-    $fetch<{ items: Sag[]; totalPages: number }>('/api/sag/list', {
+// Add a key for better caching control
+const { data: sagData, pending: isSagLoading } = await useAsyncData(
+  'sager-list',
+  async () => {
+    await fetchMetadata()
+    
+    filters.typeid = currentSagstype.value?.id || null
+    filters.periodeid = currentPeriode.value?.id || null
+
+    return $fetch<{ items: Sag[]; totalPages: number }>('/api/sag/list', {
       query: {
         ...filters,
         page: pagination.currentPage,
         pageSize: pagination.pageSize,
       },
-    }),
+    })
+  },
   {
     watch: [filters, () => pagination.currentPage],
-    immediate: true,
     transform: (response) => {
       pagination.totalPages = response.totalPages
       return response.items
     },
   }
 )
+
+// Add a computed for overall loading state
+const isLoading = computed(() => isMetadataLoading.value || isSagLoading.value)
 
 const sager = computed(() => sagData.value || [])
 
@@ -59,22 +67,21 @@ const changePage = (newPage: number) => {
   pagination.currentPage = newPage
 }
 
-watch(
-  () => currentSagstype.value,
-  (newVal) => {
-    filters.typeid = newVal?.id || null
-    pagination.currentPage = 1
-  }
-)
+// Combine the watchers for both store values
+watch([() => currentSagstype.value, () => currentPeriode.value], ([newSagstype, newPeriode]) => {
+  filters.typeid = newSagstype?.id || null
+  filters.periodeid = newPeriode?.id || null
+  pagination.currentPage = 1
+})
 
-watch(
-  () => currentPeriode.value,
-  (newVal) => {
-    filters.periodeid = newVal?.id || null
-    pagination.currentPage = 1
-  }
-)
-
+// Watch for state changes
+watch([currentSagstype, currentPeriode, sagData], ([newSagstype, newPeriode, newSagData]) => {
+  console.log('State updated:', {
+    sagstype: newSagstype,
+    periode: newPeriode,
+    sager: newSagData
+  })
+})
 
 onMounted(() => {
   mainStore.updateHeaderTitle('Sager')
@@ -83,24 +90,30 @@ onMounted(() => {
 
 <template>
   <div class="container mx-auto py-10">
-    <div class="flex flex-col md:flex-row gap-4 mb-4">
-      <PeriodSelector
-        :current-periode="currentPeriode"
-        :perioder="perioder"
-        @update:current-periode="setCurrentPeriode"
-      />
-      <SagTypeSelector
-        :current-sagstype="currentSagstype"
-        :sag-types="sagstyper"
-        @update:current-sagtype="setCurrentSagstype"
+    <div v-if="isLoading" class="flex justify-center">
+      <ULoadingBar />
+    </div>
+    
+    <div v-else>
+      <div class="flex flex-col md:flex-row gap-4 mb-4">
+        <PeriodSelector
+          :current-periode="currentPeriode"
+          :perioder="perioder"
+          @update:current-periode="setCurrentPeriode"
+        />
+        <SagTypeSelector
+          :current-sagstype="currentSagstype"
+          :sag-types="sagstyper"
+          @update:current-sagtype="setCurrentSagstype"
+        />
+      </div>
+      <AdvancedSearch @search="handleSearch" />
+      <SagTable :sager="sager" />
+      <PaginationControls
+        :current-page="pagination.currentPage"
+        :total-pages="pagination.totalPages"
+        @change-page="changePage"
       />
     </div>
-    <AdvancedSearch @search="handleSearch" />
-    <SagTable :sager="sager" />
-    <PaginationControls
-      :current-page="pagination.currentPage"
-      :total-pages="pagination.totalPages"
-      @change-page="changePage"
-    />
   </div>
 </template>

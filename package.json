@@ -12,6 +12,8 @@
     "lint": "eslint .",
     "prepare": "husky install",
     "test": "vitest",
+    "test:watch": "vitest watch",
+    "test:coverage": "vitest run --coverage",
     "drizzle:generate": "drizzle-kit generate",
     "cli": "tsx utils/cli.ts",
     "parse-meetings": "tsx scripts/parseMeetings.ts",

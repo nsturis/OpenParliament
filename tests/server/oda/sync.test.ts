@@ -1,13 +1,13 @@
 import { describe, it, expect } from 'vitest'
 import { setup } from '@nuxt/test-utils/e2e'
-import { syncAllEntities } from '../../../server/oda/syncEntities'
-import { syncAktør } from '../../../server/oda/syncAktør'
-import { syncAfstemning } from '../../../server/oda/syncAfstemning'
-import { syncDokument } from '../../../server/oda/syncDokument'
-import { syncSag } from '../../../server/oda/syncSag'
-import { syncMøde } from '../../../server/oda/syncMøde'
-import { syncPeriode } from '../../../server/oda/syncPeriode'
-import { syncStemme } from '../../../server/oda/syncStemme'
+import { syncAllEntities } from '~/server/oda/syncEntities'
+import { syncAktør } from '~/server/oda/syncAktør'
+import { syncAfstemning } from '~/server/oda/syncAfstemning'
+import { syncDokument } from '~/server/oda/syncDokument'
+import { syncSag } from '~/server/oda/syncSag'
+import { syncMøde } from '~/server/oda/syncMøde'
+import { syncPeriode } from '~/server/oda/syncPeriode'
+import { syncStemme } from '~/server/oda/syncStemme'
 
 describe('ODA Sync Tests', async () => {
   await setup({

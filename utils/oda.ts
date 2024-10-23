@@ -231,7 +231,7 @@ export type FtDomainModelsAktstykkeUpdate = {
 /**
  * Aktør
  */
-export type FtDomainModelsAktor = {
+export type FtDomainModelsAktør = {
   id?: number
   typeid?: number
   gruppenavnkort?: string | null
@@ -252,20 +252,20 @@ export type FtDomainModelsAktor = {
    * @example "2017-04-13T15:51:04Z"
    */
   slutdato?: Date | null
-  FraAktørAktør?: FtDomainModelsAktorAktor[]
-  TilAktørAktør?: FtDomainModelsAktorAktor[]
-  DokumentAktør?: FtDomainModelsDokumentAktor[]
-  MødeAktør?: FtDomainModelsModeAktor[]
-  SagAktør?: FtDomainModelsSagAktor[]
-  SagstrinAktør?: FtDomainModelsSagstrinAktor[]
+  FraAktørAktør?: FtDomainModelsAktørAktør[]
+  TilAktørAktør?: FtDomainModelsAktørAktør[]
+  DokumentAktør?: FtDomainModelsDokumentAktør[]
+  MødeAktør?: FtDomainModelsMødeAktør[]
+  SagAktør?: FtDomainModelsSagAktør[]
+  SagstrinAktør?: FtDomainModelsSagstrinAktør[]
   Stemme?: FtDomainModelsStemme[]
-  Aktørtype?: FtDomainModelsAktortype | null
+  Aktørtype?: FtDomainModelsAktørtype | null
   Periode?: FtDomainModelsPeriode | null
 }
 /**
  * Aktør (for create)
  */
-export type FtDomainModelsAktorCreate = {
+export type FtDomainModelsAktørCreate = {
   id: number
   typeid?: number
   gruppenavnkort?: string | null
@@ -286,20 +286,20 @@ export type FtDomainModelsAktorCreate = {
    * @example "2017-04-13T15:51:04Z"
    */
   slutdato?: Date | null
-  FraAktørAktør?: FtDomainModelsAktorAktorCreate[]
-  TilAktørAktør?: FtDomainModelsAktorAktorCreate[]
-  DokumentAktør?: FtDomainModelsDokumentAktorCreate[]
-  MødeAktør?: FtDomainModelsModeAktorCreate[]
-  SagAktør?: FtDomainModelsSagAktorCreate[]
-  SagstrinAktør?: FtDomainModelsSagstrinAktorCreate[]
+  FraAktørAktør?: FtDomainModelsAktørAktørCreate[]
+  TilAktørAktør?: FtDomainModelsAktørAktørCreate[]
+  DokumentAktør?: FtDomainModelsDokumentAktørCreate[]
+  MødeAktør?: FtDomainModelsMødeAktørCreate[]
+  SagAktør?: FtDomainModelsSagAktørCreate[]
+  SagstrinAktør?: FtDomainModelsSagstrinAktørCreate[]
   Stemme?: FtDomainModelsStemmeCreate[]
-  Aktørtype?: FtDomainModelsAktortypeCreate | null
+  Aktørtype?: FtDomainModelsAktørtypeCreate | null
   Periode?: FtDomainModelsPeriodeCreate | null
 }
 /**
  * Aktør (for update)
  */
-export type FtDomainModelsAktorUpdate = {
+export type FtDomainModelsAktørUpdate = {
   typeid?: number
   gruppenavnkort?: string | null
   navn?: string | null
@@ -323,7 +323,7 @@ export type FtDomainModelsAktorUpdate = {
 /**
  * AktørAktør
  */
-export type FtDomainModelsAktorAktor = {
+export type FtDomainModelsAktørAktør = {
   id?: number
   fraaktørid?: number
   tilaktørid?: number
@@ -340,14 +340,14 @@ export type FtDomainModelsAktorAktor = {
    */
   opdateringsdato?: Date
   rolleid?: number
-  FraAktør?: FtDomainModelsAktor | null
-  TilAktør?: FtDomainModelsAktor | null
-  AktørAktørRolle?: FtDomainModelsAktorAktorRolle | null
+  FraAktør?: FtDomainModelsAktør | null
+  TilAktør?: FtDomainModelsAktør | null
+  AktørAktørRolle?: FtDomainModelsAktørAktørRolle | null
 }
 /**
  * AktørAktør (for create)
  */
-export type FtDomainModelsAktorAktorCreate = {
+export type FtDomainModelsAktørAktørCreate = {
   id: number
   fraaktørid?: number
   tilaktørid?: number
@@ -364,14 +364,14 @@ export type FtDomainModelsAktorAktorCreate = {
    */
   opdateringsdato?: Date
   rolleid?: number
-  FraAktør?: FtDomainModelsAktorCreate | null
-  TilAktør?: FtDomainModelsAktorCreate | null
-  AktørAktørRolle?: FtDomainModelsAktorAktorRolleCreate | null
+  FraAktør?: FtDomainModelsAktørCreate | null
+  TilAktør?: FtDomainModelsAktørCreate | null
+  AktørAktørRolle?: FtDomainModelsAktørAktørRolleCreate | null
 }
 /**
  * AktørAktør (for update)
  */
-export type FtDomainModelsAktorAktorUpdate = {
+export type FtDomainModelsAktørAktørUpdate = {
   fraaktørid?: number
   tilaktørid?: number
   /**
@@ -391,31 +391,31 @@ export type FtDomainModelsAktorAktorUpdate = {
 /**
  * AktørAktørRolle
  */
-export type FtDomainModelsAktorAktorRolle = {
+export type FtDomainModelsAktørAktørRolle = {
   id?: number
   rolle?: string | null
   /**
    * @example "2017-04-13T15:51:04Z"
    */
   opdateringsdato?: Date
-  AktørAktør?: FtDomainModelsAktorAktor[]
+  AktørAktør?: FtDomainModelsAktørAktør[]
 }
 /**
  * AktørAktørRolle (for create)
  */
-export type FtDomainModelsAktorAktorRolleCreate = {
+export type FtDomainModelsAktørAktørRolleCreate = {
   id: number
   rolle?: string | null
   /**
    * @example "2017-04-13T15:51:04Z"
    */
   opdateringsdato?: Date
-  AktørAktør?: FtDomainModelsAktorAktorCreate[]
+  AktørAktør?: FtDomainModelsAktørAktørCreate[]
 }
 /**
  * AktørAktørRolle (for update)
  */
-export type FtDomainModelsAktorAktorRolleUpdate = {
+export type FtDomainModelsAktørAktørRolleUpdate = {
   rolle?: string | null
   /**
    * @example "2017-04-13T15:51:04Z"
@@ -425,31 +425,31 @@ export type FtDomainModelsAktorAktorRolleUpdate = {
 /**
  * Aktørtype
  */
-export type FtDomainModelsAktortype = {
+export type FtDomainModelsAktørtype = {
   id?: number
   type?: string | null
   /**
    * @example "2017-04-13T15:51:04Z"
    */
   opdateringsdato?: Date
-  Aktør?: FtDomainModelsAktor[]
+  Aktør?: FtDomainModelsAktør[]
 }
 /**
  * Aktørtype (for create)
  */
-export type FtDomainModelsAktortypeCreate = {
+export type FtDomainModelsAktørtypeCreate = {
   id: number
   type?: string | null
   /**
    * @example "2017-04-13T15:51:04Z"
    */
   opdateringsdato?: Date
-  Aktør?: FtDomainModelsAktorCreate[]
+  Aktør?: FtDomainModelsAktørCreate[]
 }
 /**
  * Aktørtype (for update)
  */
-export type FtDomainModelsAktortypeUpdate = {
+export type FtDomainModelsAktørtypeUpdate = {
   type?: string | null
   /**
    * @example "2017-04-13T15:51:04Z"
@@ -918,7 +918,7 @@ export type FtDomainModelsDokument = {
   opdateringsdato?: Date
   DagsordenspunktDokument?: FtDomainModelsDagsordenspunktDokument[]
   SvarDokumenter?: FtDomainModelsDokument[]
-  DokumentAktør?: FtDomainModelsDokumentAktor[]
+  DokumentAktør?: FtDomainModelsDokumentAktør[]
   EmneordDokument?: FtDomainModelsEmneordDokument[]
   Fil?: FtDomainModelsFil[]
   Omtryk?: FtDomainModelsOmtryk[]
@@ -965,7 +965,7 @@ export type FtDomainModelsDokumentCreate = {
   opdateringsdato?: Date
   DagsordenspunktDokument?: FtDomainModelsDagsordenspunktDokumentCreate[]
   SvarDokumenter?: FtDomainModelsDokumentCreate[]
-  DokumentAktør?: FtDomainModelsDokumentAktorCreate[]
+  DokumentAktør?: FtDomainModelsDokumentAktørCreate[]
   EmneordDokument?: FtDomainModelsEmneordDokumentCreate[]
   Fil?: FtDomainModelsFilCreate[]
   Omtryk?: FtDomainModelsOmtrykCreate[]
@@ -1013,7 +1013,7 @@ export type FtDomainModelsDokumentUpdate = {
 /**
  * DokumentAktør
  */
-export type FtDomainModelsDokumentAktor = {
+export type FtDomainModelsDokumentAktør = {
   id?: number
   dokumentid?: number
   aktørid?: number
@@ -1022,14 +1022,14 @@ export type FtDomainModelsDokumentAktor = {
    */
   opdateringsdato?: Date
   rolleid?: number
-  Aktør?: FtDomainModelsAktor | null
+  Aktør?: FtDomainModelsAktør | null
   Dokument?: FtDomainModelsDokument | null
-  DokumentAktørRolle?: FtDomainModelsDokumentAktorRolle | null
+  DokumentAktørRolle?: FtDomainModelsDokumentAktørRolle | null
 }
 /**
  * DokumentAktør (for create)
  */
-export type FtDomainModelsDokumentAktorCreate = {
+export type FtDomainModelsDokumentAktørCreate = {
   id: number
   dokumentid?: number
   aktørid?: number
@@ -1038,14 +1038,14 @@ export type FtDomainModelsDokumentAktorCreate = {
    */
   opdateringsdato?: Date
   rolleid?: number
-  Aktør?: FtDomainModelsAktorCreate | null
+  Aktør?: FtDomainModelsAktørCreate | null
   Dokument?: FtDomainModelsDokumentCreate | null
-  DokumentAktørRolle?: FtDomainModelsDokumentAktorRolleCreate | null
+  DokumentAktørRolle?: FtDomainModelsDokumentAktørRolleCreate | null
 }
 /**
  * DokumentAktør (for update)
  */
-export type FtDomainModelsDokumentAktorUpdate = {
+export type FtDomainModelsDokumentAktørUpdate = {
   dokumentid?: number
   aktørid?: number
   /**
@@ -1057,31 +1057,31 @@ export type FtDomainModelsDokumentAktorUpdate = {
 /**
  * DokumentAktørRolle
  */
-export type FtDomainModelsDokumentAktorRolle = {
+export type FtDomainModelsDokumentAktørRolle = {
   id?: number
   rolle?: string | null
   /**
    * @example "2017-04-13T15:51:04Z"
    */
   opdateringsdato?: Date
-  DokumentAktør?: FtDomainModelsDokumentAktor[]
+  DokumentAktør?: FtDomainModelsDokumentAktør[]
 }
 /**
  * DokumentAktørRolle (for create)
  */
-export type FtDomainModelsDokumentAktorRolleCreate = {
+export type FtDomainModelsDokumentAktørRolleCreate = {
   id: number
   rolle?: string | null
   /**
    * @example "2017-04-13T15:51:04Z"
    */
   opdateringsdato?: Date
-  DokumentAktør?: FtDomainModelsDokumentAktorCreate[]
+  DokumentAktør?: FtDomainModelsDokumentAktørCreate[]
 }
 /**
  * DokumentAktørRolle (for update)
  */
-export type FtDomainModelsDokumentAktorRolleUpdate = {
+export type FtDomainModelsDokumentAktørRolleUpdate = {
   rolle?: string | null
   /**
    * @example "2017-04-13T15:51:04Z"
@@ -1772,7 +1772,7 @@ export type FtDomainModelsMode = {
   opdateringsdato?: Date
   Afstemning?: FtDomainModelsAfstemning[]
   Dagsordenspunkt?: FtDomainModelsDagsordenspunkt[]
-  MødeAktør?: FtDomainModelsModeAktor[]
+  MødeAktør?: FtDomainModelsMødeAktør[]
   Mødestatus?: FtDomainModelsModestatus | null
   Mødetype?: FtDomainModelsModetype | null
   Periode?: FtDomainModelsPeriode | null
@@ -1801,7 +1801,7 @@ export type FtDomainModelsModeCreate = {
   opdateringsdato?: Date
   Afstemning?: FtDomainModelsAfstemningCreate[]
   Dagsordenspunkt?: FtDomainModelsDagsordenspunktCreate[]
-  MødeAktør?: FtDomainModelsModeAktorCreate[]
+  MødeAktør?: FtDomainModelsMødeAktørCreate[]
   Mødestatus?: FtDomainModelsModestatusCreate | null
   Mødetype?: FtDomainModelsModetypeCreate | null
   Periode?: FtDomainModelsPeriodeCreate | null
@@ -1831,7 +1831,7 @@ export type FtDomainModelsModeUpdate = {
 /**
  * MødeAktør
  */
-export type FtDomainModelsModeAktor = {
+export type FtDomainModelsMødeAktør = {
   id?: number
   mødeid?: number
   aktørid?: number
@@ -1839,13 +1839,13 @@ export type FtDomainModelsModeAktor = {
    * @example "2017-04-13T15:51:04Z"
    */
   opdateringsdato?: Date
-  Aktør?: FtDomainModelsAktor | null
+  Aktør?: FtDomainModelsAktør | null
   Møde?: FtDomainModelsMode | null
 }
 /**
  * MødeAktør (for create)
  */
-export type FtDomainModelsModeAktorCreate = {
+export type FtDomainModelsMødeAktørCreate = {
   id: number
   mødeid?: number
   aktørid?: number
@@ -1853,13 +1853,13 @@ export type FtDomainModelsModeAktorCreate = {
    * @example "2017-04-13T15:51:04Z"
    */
   opdateringsdato?: Date
-  Aktør?: FtDomainModelsAktorCreate | null
+  Aktør?: FtDomainModelsAktørCreate | null
   Møde?: FtDomainModelsModeCreate | null
 }
 /**
  * MødeAktør (for update)
  */
-export type FtDomainModelsModeAktorUpdate = {
+export type FtDomainModelsMødeAktørUpdate = {
   mødeid?: number
   aktørid?: number
   /**
@@ -2004,7 +2004,7 @@ export type FtDomainModelsPeriode = {
    * @example "2017-04-13T15:51:04Z"
    */
   opdateringsdato?: Date
-  Aktør?: FtDomainModelsAktor[]
+  Aktør?: FtDomainModelsAktør[]
   Møde?: FtDomainModelsMode[]
   Sag?: FtDomainModelsSag[]
 }
@@ -2028,7 +2028,7 @@ export type FtDomainModelsPeriodeCreate = {
    * @example "2017-04-13T15:51:04Z"
    */
   opdateringsdato?: Date
-  Aktør?: FtDomainModelsAktorCreate[]
+  Aktør?: FtDomainModelsAktørCreate[]
   Møde?: FtDomainModelsModeCreate[]
   Sag?: FtDomainModelsSagCreate[]
 }
@@ -2101,7 +2101,7 @@ export type FtDomainModelsSag = {
   EmneordSag?: FtDomainModelsEmneordSag[]
   Sagerdelti?: FtDomainModelsSag[]
   Sagerfremsatunder?: FtDomainModelsSag[]
-  SagAktør?: FtDomainModelsSagAktor[]
+  SagAktør?: FtDomainModelsSagAktør[]
   SagDokument?: FtDomainModelsSagDokument[]
   Sagstrin?: FtDomainModelsSagstrin[]
   Periode?: FtDomainModelsPeriode | null
@@ -2160,7 +2160,7 @@ export type FtDomainModelsSagCreate = {
   EmneordSag?: FtDomainModelsEmneordSagCreate[]
   Sagerdelti?: FtDomainModelsSagCreate[]
   Sagerfremsatunder?: FtDomainModelsSagCreate[]
-  SagAktør?: FtDomainModelsSagAktorCreate[]
+  SagAktør?: FtDomainModelsSagAktørCreate[]
   SagDokument?: FtDomainModelsSagDokumentCreate[]
   Sagstrin?: FtDomainModelsSagstrinCreate[]
   Periode?: FtDomainModelsPeriodeCreate | null
@@ -2218,7 +2218,7 @@ export type FtDomainModelsSagUpdate = {
 /**
  * SagAktør
  */
-export type FtDomainModelsSagAktor = {
+export type FtDomainModelsSagAktør = {
   id?: number
   aktørid?: number
   sagid?: number
@@ -2227,14 +2227,14 @@ export type FtDomainModelsSagAktor = {
    */
   opdateringsdato?: Date
   rolleid?: number
-  Aktør?: FtDomainModelsAktor | null
+  Aktør?: FtDomainModelsAktør | null
   Sag?: FtDomainModelsSag | null
-  SagAktørRolle?: FtDomainModelsSagAktorRolle | null
+  SagAktørRolle?: FtDomainModelsSagAktørRolle | null
 }
 /**
  * SagAktør (for create)
  */
-export type FtDomainModelsSagAktorCreate = {
+export type FtDomainModelsSagAktørCreate = {
   id: number
   aktørid?: number
   sagid?: number
@@ -2243,14 +2243,14 @@ export type FtDomainModelsSagAktorCreate = {
    */
   opdateringsdato?: Date
   rolleid?: number
-  Aktør?: FtDomainModelsAktorCreate | null
+  Aktør?: FtDomainModelsAktørCreate | null
   Sag?: FtDomainModelsSagCreate | null
-  SagAktørRolle?: FtDomainModelsSagAktorRolleCreate | null
+  SagAktørRolle?: FtDomainModelsSagAktørRolleCreate | null
 }
 /**
  * SagAktør (for update)
  */
-export type FtDomainModelsSagAktorUpdate = {
+export type FtDomainModelsSagAktørUpdate = {
   aktørid?: number
   sagid?: number
   /**
@@ -2262,31 +2262,31 @@ export type FtDomainModelsSagAktorUpdate = {
 /**
  * SagAktørRolle
  */
-export type FtDomainModelsSagAktorRolle = {
+export type FtDomainModelsSagAktørRolle = {
   id?: number
   rolle?: string | null
   /**
    * @example "2017-04-13T15:51:04Z"
    */
   opdateringsdato?: Date
-  SagAktør?: FtDomainModelsSagAktor[]
+  SagAktør?: FtDomainModelsSagAktør[]
 }
 /**
  * SagAktørRolle (for create)
  */
-export type FtDomainModelsSagAktorRolleCreate = {
+export type FtDomainModelsSagAktørRolleCreate = {
   id: number
   rolle?: string | null
   /**
    * @example "2017-04-13T15:51:04Z"
    */
   opdateringsdato?: Date
-  SagAktør?: FtDomainModelsSagAktorCreate[]
+  SagAktør?: FtDomainModelsSagAktørCreate[]
 }
 /**
  * SagAktørRolle (for update)
  */
-export type FtDomainModelsSagAktorRolleUpdate = {
+export type FtDomainModelsSagAktørRolleUpdate = {
   rolle?: string | null
   /**
    * @example "2017-04-13T15:51:04Z"
@@ -2476,7 +2476,7 @@ export type FtDomainModelsSagstrin = {
   opdateringsdato?: Date
   Afstemning?: FtDomainModelsAfstemning[]
   Dagsordenspunkt?: FtDomainModelsDagsordenspunkt[]
-  SagstrinAktør?: FtDomainModelsSagstrinAktor[]
+  SagstrinAktør?: FtDomainModelsSagstrinAktør[]
   SagstrinDokument?: FtDomainModelsSagstrinDokument[]
   Sambehandlinger_andetsagstrinid?: FtDomainModelsSambehandlinger[]
   Sambehandlinger_førstesagstrinid?: FtDomainModelsSambehandlinger[]
@@ -2506,7 +2506,7 @@ export type FtDomainModelsSagstrinCreate = {
   opdateringsdato?: Date
   Afstemning?: FtDomainModelsAfstemningCreate[]
   Dagsordenspunkt?: FtDomainModelsDagsordenspunktCreate[]
-  SagstrinAktør?: FtDomainModelsSagstrinAktorCreate[]
+  SagstrinAktør?: FtDomainModelsSagstrinAktørCreate[]
   SagstrinDokument?: FtDomainModelsSagstrinDokumentCreate[]
   Sambehandlinger_andetsagstrinid?: FtDomainModelsSambehandlingerCreate[]
   Sambehandlinger_førstesagstrinid?: FtDomainModelsSambehandlingerCreate[]
@@ -2537,7 +2537,7 @@ export type FtDomainModelsSagstrinUpdate = {
 /**
  * SagstrinAktør
  */
-export type FtDomainModelsSagstrinAktor = {
+export type FtDomainModelsSagstrinAktør = {
   id?: number
   sagstrinid?: number
   aktørid?: number
@@ -2546,14 +2546,14 @@ export type FtDomainModelsSagstrinAktor = {
    */
   opdateringsdato?: Date
   rolleid?: number
-  Aktør?: FtDomainModelsAktor | null
+  Aktør?: FtDomainModelsAktør | null
   Sagstrin?: FtDomainModelsSagstrin | null
-  SagstrinAktørRolle?: FtDomainModelsSagstrinAktorRolle | null
+  SagstrinAktørRolle?: FtDomainModelsSagstrinAktørRolle | null
 }
 /**
  * SagstrinAktør (for create)
  */
-export type FtDomainModelsSagstrinAktorCreate = {
+export type FtDomainModelsSagstrinAktørCreate = {
   id: number
   sagstrinid?: number
   aktørid?: number
@@ -2562,14 +2562,14 @@ export type FtDomainModelsSagstrinAktorCreate = {
    */
   opdateringsdato?: Date
   rolleid?: number
-  Aktør?: FtDomainModelsAktorCreate | null
+  Aktør?: FtDomainModelsAktørCreate | null
   Sagstrin?: FtDomainModelsSagstrinCreate | null
-  SagstrinAktørRolle?: FtDomainModelsSagstrinAktorRolleCreate | null
+  SagstrinAktørRolle?: FtDomainModelsSagstrinAktørRolleCreate | null
 }
 /**
  * SagstrinAktør (for update)
  */
-export type FtDomainModelsSagstrinAktorUpdate = {
+export type FtDomainModelsSagstrinAktørUpdate = {
   sagstrinid?: number
   aktørid?: number
   /**
@@ -2581,31 +2581,31 @@ export type FtDomainModelsSagstrinAktorUpdate = {
 /**
  * SagstrinAktørRolle
  */
-export type FtDomainModelsSagstrinAktorRolle = {
+export type FtDomainModelsSagstrinAktørRolle = {
   id?: number
   rolle?: string | null
   /**
    * @example "2017-04-13T15:51:04Z"
    */
   opdateringsdato?: Date
-  SagstrinAktør?: FtDomainModelsSagstrinAktor[]
+  SagstrinAktør?: FtDomainModelsSagstrinAktør[]
 }
 /**
  * SagstrinAktørRolle (for create)
  */
-export type FtDomainModelsSagstrinAktorRolleCreate = {
+export type FtDomainModelsSagstrinAktørRolleCreate = {
   id: number
   rolle?: string | null
   /**
    * @example "2017-04-13T15:51:04Z"
    */
   opdateringsdato?: Date
-  SagstrinAktør?: FtDomainModelsSagstrinAktorCreate[]
+  SagstrinAktør?: FtDomainModelsSagstrinAktørCreate[]
 }
 /**
  * SagstrinAktørRolle (for update)
  */
-export type FtDomainModelsSagstrinAktorRolleUpdate = {
+export type FtDomainModelsSagstrinAktørRolleUpdate = {
   rolle?: string | null
   /**
    * @example "2017-04-13T15:51:04Z"
@@ -2805,7 +2805,7 @@ export type FtDomainModelsStemme = {
    */
   opdateringsdato?: Date
   Afstemning?: FtDomainModelsAfstemning | null
-  Aktør?: FtDomainModelsAktor | null
+  Aktør?: FtDomainModelsAktør | null
   Stemmetype?: FtDomainModelsStemmetype | null
 }
 /**
@@ -2821,7 +2821,7 @@ export type FtDomainModelsStemmeCreate = {
    */
   opdateringsdato?: Date
   Afstemning?: FtDomainModelsAfstemningCreate | null
-  Aktør?: FtDomainModelsAktorCreate | null
+  Aktør?: FtDomainModelsAktørCreate | null
   Stemmetype?: FtDomainModelsStemmetypeCreate | null
 }
 /**
@@ -2955,170 +2955,170 @@ const $date_FtDomainModelsAktstykkeUpdate = (): r.TransformField[] => [
   [['access', 'r\u00E5dsm\u00F8dedato'], ['this']],
   [['access', 'lovnummerdato'], ['this']],
 ]
-const $date_FtDomainModelsAktor = (): r.TransformField[] => [
+const $date_FtDomainModelsAktør = (): r.TransformField[] => [
   [['access', 'opdateringsdato'], ['this']],
   [['access', 'startdato'], ['this']],
   [['access', 'slutdato'], ['this']],
   [
     ['access', 'FraAkt\u00F8rAkt\u00F8r'],
     ['loop'],
-    ['ref', $date_FtDomainModelsAktorAktor],
+    ['ref', $date_FtDomainModelsAktørAktør],
   ],
   [
     ['access', 'TilAkt\u00F8rAkt\u00F8r'],
     ['loop'],
-    ['ref', $date_FtDomainModelsAktorAktor],
+    ['ref', $date_FtDomainModelsAktørAktør],
   ],
   [
     ['access', 'DokumentAkt\u00F8r'],
     ['loop'],
-    ['ref', $date_FtDomainModelsDokumentAktor],
+    ['ref', $date_FtDomainModelsDokumentAktør],
   ],
   [
     ['access', 'M\u00F8deAkt\u00F8r'],
     ['loop'],
-    ['ref', $date_FtDomainModelsModeAktor],
+    ['ref', $date_FtDomainModelsMødeAktør],
   ],
   [
     ['access', 'SagAkt\u00F8r'],
     ['loop'],
-    ['ref', $date_FtDomainModelsSagAktor],
+    ['ref', $date_FtDomainModelsSagAktør],
   ],
   [
     ['access', 'SagstrinAkt\u00F8r'],
     ['loop'],
-    ['ref', $date_FtDomainModelsSagstrinAktor],
+    ['ref', $date_FtDomainModelsSagstrinAktør],
   ],
   [['access', 'Stemme'], ['loop'], ['ref', $date_FtDomainModelsStemme]],
   [
     ['access', 'Akt\u00F8rtype'],
-    ['select', [[['ref', $date_FtDomainModelsAktortype]]]],
+    ['select', [[['ref', $date_FtDomainModelsAktørtype]]]],
   ],
   [
     ['access', 'Periode'],
     ['select', [[['ref', $date_FtDomainModelsPeriode]]]],
   ],
 ]
-const $date_FtDomainModelsAktorCreate = (): r.TransformField[] => [
+const $date_FtDomainModelsAktørCreate = (): r.TransformField[] => [
   [['access', 'opdateringsdato'], ['this']],
   [['access', 'startdato'], ['this']],
   [['access', 'slutdato'], ['this']],
   [
     ['access', 'FraAkt\u00F8rAkt\u00F8r'],
     ['loop'],
-    ['ref', $date_FtDomainModelsAktorAktorCreate],
+    ['ref', $date_FtDomainModelsAktørAktørCreate],
   ],
   [
     ['access', 'TilAkt\u00F8rAkt\u00F8r'],
     ['loop'],
-    ['ref', $date_FtDomainModelsAktorAktorCreate],
+    ['ref', $date_FtDomainModelsAktørAktørCreate],
   ],
   [
     ['access', 'DokumentAkt\u00F8r'],
     ['loop'],
-    ['ref', $date_FtDomainModelsDokumentAktorCreate],
+    ['ref', $date_FtDomainModelsDokumentAktørCreate],
   ],
   [
     ['access', 'M\u00F8deAkt\u00F8r'],
     ['loop'],
-    ['ref', $date_FtDomainModelsModeAktorCreate],
+    ['ref', $date_FtDomainModelsMødeAktørCreate],
   ],
   [
     ['access', 'SagAkt\u00F8r'],
     ['loop'],
-    ['ref', $date_FtDomainModelsSagAktorCreate],
+    ['ref', $date_FtDomainModelsSagAktørCreate],
   ],
   [
     ['access', 'SagstrinAkt\u00F8r'],
     ['loop'],
-    ['ref', $date_FtDomainModelsSagstrinAktorCreate],
+    ['ref', $date_FtDomainModelsSagstrinAktørCreate],
   ],
   [['access', 'Stemme'], ['loop'], ['ref', $date_FtDomainModelsStemmeCreate]],
   [
     ['access', 'Akt\u00F8rtype'],
-    ['select', [[['ref', $date_FtDomainModelsAktortypeCreate]]]],
+    ['select', [[['ref', $date_FtDomainModelsAktørtypeCreate]]]],
   ],
   [
     ['access', 'Periode'],
     ['select', [[['ref', $date_FtDomainModelsPeriodeCreate]]]],
   ],
 ]
-const $date_FtDomainModelsAktorUpdate = (): r.TransformField[] => [
+const $date_FtDomainModelsAktørUpdate = (): r.TransformField[] => [
   [['access', 'opdateringsdato'], ['this']],
   [['access', 'startdato'], ['this']],
   [['access', 'slutdato'], ['this']],
 ]
-const $date_FtDomainModelsAktorAktor = (): r.TransformField[] => [
-  [['access', 'startdato'], ['this']],
-  [['access', 'slutdato'], ['this']],
-  [['access', 'opdateringsdato'], ['this']],
-  [
-    ['access', 'FraAkt\u00F8r'],
-    ['select', [[['ref', $date_FtDomainModelsAktor]]]],
-  ],
-  [
-    ['access', 'TilAkt\u00F8r'],
-    ['select', [[['ref', $date_FtDomainModelsAktor]]]],
-  ],
-  [
-    ['access', 'Akt\u00F8rAkt\u00F8rRolle'],
-    ['select', [[['ref', $date_FtDomainModelsAktorAktorRolle]]]],
-  ],
-]
-const $date_FtDomainModelsAktorAktorCreate = (): r.TransformField[] => [
+const $date_FtDomainModelsAktørAktør = (): r.TransformField[] => [
   [['access', 'startdato'], ['this']],
   [['access', 'slutdato'], ['this']],
   [['access', 'opdateringsdato'], ['this']],
   [
     ['access', 'FraAkt\u00F8r'],
-    ['select', [[['ref', $date_FtDomainModelsAktorCreate]]]],
+    ['select', [[['ref', $date_FtDomainModelsAktør]]]],
   ],
   [
     ['access', 'TilAkt\u00F8r'],
-    ['select', [[['ref', $date_FtDomainModelsAktorCreate]]]],
+    ['select', [[['ref', $date_FtDomainModelsAktør]]]],
   ],
   [
     ['access', 'Akt\u00F8rAkt\u00F8rRolle'],
-    ['select', [[['ref', $date_FtDomainModelsAktorAktorRolleCreate]]]],
+    ['select', [[['ref', $date_FtDomainModelsAktørAktørRolle]]]],
   ],
 ]
-const $date_FtDomainModelsAktorAktorUpdate = (): r.TransformField[] => [
+const $date_FtDomainModelsAktørAktørCreate = (): r.TransformField[] => [
+  [['access', 'startdato'], ['this']],
+  [['access', 'slutdato'], ['this']],
+  [['access', 'opdateringsdato'], ['this']],
+  [
+    ['access', 'FraAkt\u00F8r'],
+    ['select', [[['ref', $date_FtDomainModelsAktørCreate]]]],
+  ],
+  [
+    ['access', 'TilAkt\u00F8r'],
+    ['select', [[['ref', $date_FtDomainModelsAktørCreate]]]],
+  ],
+  [
+    ['access', 'Akt\u00F8rAkt\u00F8rRolle'],
+    ['select', [[['ref', $date_FtDomainModelsAktørAktørRolleCreate]]]],
+  ],
+]
+const $date_FtDomainModelsAktørAktørUpdate = (): r.TransformField[] => [
   [['access', 'startdato'], ['this']],
   [['access', 'slutdato'], ['this']],
   [['access', 'opdateringsdato'], ['this']],
 ]
-const $date_FtDomainModelsAktorAktorRolle = (): r.TransformField[] => [
+const $date_FtDomainModelsAktørAktørRolle = (): r.TransformField[] => [
   [['access', 'opdateringsdato'], ['this']],
   [
     ['access', 'Akt\u00F8rAkt\u00F8r'],
     ['loop'],
-    ['ref', $date_FtDomainModelsAktorAktor],
+    ['ref', $date_FtDomainModelsAktørAktør],
   ],
 ]
-const $date_FtDomainModelsAktorAktorRolleCreate = (): r.TransformField[] => [
+const $date_FtDomainModelsAktørAktørRolleCreate = (): r.TransformField[] => [
   [['access', 'opdateringsdato'], ['this']],
   [
     ['access', 'Akt\u00F8rAkt\u00F8r'],
     ['loop'],
-    ['ref', $date_FtDomainModelsAktorAktorCreate],
+    ['ref', $date_FtDomainModelsAktørAktørCreate],
   ],
 ]
-const $date_FtDomainModelsAktorAktorRolleUpdate = (): r.TransformField[] => [
+const $date_FtDomainModelsAktørAktørRolleUpdate = (): r.TransformField[] => [
   [['access', 'opdateringsdato'], ['this']],
 ]
-const $date_FtDomainModelsAktortype = (): r.TransformField[] => [
+const $date_FtDomainModelsAktørtype = (): r.TransformField[] => [
   [['access', 'opdateringsdato'], ['this']],
-  [['access', 'Akt\u00F8r'], ['loop'], ['ref', $date_FtDomainModelsAktor]],
+  [['access', 'Akt\u00F8r'], ['loop'], ['ref', $date_FtDomainModelsAktør]],
 ]
-const $date_FtDomainModelsAktortypeCreate = (): r.TransformField[] => [
+const $date_FtDomainModelsAktørtypeCreate = (): r.TransformField[] => [
   [['access', 'opdateringsdato'], ['this']],
   [
     ['access', 'Akt\u00F8r'],
     ['loop'],
-    ['ref', $date_FtDomainModelsAktorCreate],
+    ['ref', $date_FtDomainModelsAktørCreate],
   ],
 ]
-const $date_FtDomainModelsAktortypeUpdate = (): r.TransformField[] => [
+const $date_FtDomainModelsAktørtypeUpdate = (): r.TransformField[] => [
   [['access', 'opdateringsdato'], ['this']],
 ]
 const $date_FtDomainModelsAlmdel = (): r.TransformField[] => [
@@ -3288,7 +3288,7 @@ const $date_FtDomainModelsDokument = (): r.TransformField[] => [
   [
     ['access', 'DokumentAkt\u00F8r'],
     ['loop'],
-    ['ref', $date_FtDomainModelsDokumentAktor],
+    ['ref', $date_FtDomainModelsDokumentAktør],
   ],
   [
     ['access', 'EmneordDokument'],
@@ -3342,7 +3342,7 @@ const $date_FtDomainModelsDokumentCreate = (): r.TransformField[] => [
   [
     ['access', 'DokumentAkt\u00F8r'],
     ['loop'],
-    ['ref', $date_FtDomainModelsDokumentAktorCreate],
+    ['ref', $date_FtDomainModelsDokumentAktørCreate],
   ],
   [
     ['access', 'EmneordDokument'],
@@ -3384,11 +3384,11 @@ const $date_FtDomainModelsDokumentUpdate = (): r.TransformField[] => [
   [['access', 'frigivelsesdato'], ['this']],
   [['access', 'opdateringsdato'], ['this']],
 ]
-const $date_FtDomainModelsDokumentAktor = (): r.TransformField[] => [
+const $date_FtDomainModelsDokumentAktør = (): r.TransformField[] => [
   [['access', 'opdateringsdato'], ['this']],
   [
     ['access', 'Akt\u00F8r'],
-    ['select', [[['ref', $date_FtDomainModelsAktor]]]],
+    ['select', [[['ref', $date_FtDomainModelsAktør]]]],
   ],
   [
     ['access', 'Dokument'],
@@ -3396,14 +3396,14 @@ const $date_FtDomainModelsDokumentAktor = (): r.TransformField[] => [
   ],
   [
     ['access', 'DokumentAkt\u00F8rRolle'],
-    ['select', [[['ref', $date_FtDomainModelsDokumentAktorRolle]]]],
+    ['select', [[['ref', $date_FtDomainModelsDokumentAktørRolle]]]],
   ],
 ]
-const $date_FtDomainModelsDokumentAktorCreate = (): r.TransformField[] => [
+const $date_FtDomainModelsDokumentAktørCreate = (): r.TransformField[] => [
   [['access', 'opdateringsdato'], ['this']],
   [
     ['access', 'Akt\u00F8r'],
-    ['select', [[['ref', $date_FtDomainModelsAktorCreate]]]],
+    ['select', [[['ref', $date_FtDomainModelsAktørCreate]]]],
   ],
   [
     ['access', 'Dokument'],
@@ -3411,29 +3411,29 @@ const $date_FtDomainModelsDokumentAktorCreate = (): r.TransformField[] => [
   ],
   [
     ['access', 'DokumentAkt\u00F8rRolle'],
-    ['select', [[['ref', $date_FtDomainModelsDokumentAktorRolleCreate]]]],
+    ['select', [[['ref', $date_FtDomainModelsDokumentAktørRolleCreate]]]],
   ],
 ]
-const $date_FtDomainModelsDokumentAktorUpdate = (): r.TransformField[] => [
+const $date_FtDomainModelsDokumentAktørUpdate = (): r.TransformField[] => [
   [['access', 'opdateringsdato'], ['this']],
 ]
-const $date_FtDomainModelsDokumentAktorRolle = (): r.TransformField[] => [
-  [['access', 'opdateringsdato'], ['this']],
-  [
-    ['access', 'DokumentAkt\u00F8r'],
-    ['loop'],
-    ['ref', $date_FtDomainModelsDokumentAktor],
-  ],
-]
-const $date_FtDomainModelsDokumentAktorRolleCreate = (): r.TransformField[] => [
+const $date_FtDomainModelsDokumentAktørRolle = (): r.TransformField[] => [
   [['access', 'opdateringsdato'], ['this']],
   [
     ['access', 'DokumentAkt\u00F8r'],
     ['loop'],
-    ['ref', $date_FtDomainModelsDokumentAktorCreate],
+    ['ref', $date_FtDomainModelsDokumentAktør],
   ],
 ]
-const $date_FtDomainModelsDokumentAktorRolleUpdate = (): r.TransformField[] => [
+const $date_FtDomainModelsDokumentAktørRolleCreate = (): r.TransformField[] => [
+  [['access', 'opdateringsdato'], ['this']],
+  [
+    ['access', 'DokumentAkt\u00F8r'],
+    ['loop'],
+    ['ref', $date_FtDomainModelsDokumentAktørCreate],
+  ],
+]
+const $date_FtDomainModelsDokumentAktørRolleUpdate = (): r.TransformField[] => [
   [['access', 'opdateringsdato'], ['this']],
 ]
 const $date_FtDomainModelsDokumentkategori = (): r.TransformField[] => [
@@ -3661,7 +3661,7 @@ const $date_FtDomainModelsMode = (): r.TransformField[] => [
   [
     ['access', 'M\u00F8deAkt\u00F8r'],
     ['loop'],
-    ['ref', $date_FtDomainModelsModeAktor],
+    ['ref', $date_FtDomainModelsMødeAktør],
   ],
   [
     ['access', 'M\u00F8destatus'],
@@ -3692,7 +3692,7 @@ const $date_FtDomainModelsModeCreate = (): r.TransformField[] => [
   [
     ['access', 'M\u00F8deAkt\u00F8r'],
     ['loop'],
-    ['ref', $date_FtDomainModelsModeAktorCreate],
+    ['ref', $date_FtDomainModelsMødeAktørCreate],
   ],
   [
     ['access', 'M\u00F8destatus'],
@@ -3711,29 +3711,29 @@ const $date_FtDomainModelsModeUpdate = (): r.TransformField[] => [
   [['access', 'dato'], ['this']],
   [['access', 'opdateringsdato'], ['this']],
 ]
-const $date_FtDomainModelsModeAktor = (): r.TransformField[] => [
+const $date_FtDomainModelsMødeAktør = (): r.TransformField[] => [
   [['access', 'opdateringsdato'], ['this']],
   [
     ['access', 'Akt\u00F8r'],
-    ['select', [[['ref', $date_FtDomainModelsAktor]]]],
+    ['select', [[['ref', $date_FtDomainModelsAktør]]]],
   ],
   [
     ['access', 'M\u00F8de'],
     ['select', [[['ref', $date_FtDomainModelsMode]]]],
   ],
 ]
-const $date_FtDomainModelsModeAktorCreate = (): r.TransformField[] => [
+const $date_FtDomainModelsMødeAktørCreate = (): r.TransformField[] => [
   [['access', 'opdateringsdato'], ['this']],
   [
     ['access', 'Akt\u00F8r'],
-    ['select', [[['ref', $date_FtDomainModelsAktorCreate]]]],
+    ['select', [[['ref', $date_FtDomainModelsAktørCreate]]]],
   ],
   [
     ['access', 'M\u00F8de'],
     ['select', [[['ref', $date_FtDomainModelsModeCreate]]]],
   ],
 ]
-const $date_FtDomainModelsModeAktorUpdate = (): r.TransformField[] => [
+const $date_FtDomainModelsMødeAktørUpdate = (): r.TransformField[] => [
   [['access', 'opdateringsdato'], ['this']],
 ]
 const $date_FtDomainModelsModestatus = (): r.TransformField[] => [
@@ -3782,7 +3782,7 @@ const $date_FtDomainModelsPeriode = (): r.TransformField[] => [
   [['access', 'startdato'], ['this']],
   [['access', 'slutdato'], ['this']],
   [['access', 'opdateringsdato'], ['this']],
-  [['access', 'Akt\u00F8r'], ['loop'], ['ref', $date_FtDomainModelsAktor]],
+  [['access', 'Akt\u00F8r'], ['loop'], ['ref', $date_FtDomainModelsAktør]],
   [['access', 'M\u00F8de'], ['loop'], ['ref', $date_FtDomainModelsMode]],
   [['access', 'Sag'], ['loop'], ['ref', $date_FtDomainModelsSag]],
 ]
@@ -3793,7 +3793,7 @@ const $date_FtDomainModelsPeriodeCreate = (): r.TransformField[] => [
   [
     ['access', 'Akt\u00F8r'],
     ['loop'],
-    ['ref', $date_FtDomainModelsAktorCreate],
+    ['ref', $date_FtDomainModelsAktørCreate],
   ],
   [['access', 'M\u00F8de'], ['loop'], ['ref', $date_FtDomainModelsModeCreate]],
   [['access', 'Sag'], ['loop'], ['ref', $date_FtDomainModelsSagCreate]],
@@ -3819,7 +3819,7 @@ const $date_FtDomainModelsSag = (): r.TransformField[] => [
   [
     ['access', 'SagAkt\u00F8r'],
     ['loop'],
-    ['ref', $date_FtDomainModelsSagAktor],
+    ['ref', $date_FtDomainModelsSagAktør],
   ],
   [
     ['access', 'SagDokument'],
@@ -3876,7 +3876,7 @@ const $date_FtDomainModelsSagCreate = (): r.TransformField[] => [
   [
     ['access', 'SagAkt\u00F8r'],
     ['loop'],
-    ['ref', $date_FtDomainModelsSagAktorCreate],
+    ['ref', $date_FtDomainModelsSagAktørCreate],
   ],
   [
     ['access', 'SagDokument'],
@@ -3919,11 +3919,11 @@ const $date_FtDomainModelsSagUpdate = (): r.TransformField[] => [
   [['access', 'r\u00E5dsm\u00F8dedato'], ['this']],
   [['access', 'lovnummerdato'], ['this']],
 ]
-const $date_FtDomainModelsSagAktor = (): r.TransformField[] => [
+const $date_FtDomainModelsSagAktør = (): r.TransformField[] => [
   [['access', 'opdateringsdato'], ['this']],
   [
     ['access', 'Akt\u00F8r'],
-    ['select', [[['ref', $date_FtDomainModelsAktor]]]],
+    ['select', [[['ref', $date_FtDomainModelsAktør]]]],
   ],
   [
     ['access', 'Sag'],
@@ -3931,14 +3931,14 @@ const $date_FtDomainModelsSagAktor = (): r.TransformField[] => [
   ],
   [
     ['access', 'SagAkt\u00F8rRolle'],
-    ['select', [[['ref', $date_FtDomainModelsSagAktorRolle]]]],
+    ['select', [[['ref', $date_FtDomainModelsSagAktørRolle]]]],
   ],
 ]
-const $date_FtDomainModelsSagAktorCreate = (): r.TransformField[] => [
+const $date_FtDomainModelsSagAktørCreate = (): r.TransformField[] => [
   [['access', 'opdateringsdato'], ['this']],
   [
     ['access', 'Akt\u00F8r'],
-    ['select', [[['ref', $date_FtDomainModelsAktorCreate]]]],
+    ['select', [[['ref', $date_FtDomainModelsAktørCreate]]]],
   ],
   [
     ['access', 'Sag'],
@@ -3946,29 +3946,29 @@ const $date_FtDomainModelsSagAktorCreate = (): r.TransformField[] => [
   ],
   [
     ['access', 'SagAkt\u00F8rRolle'],
-    ['select', [[['ref', $date_FtDomainModelsSagAktorRolleCreate]]]],
+    ['select', [[['ref', $date_FtDomainModelsSagAktørRolleCreate]]]],
   ],
 ]
-const $date_FtDomainModelsSagAktorUpdate = (): r.TransformField[] => [
+const $date_FtDomainModelsSagAktørUpdate = (): r.TransformField[] => [
   [['access', 'opdateringsdato'], ['this']],
 ]
-const $date_FtDomainModelsSagAktorRolle = (): r.TransformField[] => [
-  [['access', 'opdateringsdato'], ['this']],
-  [
-    ['access', 'SagAkt\u00F8r'],
-    ['loop'],
-    ['ref', $date_FtDomainModelsSagAktor],
-  ],
-]
-const $date_FtDomainModelsSagAktorRolleCreate = (): r.TransformField[] => [
+const $date_FtDomainModelsSagAktørRolle = (): r.TransformField[] => [
   [['access', 'opdateringsdato'], ['this']],
   [
     ['access', 'SagAkt\u00F8r'],
     ['loop'],
-    ['ref', $date_FtDomainModelsSagAktorCreate],
+    ['ref', $date_FtDomainModelsSagAktør],
   ],
 ]
-const $date_FtDomainModelsSagAktorRolleUpdate = (): r.TransformField[] => [
+const $date_FtDomainModelsSagAktørRolleCreate = (): r.TransformField[] => [
+  [['access', 'opdateringsdato'], ['this']],
+  [
+    ['access', 'SagAkt\u00F8r'],
+    ['loop'],
+    ['ref', $date_FtDomainModelsSagAktørCreate],
+  ],
+]
+const $date_FtDomainModelsSagAktørRolleUpdate = (): r.TransformField[] => [
   [['access', 'opdateringsdato'], ['this']],
 ]
 const $date_FtDomainModelsSagDokument = (): r.TransformField[] => [
@@ -4060,7 +4060,7 @@ const $date_FtDomainModelsSagstrin = (): r.TransformField[] => [
   [
     ['access', 'SagstrinAkt\u00F8r'],
     ['loop'],
-    ['ref', $date_FtDomainModelsSagstrinAktor],
+    ['ref', $date_FtDomainModelsSagstrinAktør],
   ],
   [
     ['access', 'SagstrinDokument'],
@@ -4106,7 +4106,7 @@ const $date_FtDomainModelsSagstrinCreate = (): r.TransformField[] => [
   [
     ['access', 'SagstrinAkt\u00F8r'],
     ['loop'],
-    ['ref', $date_FtDomainModelsSagstrinAktorCreate],
+    ['ref', $date_FtDomainModelsSagstrinAktørCreate],
   ],
   [
     ['access', 'SagstrinDokument'],
@@ -4140,11 +4140,11 @@ const $date_FtDomainModelsSagstrinUpdate = (): r.TransformField[] => [
   [['access', 'dato'], ['this']],
   [['access', 'opdateringsdato'], ['this']],
 ]
-const $date_FtDomainModelsSagstrinAktor = (): r.TransformField[] => [
+const $date_FtDomainModelsSagstrinAktør = (): r.TransformField[] => [
   [['access', 'opdateringsdato'], ['this']],
   [
     ['access', 'Akt\u00F8r'],
-    ['select', [[['ref', $date_FtDomainModelsAktor]]]],
+    ['select', [[['ref', $date_FtDomainModelsAktør]]]],
   ],
   [
     ['access', 'Sagstrin'],
@@ -4152,14 +4152,14 @@ const $date_FtDomainModelsSagstrinAktor = (): r.TransformField[] => [
   ],
   [
     ['access', 'SagstrinAkt\u00F8rRolle'],
-    ['select', [[['ref', $date_FtDomainModelsSagstrinAktorRolle]]]],
+    ['select', [[['ref', $date_FtDomainModelsSagstrinAktørRolle]]]],
   ],
 ]
-const $date_FtDomainModelsSagstrinAktorCreate = (): r.TransformField[] => [
+const $date_FtDomainModelsSagstrinAktørCreate = (): r.TransformField[] => [
   [['access', 'opdateringsdato'], ['this']],
   [
     ['access', 'Akt\u00F8r'],
-    ['select', [[['ref', $date_FtDomainModelsAktorCreate]]]],
+    ['select', [[['ref', $date_FtDomainModelsAktørCreate]]]],
   ],
   [
     ['access', 'Sagstrin'],
@@ -4167,29 +4167,29 @@ const $date_FtDomainModelsSagstrinAktorCreate = (): r.TransformField[] => [
   ],
   [
     ['access', 'SagstrinAkt\u00F8rRolle'],
-    ['select', [[['ref', $date_FtDomainModelsSagstrinAktorRolleCreate]]]],
+    ['select', [[['ref', $date_FtDomainModelsSagstrinAktørRolleCreate]]]],
   ],
 ]
-const $date_FtDomainModelsSagstrinAktorUpdate = (): r.TransformField[] => [
+const $date_FtDomainModelsSagstrinAktørUpdate = (): r.TransformField[] => [
   [['access', 'opdateringsdato'], ['this']],
 ]
-const $date_FtDomainModelsSagstrinAktorRolle = (): r.TransformField[] => [
-  [['access', 'opdateringsdato'], ['this']],
-  [
-    ['access', 'SagstrinAkt\u00F8r'],
-    ['loop'],
-    ['ref', $date_FtDomainModelsSagstrinAktor],
-  ],
-]
-const $date_FtDomainModelsSagstrinAktorRolleCreate = (): r.TransformField[] => [
+const $date_FtDomainModelsSagstrinAktørRolle = (): r.TransformField[] => [
   [['access', 'opdateringsdato'], ['this']],
   [
     ['access', 'SagstrinAkt\u00F8r'],
     ['loop'],
-    ['ref', $date_FtDomainModelsSagstrinAktorCreate],
+    ['ref', $date_FtDomainModelsSagstrinAktør],
   ],
 ]
-const $date_FtDomainModelsSagstrinAktorRolleUpdate = (): r.TransformField[] => [
+const $date_FtDomainModelsSagstrinAktørRolleCreate = (): r.TransformField[] => [
+  [['access', 'opdateringsdato'], ['this']],
+  [
+    ['access', 'SagstrinAkt\u00F8r'],
+    ['loop'],
+    ['ref', $date_FtDomainModelsSagstrinAktørCreate],
+  ],
+]
+const $date_FtDomainModelsSagstrinAktørRolleUpdate = (): r.TransformField[] => [
   [['access', 'opdateringsdato'], ['this']],
 ]
 const $date_FtDomainModelsSambehandlinger = (): r.TransformField[] => [
@@ -4291,7 +4291,7 @@ const $date_FtDomainModelsStemme = (): r.TransformField[] => [
   ],
   [
     ['access', 'Akt\u00F8r'],
-    ['select', [[['ref', $date_FtDomainModelsAktor]]]],
+    ['select', [[['ref', $date_FtDomainModelsAktør]]]],
   ],
   [
     ['access', 'Stemmetype'],
@@ -4306,7 +4306,7 @@ const $date_FtDomainModelsStemmeCreate = (): r.TransformField[] => [
   ],
   [
     ['access', 'Akt\u00F8r'],
-    ['select', [[['ref', $date_FtDomainModelsAktorCreate]]]],
+    ['select', [[['ref', $date_FtDomainModelsAktørCreate]]]],
   ],
   [
     ['access', 'Stemmetype'],
@@ -5213,7 +5213,7 @@ export async function aktstykkeIdDelete<FetcherData>(
  * Get entities from Aktør
  * Tags: Aktør
  */
-export async function aktorGet<FetcherData>(
+export async function aktørGet<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -5273,7 +5273,7 @@ export async function aktorGet<FetcherData>(
   opts?: FetcherData
 ): Promise<{
   '@count'?: Count
-  value?: FtDomainModelsAktor[]
+  value?: FtDomainModelsAktør[]
 }> {
   const req = await ctx.createRequest({
     path: '/Akt\u00F8r',
@@ -5294,7 +5294,7 @@ export async function aktorGet<FetcherData>(
     '200': {
       transforms: {
         date: [
-          [['access', 'value'], ['loop'], ['ref', $date_FtDomainModelsAktor]],
+          [['access', 'value'], ['loop'], ['ref', $date_FtDomainModelsAktør]],
         ],
       },
     },
@@ -5304,12 +5304,12 @@ export async function aktorGet<FetcherData>(
  * Add new entity to Aktør
  * Tags: Aktør
  */
-export async function aktorPost<FetcherData>(
+export async function aktørPost<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {},
-  body: FtDomainModelsAktorCreate,
+  body: FtDomainModelsAktørCreate,
   opts?: FetcherData
-): Promise<FtDomainModelsAktor> {
+): Promise<FtDomainModelsAktør> {
   const req = await ctx.createRequest({
     path: '/Akt\u00F8r',
     params,
@@ -5318,14 +5318,14 @@ export async function aktorPost<FetcherData>(
   })
   const res = await ctx.sendRequest(req, opts)
   return ctx.handleResponse(res, {
-    '201': { transforms: { date: [[['ref', $date_FtDomainModelsAktor]]] } },
+    '201': { transforms: { date: [[['ref', $date_FtDomainModelsAktør]]] } },
   })
 }
 /**
  * Get entity from Aktør by key
  * Tags: Aktør
  */
-export async function aktorIdGet<FetcherData>(
+export async function aktørIdGet<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: (
@@ -5356,7 +5356,7 @@ export async function aktorIdGet<FetcherData>(
     id: number
   },
   opts?: FetcherData
-): Promise<FtDomainModelsAktor> {
+): Promise<FtDomainModelsAktør> {
   const req = await ctx.createRequest({
     path: '/Akt\u00F8r({id})',
     params,
@@ -5365,19 +5365,19 @@ export async function aktorIdGet<FetcherData>(
   })
   const res = await ctx.sendRequest(req, opts)
   return ctx.handleResponse(res, {
-    '200': { transforms: { date: [[['ref', $date_FtDomainModelsAktor]]] } },
+    '200': { transforms: { date: [[['ref', $date_FtDomainModelsAktør]]] } },
   })
 }
 /**
  * Update entity in Aktør
  * Tags: Aktør
  */
-export async function aktorIdPatch<FetcherData>(
+export async function aktørIdPatch<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
   },
-  body: FtDomainModelsAktorUpdate,
+  body: FtDomainModelsAktørUpdate,
   opts?: FetcherData
 ): Promise<any> {
   const req = await ctx.createRequest({
@@ -5393,7 +5393,7 @@ export async function aktorIdPatch<FetcherData>(
  * Delete entity from Aktør
  * Tags: Aktør
  */
-export async function aktorIdDelete<FetcherData>(
+export async function aktørIdDelete<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -5412,7 +5412,7 @@ export async function aktorIdDelete<FetcherData>(
  * Get entities from related FraAktørAktør
  * Tags: Aktør, AktørAktør
  */
-export async function aktorIdFraAktorAktorGet<FetcherData>(
+export async function aktørIdFraAktørAktørGet<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -5455,7 +5455,7 @@ export async function aktorIdFraAktorAktorGet<FetcherData>(
   opts?: FetcherData
 ): Promise<{
   '@count'?: Count
-  value?: FtDomainModelsAktorAktor[]
+  value?: FtDomainModelsAktørAktør[]
 }> {
   const req = await ctx.createRequest({
     path: '/Akt\u00F8r({id})/FraAkt\u00F8rAkt\u00F8r',
@@ -5479,7 +5479,7 @@ export async function aktorIdFraAktorAktorGet<FetcherData>(
           [
             ['access', 'value'],
             ['loop'],
-            ['ref', $date_FtDomainModelsAktorAktor],
+            ['ref', $date_FtDomainModelsAktørAktør],
           ],
         ],
       },
@@ -5490,14 +5490,14 @@ export async function aktorIdFraAktorAktorGet<FetcherData>(
  * Add new entity to related FraAktørAktør
  * Tags: Aktør, AktørAktør
  */
-export async function aktorIdFraAktorAktorPost<FetcherData>(
+export async function aktørIdFraAktørAktørPost<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
   },
-  body: FtDomainModelsAktorAktorCreate,
+  body: FtDomainModelsAktørAktørCreate,
   opts?: FetcherData
-): Promise<FtDomainModelsAktorAktor> {
+): Promise<FtDomainModelsAktørAktør> {
   const req = await ctx.createRequest({
     path: '/Akt\u00F8r({id})/FraAkt\u00F8rAkt\u00F8r',
     params,
@@ -5507,7 +5507,7 @@ export async function aktorIdFraAktorAktorPost<FetcherData>(
   const res = await ctx.sendRequest(req, opts)
   return ctx.handleResponse(res, {
     '201': {
-      transforms: { date: [[['ref', $date_FtDomainModelsAktorAktor]]] },
+      transforms: { date: [[['ref', $date_FtDomainModelsAktørAktør]]] },
     },
   })
 }
@@ -5515,7 +5515,7 @@ export async function aktorIdFraAktorAktorPost<FetcherData>(
  * Get entities from related TilAktørAktør
  * Tags: Aktør, AktørAktør
  */
-export async function aktorIdTilAktorAktorGet<FetcherData>(
+export async function aktørIdTilAktørAktørGet<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -5558,7 +5558,7 @@ export async function aktorIdTilAktorAktorGet<FetcherData>(
   opts?: FetcherData
 ): Promise<{
   '@count'?: Count
-  value?: FtDomainModelsAktorAktor[]
+  value?: FtDomainModelsAktørAktør[]
 }> {
   const req = await ctx.createRequest({
     path: '/Akt\u00F8r({id})/TilAkt\u00F8rAkt\u00F8r',
@@ -5582,7 +5582,7 @@ export async function aktorIdTilAktorAktorGet<FetcherData>(
           [
             ['access', 'value'],
             ['loop'],
-            ['ref', $date_FtDomainModelsAktorAktor],
+            ['ref', $date_FtDomainModelsAktørAktør],
           ],
         ],
       },
@@ -5593,14 +5593,14 @@ export async function aktorIdTilAktorAktorGet<FetcherData>(
  * Add new entity to related TilAktørAktør
  * Tags: Aktør, AktørAktør
  */
-export async function aktorIdTilAktorAktorPost<FetcherData>(
+export async function aktørIdTilAktørAktørPost<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
   },
-  body: FtDomainModelsAktorAktorCreate,
+  body: FtDomainModelsAktørAktørCreate,
   opts?: FetcherData
-): Promise<FtDomainModelsAktorAktor> {
+): Promise<FtDomainModelsAktørAktør> {
   const req = await ctx.createRequest({
     path: '/Akt\u00F8r({id})/TilAkt\u00F8rAkt\u00F8r',
     params,
@@ -5610,7 +5610,7 @@ export async function aktorIdTilAktorAktorPost<FetcherData>(
   const res = await ctx.sendRequest(req, opts)
   return ctx.handleResponse(res, {
     '201': {
-      transforms: { date: [[['ref', $date_FtDomainModelsAktorAktor]]] },
+      transforms: { date: [[['ref', $date_FtDomainModelsAktørAktør]]] },
     },
   })
 }
@@ -5618,7 +5618,7 @@ export async function aktorIdTilAktorAktorPost<FetcherData>(
  * Get entities from related DokumentAktør
  * Tags: Aktør, DokumentAktør
  */
-export async function aktorIdDokumentAktorGet<FetcherData>(
+export async function aktørIdDokumentAktørGet<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -5650,7 +5650,7 @@ export async function aktorIdDokumentAktorGet<FetcherData>(
   opts?: FetcherData
 ): Promise<{
   '@count'?: Count
-  value?: FtDomainModelsDokumentAktor[]
+  value?: FtDomainModelsDokumentAktør[]
 }> {
   const req = await ctx.createRequest({
     path: '/Akt\u00F8r({id})/DokumentAkt\u00F8r',
@@ -5674,7 +5674,7 @@ export async function aktorIdDokumentAktorGet<FetcherData>(
           [
             ['access', 'value'],
             ['loop'],
-            ['ref', $date_FtDomainModelsDokumentAktor],
+            ['ref', $date_FtDomainModelsDokumentAktør],
           ],
         ],
       },
@@ -5685,14 +5685,14 @@ export async function aktorIdDokumentAktorGet<FetcherData>(
  * Add new entity to related DokumentAktør
  * Tags: Aktør, DokumentAktør
  */
-export async function aktorIdDokumentAktorPost<FetcherData>(
+export async function aktørIdDokumentAktørPost<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
   },
-  body: FtDomainModelsDokumentAktorCreate,
+  body: FtDomainModelsDokumentAktørCreate,
   opts?: FetcherData
-): Promise<FtDomainModelsDokumentAktor> {
+): Promise<FtDomainModelsDokumentAktør> {
   const req = await ctx.createRequest({
     path: '/Akt\u00F8r({id})/DokumentAkt\u00F8r',
     params,
@@ -5702,7 +5702,7 @@ export async function aktorIdDokumentAktorPost<FetcherData>(
   const res = await ctx.sendRequest(req, opts)
   return ctx.handleResponse(res, {
     '201': {
-      transforms: { date: [[['ref', $date_FtDomainModelsDokumentAktor]]] },
+      transforms: { date: [[['ref', $date_FtDomainModelsDokumentAktør]]] },
     },
   })
 }
@@ -5710,7 +5710,7 @@ export async function aktorIdDokumentAktorPost<FetcherData>(
  * Get entities from related MødeAktør
  * Tags: Aktør, MødeAktør
  */
-export async function aktorIdModeAktorGet<FetcherData>(
+export async function aktørIdMødeAktørGet<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -5734,7 +5734,7 @@ export async function aktorIdModeAktorGet<FetcherData>(
   opts?: FetcherData
 ): Promise<{
   '@count'?: Count
-  value?: FtDomainModelsModeAktor[]
+  value?: FtDomainModelsMødeAktør[]
 }> {
   const req = await ctx.createRequest({
     path: '/Akt\u00F8r({id})/M\u00F8deAkt\u00F8r',
@@ -5758,7 +5758,7 @@ export async function aktorIdModeAktorGet<FetcherData>(
           [
             ['access', 'value'],
             ['loop'],
-            ['ref', $date_FtDomainModelsModeAktor],
+            ['ref', $date_FtDomainModelsMødeAktør],
           ],
         ],
       },
@@ -5769,14 +5769,14 @@ export async function aktorIdModeAktorGet<FetcherData>(
  * Add new entity to related MødeAktør
  * Tags: Aktør, MødeAktør
  */
-export async function aktorIdModeAktorPost<FetcherData>(
+export async function aktørIdMødeAktørPost<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
   },
-  body: FtDomainModelsModeAktorCreate,
+  body: FtDomainModelsMødeAktørCreate,
   opts?: FetcherData
-): Promise<FtDomainModelsModeAktor> {
+): Promise<FtDomainModelsMødeAktør> {
   const req = await ctx.createRequest({
     path: '/Akt\u00F8r({id})/M\u00F8deAkt\u00F8r',
     params,
@@ -5785,14 +5785,14 @@ export async function aktorIdModeAktorPost<FetcherData>(
   })
   const res = await ctx.sendRequest(req, opts)
   return ctx.handleResponse(res, {
-    '201': { transforms: { date: [[['ref', $date_FtDomainModelsModeAktor]]] } },
+    '201': { transforms: { date: [[['ref', $date_FtDomainModelsMødeAktør]]] } },
   })
 }
 /**
  * Get entities from related SagAktør
  * Tags: Aktør, SagAktør
  */
-export async function aktorIdSagAktorGet<FetcherData>(
+export async function aktørIdSagAktørGet<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -5824,7 +5824,7 @@ export async function aktorIdSagAktorGet<FetcherData>(
   opts?: FetcherData
 ): Promise<{
   '@count'?: Count
-  value?: FtDomainModelsSagAktor[]
+  value?: FtDomainModelsSagAktør[]
 }> {
   const req = await ctx.createRequest({
     path: '/Akt\u00F8r({id})/SagAkt\u00F8r',
@@ -5848,7 +5848,7 @@ export async function aktorIdSagAktorGet<FetcherData>(
           [
             ['access', 'value'],
             ['loop'],
-            ['ref', $date_FtDomainModelsSagAktor],
+            ['ref', $date_FtDomainModelsSagAktør],
           ],
         ],
       },
@@ -5859,14 +5859,14 @@ export async function aktorIdSagAktorGet<FetcherData>(
  * Add new entity to related SagAktør
  * Tags: Aktør, SagAktør
  */
-export async function aktorIdSagAktorPost<FetcherData>(
+export async function aktørIdSagAktørPost<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
   },
-  body: FtDomainModelsSagAktorCreate,
+  body: FtDomainModelsSagAktørCreate,
   opts?: FetcherData
-): Promise<FtDomainModelsSagAktor> {
+): Promise<FtDomainModelsSagAktør> {
   const req = await ctx.createRequest({
     path: '/Akt\u00F8r({id})/SagAkt\u00F8r',
     params,
@@ -5875,14 +5875,14 @@ export async function aktorIdSagAktorPost<FetcherData>(
   })
   const res = await ctx.sendRequest(req, opts)
   return ctx.handleResponse(res, {
-    '201': { transforms: { date: [[['ref', $date_FtDomainModelsSagAktor]]] } },
+    '201': { transforms: { date: [[['ref', $date_FtDomainModelsSagAktør]]] } },
   })
 }
 /**
  * Get entities from related SagstrinAktør
  * Tags: Aktør, SagstrinAktør
  */
-export async function aktorIdSagstrinAktorGet<FetcherData>(
+export async function aktørIdSagstrinAktørGet<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -5914,7 +5914,7 @@ export async function aktorIdSagstrinAktorGet<FetcherData>(
   opts?: FetcherData
 ): Promise<{
   '@count'?: Count
-  value?: FtDomainModelsSagstrinAktor[]
+  value?: FtDomainModelsSagstrinAktør[]
 }> {
   const req = await ctx.createRequest({
     path: '/Akt\u00F8r({id})/SagstrinAkt\u00F8r',
@@ -5938,7 +5938,7 @@ export async function aktorIdSagstrinAktorGet<FetcherData>(
           [
             ['access', 'value'],
             ['loop'],
-            ['ref', $date_FtDomainModelsSagstrinAktor],
+            ['ref', $date_FtDomainModelsSagstrinAktør],
           ],
         ],
       },
@@ -5949,14 +5949,14 @@ export async function aktorIdSagstrinAktorGet<FetcherData>(
  * Add new entity to related SagstrinAktør
  * Tags: Aktør, SagstrinAktør
  */
-export async function aktorIdSagstrinAktorPost<FetcherData>(
+export async function aktørIdSagstrinAktørPost<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
   },
-  body: FtDomainModelsSagstrinAktorCreate,
+  body: FtDomainModelsSagstrinAktørCreate,
   opts?: FetcherData
-): Promise<FtDomainModelsSagstrinAktor> {
+): Promise<FtDomainModelsSagstrinAktør> {
   const req = await ctx.createRequest({
     path: '/Akt\u00F8r({id})/SagstrinAkt\u00F8r',
     params,
@@ -5966,7 +5966,7 @@ export async function aktorIdSagstrinAktorPost<FetcherData>(
   const res = await ctx.sendRequest(req, opts)
   return ctx.handleResponse(res, {
     '201': {
-      transforms: { date: [[['ref', $date_FtDomainModelsSagstrinAktor]]] },
+      transforms: { date: [[['ref', $date_FtDomainModelsSagstrinAktør]]] },
     },
   })
 }
@@ -5974,7 +5974,7 @@ export async function aktorIdSagstrinAktorPost<FetcherData>(
  * Get entities from related Stemme
  * Tags: Aktør, Stemme
  */
-export async function aktorIdStemmeGet<FetcherData>(
+export async function aktørIdStemmeGet<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -6037,7 +6037,7 @@ export async function aktorIdStemmeGet<FetcherData>(
  * Add new entity to related Stemme
  * Tags: Aktør, Stemme
  */
-export async function aktorIdStemmePost<FetcherData>(
+export async function aktørIdStemmePost<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -6060,7 +6060,7 @@ export async function aktorIdStemmePost<FetcherData>(
  * Get related Aktørtype
  * Tags: Aktør, Aktørtype
  */
-export async function aktorIdAktortypeGet<FetcherData>(
+export async function aktørIdAktørtypeGet<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: ('id' | 'type' | 'opdateringsdato')[]
@@ -6068,7 +6068,7 @@ export async function aktorIdAktortypeGet<FetcherData>(
     id: number
   },
   opts?: FetcherData
-): Promise<FtDomainModelsAktortype> {
+): Promise<FtDomainModelsAktørtype> {
   const req = await ctx.createRequest({
     path: '/Akt\u00F8r({id})/Akt\u00F8rtype',
     params,
@@ -6077,14 +6077,14 @@ export async function aktorIdAktortypeGet<FetcherData>(
   })
   const res = await ctx.sendRequest(req, opts)
   return ctx.handleResponse(res, {
-    '200': { transforms: { date: [[['ref', $date_FtDomainModelsAktortype]]] } },
+    '200': { transforms: { date: [[['ref', $date_FtDomainModelsAktørtype]]] } },
   })
 }
 /**
  * Get related Periode
  * Tags: Aktør, Periode
  */
-export async function aktorIdPeriodeGet<FetcherData>(
+export async function aktørIdPeriodeGet<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: (
@@ -6116,7 +6116,7 @@ export async function aktorIdPeriodeGet<FetcherData>(
  * Get entities from AktørAktør
  * Tags: AktørAktør
  */
-export async function aktorAktorGet<FetcherData>(
+export async function aktørAktørGet<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -6158,7 +6158,7 @@ export async function aktorAktorGet<FetcherData>(
   opts?: FetcherData
 ): Promise<{
   '@count'?: Count
-  value?: FtDomainModelsAktorAktor[]
+  value?: FtDomainModelsAktørAktør[]
 }> {
   const req = await ctx.createRequest({
     path: '/Akt\u00F8rAkt\u00F8r',
@@ -6182,7 +6182,7 @@ export async function aktorAktorGet<FetcherData>(
           [
             ['access', 'value'],
             ['loop'],
-            ['ref', $date_FtDomainModelsAktorAktor],
+            ['ref', $date_FtDomainModelsAktørAktør],
           ],
         ],
       },
@@ -6193,12 +6193,12 @@ export async function aktorAktorGet<FetcherData>(
  * Add new entity to AktørAktør
  * Tags: AktørAktør
  */
-export async function aktorAktorPost<FetcherData>(
+export async function aktørAktørPost<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {},
-  body: FtDomainModelsAktorAktorCreate,
+  body: FtDomainModelsAktørAktørCreate,
   opts?: FetcherData
-): Promise<FtDomainModelsAktorAktor> {
+): Promise<FtDomainModelsAktørAktør> {
   const req = await ctx.createRequest({
     path: '/Akt\u00F8rAkt\u00F8r',
     params,
@@ -6208,7 +6208,7 @@ export async function aktorAktorPost<FetcherData>(
   const res = await ctx.sendRequest(req, opts)
   return ctx.handleResponse(res, {
     '201': {
-      transforms: { date: [[['ref', $date_FtDomainModelsAktorAktor]]] },
+      transforms: { date: [[['ref', $date_FtDomainModelsAktørAktør]]] },
     },
   })
 }
@@ -6216,7 +6216,7 @@ export async function aktorAktorPost<FetcherData>(
  * Get entity from AktørAktør by key
  * Tags: AktørAktør
  */
-export async function aktorAktorIdGet<FetcherData>(
+export async function aktørAktørIdGet<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: (
@@ -6237,7 +6237,7 @@ export async function aktorAktorIdGet<FetcherData>(
     id: number
   },
   opts?: FetcherData
-): Promise<FtDomainModelsAktorAktor> {
+): Promise<FtDomainModelsAktørAktør> {
   const req = await ctx.createRequest({
     path: '/Akt\u00F8rAkt\u00F8r({id})',
     params,
@@ -6247,7 +6247,7 @@ export async function aktorAktorIdGet<FetcherData>(
   const res = await ctx.sendRequest(req, opts)
   return ctx.handleResponse(res, {
     '200': {
-      transforms: { date: [[['ref', $date_FtDomainModelsAktorAktor]]] },
+      transforms: { date: [[['ref', $date_FtDomainModelsAktørAktør]]] },
     },
   })
 }
@@ -6255,12 +6255,12 @@ export async function aktorAktorIdGet<FetcherData>(
  * Update entity in AktørAktør
  * Tags: AktørAktør
  */
-export async function aktorAktorIdPatch<FetcherData>(
+export async function aktørAktørIdPatch<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
   },
-  body: FtDomainModelsAktorAktorUpdate,
+  body: FtDomainModelsAktørAktørUpdate,
   opts?: FetcherData
 ): Promise<any> {
   const req = await ctx.createRequest({
@@ -6276,7 +6276,7 @@ export async function aktorAktorIdPatch<FetcherData>(
  * Delete entity from AktørAktør
  * Tags: AktørAktør
  */
-export async function aktorAktorIdDelete<FetcherData>(
+export async function aktørAktørIdDelete<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -6295,7 +6295,7 @@ export async function aktorAktorIdDelete<FetcherData>(
  * Get related FraAktør
  * Tags: AktørAktør, Aktør
  */
-export async function aktorAktorIdFraAktorGet<FetcherData>(
+export async function aktørAktørIdFraAktørGet<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: (
@@ -6326,7 +6326,7 @@ export async function aktorAktorIdFraAktorGet<FetcherData>(
     id: number
   },
   opts?: FetcherData
-): Promise<FtDomainModelsAktor> {
+): Promise<FtDomainModelsAktør> {
   const req = await ctx.createRequest({
     path: '/Akt\u00F8rAkt\u00F8r({id})/FraAkt\u00F8r',
     params,
@@ -6335,14 +6335,14 @@ export async function aktorAktorIdFraAktorGet<FetcherData>(
   })
   const res = await ctx.sendRequest(req, opts)
   return ctx.handleResponse(res, {
-    '200': { transforms: { date: [[['ref', $date_FtDomainModelsAktor]]] } },
+    '200': { transforms: { date: [[['ref', $date_FtDomainModelsAktør]]] } },
   })
 }
 /**
  * Get related TilAktør
  * Tags: AktørAktør, Aktør
  */
-export async function aktorAktorIdTilAktorGet<FetcherData>(
+export async function aktørAktørIdTilAktørGet<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: (
@@ -6373,7 +6373,7 @@ export async function aktorAktorIdTilAktorGet<FetcherData>(
     id: number
   },
   opts?: FetcherData
-): Promise<FtDomainModelsAktor> {
+): Promise<FtDomainModelsAktør> {
   const req = await ctx.createRequest({
     path: '/Akt\u00F8rAkt\u00F8r({id})/TilAkt\u00F8r',
     params,
@@ -6382,14 +6382,14 @@ export async function aktorAktorIdTilAktorGet<FetcherData>(
   })
   const res = await ctx.sendRequest(req, opts)
   return ctx.handleResponse(res, {
-    '200': { transforms: { date: [[['ref', $date_FtDomainModelsAktor]]] } },
+    '200': { transforms: { date: [[['ref', $date_FtDomainModelsAktør]]] } },
   })
 }
 /**
  * Get related AktørAktørRolle
  * Tags: AktørAktør, AktørAktørRolle
  */
-export async function aktorAktorIdAktorAktorRolleGet<FetcherData>(
+export async function aktørAktørIdAktørAktørRolleGet<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: ('id' | 'rolle' | 'opdateringsdato')[]
@@ -6397,7 +6397,7 @@ export async function aktorAktorIdAktorAktorRolleGet<FetcherData>(
     id: number
   },
   opts?: FetcherData
-): Promise<FtDomainModelsAktorAktorRolle> {
+): Promise<FtDomainModelsAktørAktørRolle> {
   const req = await ctx.createRequest({
     path: '/Akt\u00F8rAkt\u00F8r({id})/Akt\u00F8rAkt\u00F8rRolle',
     params,
@@ -6407,7 +6407,7 @@ export async function aktorAktorIdAktorAktorRolleGet<FetcherData>(
   const res = await ctx.sendRequest(req, opts)
   return ctx.handleResponse(res, {
     '200': {
-      transforms: { date: [[['ref', $date_FtDomainModelsAktorAktorRolle]]] },
+      transforms: { date: [[['ref', $date_FtDomainModelsAktørAktørRolle]]] },
     },
   })
 }
@@ -6415,7 +6415,7 @@ export async function aktorAktorIdAktorAktorRolleGet<FetcherData>(
  * Get entities from AktørAktørRolle
  * Tags: AktørAktørRolle
  */
-export async function aktorAktorRolleGet<FetcherData>(
+export async function aktørAktørRolleGet<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -6436,7 +6436,7 @@ export async function aktorAktorRolleGet<FetcherData>(
   opts?: FetcherData
 ): Promise<{
   '@count'?: Count
-  value?: FtDomainModelsAktorAktorRolle[]
+  value?: FtDomainModelsAktørAktørRolle[]
 }> {
   const req = await ctx.createRequest({
     path: '/Akt\u00F8rAkt\u00F8rRolle',
@@ -6460,7 +6460,7 @@ export async function aktorAktorRolleGet<FetcherData>(
           [
             ['access', 'value'],
             ['loop'],
-            ['ref', $date_FtDomainModelsAktorAktorRolle],
+            ['ref', $date_FtDomainModelsAktørAktørRolle],
           ],
         ],
       },
@@ -6471,12 +6471,12 @@ export async function aktorAktorRolleGet<FetcherData>(
  * Add new entity to AktørAktørRolle
  * Tags: AktørAktørRolle
  */
-export async function aktorAktorRollePost<FetcherData>(
+export async function aktørAktørRollePost<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {},
-  body: FtDomainModelsAktorAktorRolleCreate,
+  body: FtDomainModelsAktørAktørRolleCreate,
   opts?: FetcherData
-): Promise<FtDomainModelsAktorAktorRolle> {
+): Promise<FtDomainModelsAktørAktørRolle> {
   const req = await ctx.createRequest({
     path: '/Akt\u00F8rAkt\u00F8rRolle',
     params,
@@ -6486,7 +6486,7 @@ export async function aktorAktorRollePost<FetcherData>(
   const res = await ctx.sendRequest(req, opts)
   return ctx.handleResponse(res, {
     '201': {
-      transforms: { date: [[['ref', $date_FtDomainModelsAktorAktorRolle]]] },
+      transforms: { date: [[['ref', $date_FtDomainModelsAktørAktørRolle]]] },
     },
   })
 }
@@ -6494,7 +6494,7 @@ export async function aktorAktorRollePost<FetcherData>(
  * Get entity from AktørAktørRolle by key
  * Tags: AktørAktørRolle
  */
-export async function aktorAktorRolleIdGet<FetcherData>(
+export async function aktørAktørRolleIdGet<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: ('id' | 'rolle' | 'opdateringsdato')[]
@@ -6502,7 +6502,7 @@ export async function aktorAktorRolleIdGet<FetcherData>(
     id: number
   },
   opts?: FetcherData
-): Promise<FtDomainModelsAktorAktorRolle> {
+): Promise<FtDomainModelsAktørAktørRolle> {
   const req = await ctx.createRequest({
     path: '/Akt\u00F8rAkt\u00F8rRolle({id})',
     params,
@@ -6512,7 +6512,7 @@ export async function aktorAktorRolleIdGet<FetcherData>(
   const res = await ctx.sendRequest(req, opts)
   return ctx.handleResponse(res, {
     '200': {
-      transforms: { date: [[['ref', $date_FtDomainModelsAktorAktorRolle]]] },
+      transforms: { date: [[['ref', $date_FtDomainModelsAktørAktørRolle]]] },
     },
   })
 }
@@ -6520,12 +6520,12 @@ export async function aktorAktorRolleIdGet<FetcherData>(
  * Update entity in AktørAktørRolle
  * Tags: AktørAktørRolle
  */
-export async function aktorAktorRolleIdPatch<FetcherData>(
+export async function aktørAktørRolleIdPatch<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
   },
-  body: FtDomainModelsAktorAktorRolleUpdate,
+  body: FtDomainModelsAktørAktørRolleUpdate,
   opts?: FetcherData
 ): Promise<any> {
   const req = await ctx.createRequest({
@@ -6541,7 +6541,7 @@ export async function aktorAktorRolleIdPatch<FetcherData>(
  * Delete entity from AktørAktørRolle
  * Tags: AktørAktørRolle
  */
-export async function aktorAktorRolleIdDelete<FetcherData>(
+export async function aktørAktørRolleIdDelete<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -6560,7 +6560,7 @@ export async function aktorAktorRolleIdDelete<FetcherData>(
  * Get entities from related AktørAktør
  * Tags: AktørAktørRolle, AktørAktør
  */
-export async function aktorAktorRolleIdAktorAktorGet<FetcherData>(
+export async function aktørAktørRolleIdAktørAktørGet<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -6603,7 +6603,7 @@ export async function aktorAktorRolleIdAktorAktorGet<FetcherData>(
   opts?: FetcherData
 ): Promise<{
   '@count'?: Count
-  value?: FtDomainModelsAktorAktor[]
+  value?: FtDomainModelsAktørAktør[]
 }> {
   const req = await ctx.createRequest({
     path: '/Akt\u00F8rAkt\u00F8rRolle({id})/Akt\u00F8rAkt\u00F8r',
@@ -6627,7 +6627,7 @@ export async function aktorAktorRolleIdAktorAktorGet<FetcherData>(
           [
             ['access', 'value'],
             ['loop'],
-            ['ref', $date_FtDomainModelsAktorAktor],
+            ['ref', $date_FtDomainModelsAktørAktør],
           ],
         ],
       },
@@ -6638,14 +6638,14 @@ export async function aktorAktorRolleIdAktorAktorGet<FetcherData>(
  * Add new entity to related AktørAktør
  * Tags: AktørAktørRolle, AktørAktør
  */
-export async function aktorAktorRolleIdAktorAktorPost<FetcherData>(
+export async function aktørAktørRolleIdAktørAktørPost<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
   },
-  body: FtDomainModelsAktorAktorCreate,
+  body: FtDomainModelsAktørAktørCreate,
   opts?: FetcherData
-): Promise<FtDomainModelsAktorAktor> {
+): Promise<FtDomainModelsAktørAktør> {
   const req = await ctx.createRequest({
     path: '/Akt\u00F8rAkt\u00F8rRolle({id})/Akt\u00F8rAkt\u00F8r',
     params,
@@ -6655,7 +6655,7 @@ export async function aktorAktorRolleIdAktorAktorPost<FetcherData>(
   const res = await ctx.sendRequest(req, opts)
   return ctx.handleResponse(res, {
     '201': {
-      transforms: { date: [[['ref', $date_FtDomainModelsAktorAktor]]] },
+      transforms: { date: [[['ref', $date_FtDomainModelsAktørAktør]]] },
     },
   })
 }
@@ -6663,7 +6663,7 @@ export async function aktorAktorRolleIdAktorAktorPost<FetcherData>(
  * Get entities from Aktørtype
  * Tags: Aktørtype
  */
-export async function aktortypeGet<FetcherData>(
+export async function aktørtypeGet<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -6684,7 +6684,7 @@ export async function aktortypeGet<FetcherData>(
   opts?: FetcherData
 ): Promise<{
   '@count'?: Count
-  value?: FtDomainModelsAktortype[]
+  value?: FtDomainModelsAktørtype[]
 }> {
   const req = await ctx.createRequest({
     path: '/Akt\u00F8rtype',
@@ -6708,7 +6708,7 @@ export async function aktortypeGet<FetcherData>(
           [
             ['access', 'value'],
             ['loop'],
-            ['ref', $date_FtDomainModelsAktortype],
+            ['ref', $date_FtDomainModelsAktørtype],
           ],
         ],
       },
@@ -6719,12 +6719,12 @@ export async function aktortypeGet<FetcherData>(
  * Add new entity to Aktørtype
  * Tags: Aktørtype
  */
-export async function aktortypePost<FetcherData>(
+export async function aktørtypePost<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {},
-  body: FtDomainModelsAktortypeCreate,
+  body: FtDomainModelsAktørtypeCreate,
   opts?: FetcherData
-): Promise<FtDomainModelsAktortype> {
+): Promise<FtDomainModelsAktørtype> {
   const req = await ctx.createRequest({
     path: '/Akt\u00F8rtype',
     params,
@@ -6733,14 +6733,14 @@ export async function aktortypePost<FetcherData>(
   })
   const res = await ctx.sendRequest(req, opts)
   return ctx.handleResponse(res, {
-    '201': { transforms: { date: [[['ref', $date_FtDomainModelsAktortype]]] } },
+    '201': { transforms: { date: [[['ref', $date_FtDomainModelsAktørtype]]] } },
   })
 }
 /**
  * Get entity from Aktørtype by key
  * Tags: Aktørtype
  */
-export async function aktortypeIdGet<FetcherData>(
+export async function aktørtypeIdGet<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: ('id' | 'type' | 'opdateringsdato')[]
@@ -6748,7 +6748,7 @@ export async function aktortypeIdGet<FetcherData>(
     id: number
   },
   opts?: FetcherData
-): Promise<FtDomainModelsAktortype> {
+): Promise<FtDomainModelsAktørtype> {
   const req = await ctx.createRequest({
     path: '/Akt\u00F8rtype({id})',
     params,
@@ -6757,19 +6757,19 @@ export async function aktortypeIdGet<FetcherData>(
   })
   const res = await ctx.sendRequest(req, opts)
   return ctx.handleResponse(res, {
-    '200': { transforms: { date: [[['ref', $date_FtDomainModelsAktortype]]] } },
+    '200': { transforms: { date: [[['ref', $date_FtDomainModelsAktørtype]]] } },
   })
 }
 /**
  * Update entity in Aktørtype
  * Tags: Aktørtype
  */
-export async function aktortypeIdPatch<FetcherData>(
+export async function aktørtypeIdPatch<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
   },
-  body: FtDomainModelsAktortypeUpdate,
+  body: FtDomainModelsAktørtypeUpdate,
   opts?: FetcherData
 ): Promise<any> {
   const req = await ctx.createRequest({
@@ -6785,7 +6785,7 @@ export async function aktortypeIdPatch<FetcherData>(
  * Delete entity from Aktørtype
  * Tags: Aktørtype
  */
-export async function aktortypeIdDelete<FetcherData>(
+export async function aktørtypeIdDelete<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -6804,7 +6804,7 @@ export async function aktortypeIdDelete<FetcherData>(
  * Get entities from related Aktør
  * Tags: Aktørtype, Aktør
  */
-export async function aktortypeIdAktorGet<FetcherData>(
+export async function aktørtypeIdAktørGet<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -6865,7 +6865,7 @@ export async function aktortypeIdAktorGet<FetcherData>(
   opts?: FetcherData
 ): Promise<{
   '@count'?: Count
-  value?: FtDomainModelsAktor[]
+  value?: FtDomainModelsAktør[]
 }> {
   const req = await ctx.createRequest({
     path: '/Akt\u00F8rtype({id})/Akt\u00F8r',
@@ -6886,7 +6886,7 @@ export async function aktortypeIdAktorGet<FetcherData>(
     '200': {
       transforms: {
         date: [
-          [['access', 'value'], ['loop'], ['ref', $date_FtDomainModelsAktor]],
+          [['access', 'value'], ['loop'], ['ref', $date_FtDomainModelsAktør]],
         ],
       },
     },
@@ -6896,14 +6896,14 @@ export async function aktortypeIdAktorGet<FetcherData>(
  * Add new entity to related Aktør
  * Tags: Aktørtype, Aktør
  */
-export async function aktortypeIdAktorPost<FetcherData>(
+export async function aktørtypeIdAktørPost<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
   },
-  body: FtDomainModelsAktorCreate,
+  body: FtDomainModelsAktørCreate,
   opts?: FetcherData
-): Promise<FtDomainModelsAktor> {
+): Promise<FtDomainModelsAktør> {
   const req = await ctx.createRequest({
     path: '/Akt\u00F8rtype({id})/Akt\u00F8r',
     params,
@@ -6912,7 +6912,7 @@ export async function aktortypeIdAktorPost<FetcherData>(
   })
   const res = await ctx.sendRequest(req, opts)
   return ctx.handleResponse(res, {
-    '201': { transforms: { date: [[['ref', $date_FtDomainModelsAktor]]] } },
+    '201': { transforms: { date: [[['ref', $date_FtDomainModelsAktør]]] } },
   })
 }
 /**
@@ -9045,7 +9045,7 @@ export async function dokumentIdSvarDokumenterPost<FetcherData>(
  * Get entities from related DokumentAktør
  * Tags: Dokument, DokumentAktør
  */
-export async function dokumentIdDokumentAktorGet<FetcherData>(
+export async function dokumentIdDokumentAktørGet<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -9077,7 +9077,7 @@ export async function dokumentIdDokumentAktorGet<FetcherData>(
   opts?: FetcherData
 ): Promise<{
   '@count'?: Count
-  value?: FtDomainModelsDokumentAktor[]
+  value?: FtDomainModelsDokumentAktør[]
 }> {
   const req = await ctx.createRequest({
     path: '/Dokument({id})/DokumentAkt\u00F8r',
@@ -9101,7 +9101,7 @@ export async function dokumentIdDokumentAktorGet<FetcherData>(
           [
             ['access', 'value'],
             ['loop'],
-            ['ref', $date_FtDomainModelsDokumentAktor],
+            ['ref', $date_FtDomainModelsDokumentAktør],
           ],
         ],
       },
@@ -9112,14 +9112,14 @@ export async function dokumentIdDokumentAktorGet<FetcherData>(
  * Add new entity to related DokumentAktør
  * Tags: Dokument, DokumentAktør
  */
-export async function dokumentIdDokumentAktorPost<FetcherData>(
+export async function dokumentIdDokumentAktørPost<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
   },
-  body: FtDomainModelsDokumentAktorCreate,
+  body: FtDomainModelsDokumentAktørCreate,
   opts?: FetcherData
-): Promise<FtDomainModelsDokumentAktor> {
+): Promise<FtDomainModelsDokumentAktør> {
   const req = await ctx.createRequest({
     path: '/Dokument({id})/DokumentAkt\u00F8r',
     params,
@@ -9129,7 +9129,7 @@ export async function dokumentIdDokumentAktorPost<FetcherData>(
   const res = await ctx.sendRequest(req, opts)
   return ctx.handleResponse(res, {
     '201': {
-      transforms: { date: [[['ref', $date_FtDomainModelsDokumentAktor]]] },
+      transforms: { date: [[['ref', $date_FtDomainModelsDokumentAktør]]] },
     },
   })
 }
@@ -9719,7 +9719,7 @@ export async function dokumentIdDokumenttypeGet<FetcherData>(
  * Get entities from DokumentAktør
  * Tags: DokumentAktør
  */
-export async function dokumentAktorGet<FetcherData>(
+export async function dokumentAktørGet<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -9750,7 +9750,7 @@ export async function dokumentAktorGet<FetcherData>(
   opts?: FetcherData
 ): Promise<{
   '@count'?: Count
-  value?: FtDomainModelsDokumentAktor[]
+  value?: FtDomainModelsDokumentAktør[]
 }> {
   const req = await ctx.createRequest({
     path: '/DokumentAkt\u00F8r',
@@ -9774,7 +9774,7 @@ export async function dokumentAktorGet<FetcherData>(
           [
             ['access', 'value'],
             ['loop'],
-            ['ref', $date_FtDomainModelsDokumentAktor],
+            ['ref', $date_FtDomainModelsDokumentAktør],
           ],
         ],
       },
@@ -9785,12 +9785,12 @@ export async function dokumentAktorGet<FetcherData>(
  * Add new entity to DokumentAktør
  * Tags: DokumentAktør
  */
-export async function dokumentAktorPost<FetcherData>(
+export async function dokumentAktørPost<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {},
-  body: FtDomainModelsDokumentAktorCreate,
+  body: FtDomainModelsDokumentAktørCreate,
   opts?: FetcherData
-): Promise<FtDomainModelsDokumentAktor> {
+): Promise<FtDomainModelsDokumentAktør> {
   const req = await ctx.createRequest({
     path: '/DokumentAkt\u00F8r',
     params,
@@ -9800,7 +9800,7 @@ export async function dokumentAktorPost<FetcherData>(
   const res = await ctx.sendRequest(req, opts)
   return ctx.handleResponse(res, {
     '201': {
-      transforms: { date: [[['ref', $date_FtDomainModelsDokumentAktor]]] },
+      transforms: { date: [[['ref', $date_FtDomainModelsDokumentAktør]]] },
     },
   })
 }
@@ -9808,7 +9808,7 @@ export async function dokumentAktorPost<FetcherData>(
  * Get entity from DokumentAktør by key
  * Tags: DokumentAktør
  */
-export async function dokumentAktorIdGet<FetcherData>(
+export async function dokumentAktørIdGet<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: (
@@ -9822,7 +9822,7 @@ export async function dokumentAktorIdGet<FetcherData>(
     id: number
   },
   opts?: FetcherData
-): Promise<FtDomainModelsDokumentAktor> {
+): Promise<FtDomainModelsDokumentAktør> {
   const req = await ctx.createRequest({
     path: '/DokumentAkt\u00F8r({id})',
     params,
@@ -9832,7 +9832,7 @@ export async function dokumentAktorIdGet<FetcherData>(
   const res = await ctx.sendRequest(req, opts)
   return ctx.handleResponse(res, {
     '200': {
-      transforms: { date: [[['ref', $date_FtDomainModelsDokumentAktor]]] },
+      transforms: { date: [[['ref', $date_FtDomainModelsDokumentAktør]]] },
     },
   })
 }
@@ -9840,12 +9840,12 @@ export async function dokumentAktorIdGet<FetcherData>(
  * Update entity in DokumentAktør
  * Tags: DokumentAktør
  */
-export async function dokumentAktorIdPatch<FetcherData>(
+export async function dokumentAktørIdPatch<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
   },
-  body: FtDomainModelsDokumentAktorUpdate,
+  body: FtDomainModelsDokumentAktørUpdate,
   opts?: FetcherData
 ): Promise<any> {
   const req = await ctx.createRequest({
@@ -9861,7 +9861,7 @@ export async function dokumentAktorIdPatch<FetcherData>(
  * Delete entity from DokumentAktør
  * Tags: DokumentAktør
  */
-export async function dokumentAktorIdDelete<FetcherData>(
+export async function dokumentAktørIdDelete<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -9880,7 +9880,7 @@ export async function dokumentAktorIdDelete<FetcherData>(
  * Get related Aktør
  * Tags: DokumentAktør, Aktør
  */
-export async function dokumentAktorIdAktorGet<FetcherData>(
+export async function dokumentAktørIdAktørGet<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: (
@@ -9911,7 +9911,7 @@ export async function dokumentAktorIdAktorGet<FetcherData>(
     id: number
   },
   opts?: FetcherData
-): Promise<FtDomainModelsAktor> {
+): Promise<FtDomainModelsAktør> {
   const req = await ctx.createRequest({
     path: '/DokumentAkt\u00F8r({id})/Akt\u00F8r',
     params,
@@ -9920,14 +9920,14 @@ export async function dokumentAktorIdAktorGet<FetcherData>(
   })
   const res = await ctx.sendRequest(req, opts)
   return ctx.handleResponse(res, {
-    '200': { transforms: { date: [[['ref', $date_FtDomainModelsAktor]]] } },
+    '200': { transforms: { date: [[['ref', $date_FtDomainModelsAktør]]] } },
   })
 }
 /**
  * Get related Dokument
  * Tags: DokumentAktør, Dokument
  */
-export async function dokumentAktorIdDokumentGet<FetcherData>(
+export async function dokumentAktørIdDokumentGet<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: (
@@ -9984,7 +9984,7 @@ export async function dokumentAktorIdDokumentGet<FetcherData>(
  * Get related DokumentAktørRolle
  * Tags: DokumentAktør, DokumentAktørRolle
  */
-export async function dokumentAktorIdDokumentAktorRolleGet<FetcherData>(
+export async function dokumentAktørIdDokumentAktørRolleGet<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: ('id' | 'rolle' | 'opdateringsdato')[]
@@ -9992,7 +9992,7 @@ export async function dokumentAktorIdDokumentAktorRolleGet<FetcherData>(
     id: number
   },
   opts?: FetcherData
-): Promise<FtDomainModelsDokumentAktorRolle> {
+): Promise<FtDomainModelsDokumentAktørRolle> {
   const req = await ctx.createRequest({
     path: '/DokumentAkt\u00F8r({id})/DokumentAkt\u00F8rRolle',
     params,
@@ -10002,7 +10002,7 @@ export async function dokumentAktorIdDokumentAktorRolleGet<FetcherData>(
   const res = await ctx.sendRequest(req, opts)
   return ctx.handleResponse(res, {
     '200': {
-      transforms: { date: [[['ref', $date_FtDomainModelsDokumentAktorRolle]]] },
+      transforms: { date: [[['ref', $date_FtDomainModelsDokumentAktørRolle]]] },
     },
   })
 }
@@ -10010,7 +10010,7 @@ export async function dokumentAktorIdDokumentAktorRolleGet<FetcherData>(
  * Get entities from DokumentAktørRolle
  * Tags: DokumentAktørRolle
  */
-export async function dokumentAktorRolleGet<FetcherData>(
+export async function dokumentAktørRolleGet<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -10031,7 +10031,7 @@ export async function dokumentAktorRolleGet<FetcherData>(
   opts?: FetcherData
 ): Promise<{
   '@count'?: Count
-  value?: FtDomainModelsDokumentAktorRolle[]
+  value?: FtDomainModelsDokumentAktørRolle[]
 }> {
   const req = await ctx.createRequest({
     path: '/DokumentAkt\u00F8rRolle',
@@ -10055,7 +10055,7 @@ export async function dokumentAktorRolleGet<FetcherData>(
           [
             ['access', 'value'],
             ['loop'],
-            ['ref', $date_FtDomainModelsDokumentAktorRolle],
+            ['ref', $date_FtDomainModelsDokumentAktørRolle],
           ],
         ],
       },
@@ -10066,12 +10066,12 @@ export async function dokumentAktorRolleGet<FetcherData>(
  * Add new entity to DokumentAktørRolle
  * Tags: DokumentAktørRolle
  */
-export async function dokumentAktorRollePost<FetcherData>(
+export async function dokumentAktørRollePost<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {},
-  body: FtDomainModelsDokumentAktorRolleCreate,
+  body: FtDomainModelsDokumentAktørRolleCreate,
   opts?: FetcherData
-): Promise<FtDomainModelsDokumentAktorRolle> {
+): Promise<FtDomainModelsDokumentAktørRolle> {
   const req = await ctx.createRequest({
     path: '/DokumentAkt\u00F8rRolle',
     params,
@@ -10081,7 +10081,7 @@ export async function dokumentAktorRollePost<FetcherData>(
   const res = await ctx.sendRequest(req, opts)
   return ctx.handleResponse(res, {
     '201': {
-      transforms: { date: [[['ref', $date_FtDomainModelsDokumentAktorRolle]]] },
+      transforms: { date: [[['ref', $date_FtDomainModelsDokumentAktørRolle]]] },
     },
   })
 }
@@ -10089,7 +10089,7 @@ export async function dokumentAktorRollePost<FetcherData>(
  * Get entity from DokumentAktørRolle by key
  * Tags: DokumentAktørRolle
  */
-export async function dokumentAktorRolleIdGet<FetcherData>(
+export async function dokumentAktørRolleIdGet<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: ('id' | 'rolle' | 'opdateringsdato')[]
@@ -10097,7 +10097,7 @@ export async function dokumentAktorRolleIdGet<FetcherData>(
     id: number
   },
   opts?: FetcherData
-): Promise<FtDomainModelsDokumentAktorRolle> {
+): Promise<FtDomainModelsDokumentAktørRolle> {
   const req = await ctx.createRequest({
     path: '/DokumentAkt\u00F8rRolle({id})',
     params,
@@ -10107,7 +10107,7 @@ export async function dokumentAktorRolleIdGet<FetcherData>(
   const res = await ctx.sendRequest(req, opts)
   return ctx.handleResponse(res, {
     '200': {
-      transforms: { date: [[['ref', $date_FtDomainModelsDokumentAktorRolle]]] },
+      transforms: { date: [[['ref', $date_FtDomainModelsDokumentAktørRolle]]] },
     },
   })
 }
@@ -10115,12 +10115,12 @@ export async function dokumentAktorRolleIdGet<FetcherData>(
  * Update entity in DokumentAktørRolle
  * Tags: DokumentAktørRolle
  */
-export async function dokumentAktorRolleIdPatch<FetcherData>(
+export async function dokumentAktørRolleIdPatch<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
   },
-  body: FtDomainModelsDokumentAktorRolleUpdate,
+  body: FtDomainModelsDokumentAktørRolleUpdate,
   opts?: FetcherData
 ): Promise<any> {
   const req = await ctx.createRequest({
@@ -10136,7 +10136,7 @@ export async function dokumentAktorRolleIdPatch<FetcherData>(
  * Delete entity from DokumentAktørRolle
  * Tags: DokumentAktørRolle
  */
-export async function dokumentAktorRolleIdDelete<FetcherData>(
+export async function dokumentAktørRolleIdDelete<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -10155,7 +10155,7 @@ export async function dokumentAktorRolleIdDelete<FetcherData>(
  * Get entities from related DokumentAktør
  * Tags: DokumentAktørRolle, DokumentAktør
  */
-export async function dokumentAktorRolleIdDokumentAktorGet<FetcherData>(
+export async function dokumentAktørRolleIdDokumentAktørGet<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -10187,7 +10187,7 @@ export async function dokumentAktorRolleIdDokumentAktorGet<FetcherData>(
   opts?: FetcherData
 ): Promise<{
   '@count'?: Count
-  value?: FtDomainModelsDokumentAktor[]
+  value?: FtDomainModelsDokumentAktør[]
 }> {
   const req = await ctx.createRequest({
     path: '/DokumentAkt\u00F8rRolle({id})/DokumentAkt\u00F8r',
@@ -10211,7 +10211,7 @@ export async function dokumentAktorRolleIdDokumentAktorGet<FetcherData>(
           [
             ['access', 'value'],
             ['loop'],
-            ['ref', $date_FtDomainModelsDokumentAktor],
+            ['ref', $date_FtDomainModelsDokumentAktør],
           ],
         ],
       },
@@ -10222,14 +10222,14 @@ export async function dokumentAktorRolleIdDokumentAktorGet<FetcherData>(
  * Add new entity to related DokumentAktør
  * Tags: DokumentAktørRolle, DokumentAktør
  */
-export async function dokumentAktorRolleIdDokumentAktorPost<FetcherData>(
+export async function dokumentAktørRolleIdDokumentAktørPost<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
   },
-  body: FtDomainModelsDokumentAktorCreate,
+  body: FtDomainModelsDokumentAktørCreate,
   opts?: FetcherData
-): Promise<FtDomainModelsDokumentAktor> {
+): Promise<FtDomainModelsDokumentAktør> {
   const req = await ctx.createRequest({
     path: '/DokumentAkt\u00F8rRolle({id})/DokumentAkt\u00F8r',
     params,
@@ -10239,7 +10239,7 @@ export async function dokumentAktorRolleIdDokumentAktorPost<FetcherData>(
   const res = await ctx.sendRequest(req, opts)
   return ctx.handleResponse(res, {
     '201': {
-      transforms: { date: [[['ref', $date_FtDomainModelsDokumentAktor]]] },
+      transforms: { date: [[['ref', $date_FtDomainModelsDokumentAktør]]] },
     },
   })
 }
@@ -13123,7 +13123,7 @@ export async function entitetBeskrivelseIdDelete<FetcherData>(
  * Get entities from Møde
  * Tags: Møde
  */
-export async function modeGet<FetcherData>(
+export async function mødeGet<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -13214,7 +13214,7 @@ export async function modeGet<FetcherData>(
  * Add new entity to Møde
  * Tags: Møde
  */
-export async function modePost<FetcherData>(
+export async function mødePost<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {},
   body: FtDomainModelsModeCreate,
@@ -13235,7 +13235,7 @@ export async function modePost<FetcherData>(
  * Get entity from Møde by key
  * Tags: Møde
  */
-export async function modeIdGet<FetcherData>(
+export async function mødeIdGet<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: (
@@ -13280,7 +13280,7 @@ export async function modeIdGet<FetcherData>(
  * Update entity in Møde
  * Tags: Møde
  */
-export async function modeIdPatch<FetcherData>(
+export async function mødeIdPatch<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -13301,7 +13301,7 @@ export async function modeIdPatch<FetcherData>(
  * Delete entity from Møde
  * Tags: Møde
  */
-export async function modeIdDelete<FetcherData>(
+export async function mødeIdDelete<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -13320,7 +13320,7 @@ export async function modeIdDelete<FetcherData>(
  * Get entities from related Afstemning
  * Tags: Møde, Afstemning
  */
-export async function modeIdAfstemningGet<FetcherData>(
+export async function mødeIdAfstemningGet<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -13399,7 +13399,7 @@ export async function modeIdAfstemningGet<FetcherData>(
  * Add new entity to related Afstemning
  * Tags: Møde, Afstemning
  */
-export async function modeIdAfstemningPost<FetcherData>(
+export async function mødeIdAfstemningPost<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -13424,7 +13424,7 @@ export async function modeIdAfstemningPost<FetcherData>(
  * Get entities from related Dagsordenspunkt
  * Tags: Møde, Dagsordenspunkt
  */
-export async function modeIdDagsordenspunktGet<FetcherData>(
+export async function mødeIdDagsordenspunktGet<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -13520,7 +13520,7 @@ export async function modeIdDagsordenspunktGet<FetcherData>(
  * Add new entity to related Dagsordenspunkt
  * Tags: Møde, Dagsordenspunkt
  */
-export async function modeIdDagsordenspunktPost<FetcherData>(
+export async function mødeIdDagsordenspunktPost<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -13545,7 +13545,7 @@ export async function modeIdDagsordenspunktPost<FetcherData>(
  * Get entities from related MødeAktør
  * Tags: Møde, MødeAktør
  */
-export async function modeIdModeAktorGet<FetcherData>(
+export async function mødeIdMødeAktørGet<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -13569,7 +13569,7 @@ export async function modeIdModeAktorGet<FetcherData>(
   opts?: FetcherData
 ): Promise<{
   '@count'?: Count
-  value?: FtDomainModelsModeAktor[]
+  value?: FtDomainModelsMødeAktør[]
 }> {
   const req = await ctx.createRequest({
     path: '/M\u00F8de({id})/M\u00F8deAkt\u00F8r',
@@ -13593,7 +13593,7 @@ export async function modeIdModeAktorGet<FetcherData>(
           [
             ['access', 'value'],
             ['loop'],
-            ['ref', $date_FtDomainModelsModeAktor],
+            ['ref', $date_FtDomainModelsMødeAktør],
           ],
         ],
       },
@@ -13604,14 +13604,14 @@ export async function modeIdModeAktorGet<FetcherData>(
  * Add new entity to related MødeAktør
  * Tags: Møde, MødeAktør
  */
-export async function modeIdModeAktorPost<FetcherData>(
+export async function mødeIdMødeAktørPost<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
   },
-  body: FtDomainModelsModeAktorCreate,
+  body: FtDomainModelsMødeAktørCreate,
   opts?: FetcherData
-): Promise<FtDomainModelsModeAktor> {
+): Promise<FtDomainModelsMødeAktør> {
   const req = await ctx.createRequest({
     path: '/M\u00F8de({id})/M\u00F8deAkt\u00F8r',
     params,
@@ -13620,14 +13620,14 @@ export async function modeIdModeAktorPost<FetcherData>(
   })
   const res = await ctx.sendRequest(req, opts)
   return ctx.handleResponse(res, {
-    '201': { transforms: { date: [[['ref', $date_FtDomainModelsModeAktor]]] } },
+    '201': { transforms: { date: [[['ref', $date_FtDomainModelsMødeAktør]]] } },
   })
 }
 /**
  * Get related Mødestatus
  * Tags: Møde, Mødestatus
  */
-export async function modeIdModestatusGet<FetcherData>(
+export async function mødeIdModestatusGet<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: ('id' | 'status' | 'opdateringsdato')[]
@@ -13653,7 +13653,7 @@ export async function modeIdModestatusGet<FetcherData>(
  * Get related Mødetype
  * Tags: Møde, Mødetype
  */
-export async function modeIdModetypeGet<FetcherData>(
+export async function mødeIdModetypeGet<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: ('id' | 'type' | 'opdateringsdato')[]
@@ -13677,7 +13677,7 @@ export async function modeIdModetypeGet<FetcherData>(
  * Get related Periode
  * Tags: Møde, Periode
  */
-export async function modeIdPeriodeGet<FetcherData>(
+export async function mødeIdPeriodeGet<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: (
@@ -13709,7 +13709,7 @@ export async function modeIdPeriodeGet<FetcherData>(
  * Get entities from MødeAktør
  * Tags: MødeAktør
  */
-export async function modeAktorGet<FetcherData>(
+export async function mødeaktørGet<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -13732,7 +13732,7 @@ export async function modeAktorGet<FetcherData>(
   opts?: FetcherData
 ): Promise<{
   '@count'?: Count
-  value?: FtDomainModelsModeAktor[]
+  value?: FtDomainModelsMødeAktør[]
 }> {
   const req = await ctx.createRequest({
     path: '/M\u00F8deAkt\u00F8r',
@@ -13756,7 +13756,7 @@ export async function modeAktorGet<FetcherData>(
           [
             ['access', 'value'],
             ['loop'],
-            ['ref', $date_FtDomainModelsModeAktor],
+            ['ref', $date_FtDomainModelsMødeAktør],
           ],
         ],
       },
@@ -13767,12 +13767,12 @@ export async function modeAktorGet<FetcherData>(
  * Add new entity to MødeAktør
  * Tags: MødeAktør
  */
-export async function modeAktorPost<FetcherData>(
+export async function mødeaktørPost<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {},
-  body: FtDomainModelsModeAktorCreate,
+  body: FtDomainModelsMødeAktørCreate,
   opts?: FetcherData
-): Promise<FtDomainModelsModeAktor> {
+): Promise<FtDomainModelsMødeAktør> {
   const req = await ctx.createRequest({
     path: '/M\u00F8deAkt\u00F8r',
     params,
@@ -13781,14 +13781,14 @@ export async function modeAktorPost<FetcherData>(
   })
   const res = await ctx.sendRequest(req, opts)
   return ctx.handleResponse(res, {
-    '201': { transforms: { date: [[['ref', $date_FtDomainModelsModeAktor]]] } },
+    '201': { transforms: { date: [[['ref', $date_FtDomainModelsMødeAktør]]] } },
   })
 }
 /**
  * Get entity from MødeAktør by key
  * Tags: MødeAktør
  */
-export async function modeAktorIdGet<FetcherData>(
+export async function mødeaktørIdGet<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: ('id' | 'm\u00F8deid' | 'akt\u00F8rid' | 'opdateringsdato')[]
@@ -13796,7 +13796,7 @@ export async function modeAktorIdGet<FetcherData>(
     id: number
   },
   opts?: FetcherData
-): Promise<FtDomainModelsModeAktor> {
+): Promise<FtDomainModelsMødeAktør> {
   const req = await ctx.createRequest({
     path: '/M\u00F8deAkt\u00F8r({id})',
     params,
@@ -13805,19 +13805,19 @@ export async function modeAktorIdGet<FetcherData>(
   })
   const res = await ctx.sendRequest(req, opts)
   return ctx.handleResponse(res, {
-    '200': { transforms: { date: [[['ref', $date_FtDomainModelsModeAktor]]] } },
+    '200': { transforms: { date: [[['ref', $date_FtDomainModelsMødeAktør]]] } },
   })
 }
 /**
  * Update entity in MødeAktør
  * Tags: MødeAktør
  */
-export async function modeAktorIdPatch<FetcherData>(
+export async function mødeaktørIdPatch<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
   },
-  body: FtDomainModelsModeAktorUpdate,
+  body: FtDomainModelsMødeAktørUpdate,
   opts?: FetcherData
 ): Promise<any> {
   const req = await ctx.createRequest({
@@ -13833,7 +13833,7 @@ export async function modeAktorIdPatch<FetcherData>(
  * Delete entity from MødeAktør
  * Tags: MødeAktør
  */
-export async function modeAktorIdDelete<FetcherData>(
+export async function mødeaktørIdDelete<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -13852,7 +13852,7 @@ export async function modeAktorIdDelete<FetcherData>(
  * Get related Aktør
  * Tags: MødeAktør, Aktør
  */
-export async function modeAktorIdAktorGet<FetcherData>(
+export async function mødeaktørIdAktørGet<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: (
@@ -13883,7 +13883,7 @@ export async function modeAktorIdAktorGet<FetcherData>(
     id: number
   },
   opts?: FetcherData
-): Promise<FtDomainModelsAktor> {
+): Promise<FtDomainModelsAktør> {
   const req = await ctx.createRequest({
     path: '/M\u00F8deAkt\u00F8r({id})/Akt\u00F8r',
     params,
@@ -13892,14 +13892,14 @@ export async function modeAktorIdAktorGet<FetcherData>(
   })
   const res = await ctx.sendRequest(req, opts)
   return ctx.handleResponse(res, {
-    '200': { transforms: { date: [[['ref', $date_FtDomainModelsAktor]]] } },
+    '200': { transforms: { date: [[['ref', $date_FtDomainModelsAktør]]] } },
   })
 }
 /**
  * Get related Møde
  * Tags: MødeAktør, Møde
  */
-export async function modeAktorIdModeGet<FetcherData>(
+export async function mødeaktørIdModeGet<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: (
@@ -13944,7 +13944,7 @@ export async function modeAktorIdModeGet<FetcherData>(
  * Get entities from Mødestatus
  * Tags: Mødestatus
  */
-export async function modestatusGet<FetcherData>(
+export async function mødestatusGet<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -14000,7 +14000,7 @@ export async function modestatusGet<FetcherData>(
  * Add new entity to Mødestatus
  * Tags: Mødestatus
  */
-export async function modestatusPost<FetcherData>(
+export async function mødestatusPost<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {},
   body: FtDomainModelsModestatusCreate,
@@ -14023,7 +14023,7 @@ export async function modestatusPost<FetcherData>(
  * Get entity from Mødestatus by key
  * Tags: Mødestatus
  */
-export async function modestatusIdGet<FetcherData>(
+export async function mødestatusIdGet<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: ('id' | 'status' | 'opdateringsdato')[]
@@ -14049,7 +14049,7 @@ export async function modestatusIdGet<FetcherData>(
  * Update entity in Mødestatus
  * Tags: Mødestatus
  */
-export async function modestatusIdPatch<FetcherData>(
+export async function mødestatusIdPatch<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -14070,7 +14070,7 @@ export async function modestatusIdPatch<FetcherData>(
  * Delete entity from Mødestatus
  * Tags: Mødestatus
  */
-export async function modestatusIdDelete<FetcherData>(
+export async function mødestatusIdDelete<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -14089,7 +14089,7 @@ export async function modestatusIdDelete<FetcherData>(
  * Get entities from related Møde
  * Tags: Mødestatus, Møde
  */
-export async function modestatusIdModeGet<FetcherData>(
+export async function mødestatusIdModeGet<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -14181,7 +14181,7 @@ export async function modestatusIdModeGet<FetcherData>(
  * Add new entity to related Møde
  * Tags: Mødestatus, Møde
  */
-export async function modestatusIdModePost<FetcherData>(
+export async function mødestatusIdModePost<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -14204,7 +14204,7 @@ export async function modestatusIdModePost<FetcherData>(
  * Get entities from Mødetype
  * Tags: Mødetype
  */
-export async function modetypeGet<FetcherData>(
+export async function mødetypeGet<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -14260,7 +14260,7 @@ export async function modetypeGet<FetcherData>(
  * Add new entity to Mødetype
  * Tags: Mødetype
  */
-export async function modetypePost<FetcherData>(
+export async function mødetypePost<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {},
   body: FtDomainModelsModetypeCreate,
@@ -14281,7 +14281,7 @@ export async function modetypePost<FetcherData>(
  * Get entity from Mødetype by key
  * Tags: Mødetype
  */
-export async function modetypeIdGet<FetcherData>(
+export async function mødetypeIdGet<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: ('id' | 'type' | 'opdateringsdato')[]
@@ -14305,7 +14305,7 @@ export async function modetypeIdGet<FetcherData>(
  * Update entity in Mødetype
  * Tags: Mødetype
  */
-export async function modetypeIdPatch<FetcherData>(
+export async function mødetypeIdPatch<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -14326,7 +14326,7 @@ export async function modetypeIdPatch<FetcherData>(
  * Delete entity from Mødetype
  * Tags: Mødetype
  */
-export async function modetypeIdDelete<FetcherData>(
+export async function mødetypeIdDelete<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -14345,7 +14345,7 @@ export async function modetypeIdDelete<FetcherData>(
  * Get entities from related Møde
  * Tags: Mødetype, Møde
  */
-export async function modetypeIdModeGet<FetcherData>(
+export async function mødetypeIdModeGet<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -14437,7 +14437,7 @@ export async function modetypeIdModeGet<FetcherData>(
  * Add new entity to related Møde
  * Tags: Mødetype, Møde
  */
-export async function modetypeIdModePost<FetcherData>(
+export async function mødetypeIdModePost<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -14831,7 +14831,7 @@ export async function periodeIdDelete<FetcherData>(
  * Get entities from related Aktør
  * Tags: Periode, Aktør
  */
-export async function periodeIdAktorGet<FetcherData>(
+export async function periodeIdAktørGet<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -14892,7 +14892,7 @@ export async function periodeIdAktorGet<FetcherData>(
   opts?: FetcherData
 ): Promise<{
   '@count'?: Count
-  value?: FtDomainModelsAktor[]
+  value?: FtDomainModelsAktør[]
 }> {
   const req = await ctx.createRequest({
     path: '/Periode({id})/Akt\u00F8r',
@@ -14913,7 +14913,7 @@ export async function periodeIdAktorGet<FetcherData>(
     '200': {
       transforms: {
         date: [
-          [['access', 'value'], ['loop'], ['ref', $date_FtDomainModelsAktor]],
+          [['access', 'value'], ['loop'], ['ref', $date_FtDomainModelsAktør]],
         ],
       },
     },
@@ -14923,14 +14923,14 @@ export async function periodeIdAktorGet<FetcherData>(
  * Add new entity to related Aktør
  * Tags: Periode, Aktør
  */
-export async function periodeIdAktorPost<FetcherData>(
+export async function periodeIdAktørPost<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
   },
-  body: FtDomainModelsAktorCreate,
+  body: FtDomainModelsAktørCreate,
   opts?: FetcherData
-): Promise<FtDomainModelsAktor> {
+): Promise<FtDomainModelsAktør> {
   const req = await ctx.createRequest({
     path: '/Periode({id})/Akt\u00F8r',
     params,
@@ -14939,7 +14939,7 @@ export async function periodeIdAktorPost<FetcherData>(
   })
   const res = await ctx.sendRequest(req, opts)
   return ctx.handleResponse(res, {
-    '201': { transforms: { date: [[['ref', $date_FtDomainModelsAktor]]] } },
+    '201': { transforms: { date: [[['ref', $date_FtDomainModelsAktør]]] } },
   })
 }
 /**
@@ -16027,7 +16027,7 @@ export async function sagIdSagerfremsatunderPost<FetcherData>(
  * Get entities from related SagAktør
  * Tags: Sag, SagAktør
  */
-export async function sagIdSagAktorGet<FetcherData>(
+export async function sagIdSagAktørGet<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -16059,7 +16059,7 @@ export async function sagIdSagAktorGet<FetcherData>(
   opts?: FetcherData
 ): Promise<{
   '@count'?: Count
-  value?: FtDomainModelsSagAktor[]
+  value?: FtDomainModelsSagAktør[]
 }> {
   const req = await ctx.createRequest({
     path: '/Sag({id})/SagAkt\u00F8r',
@@ -16083,7 +16083,7 @@ export async function sagIdSagAktorGet<FetcherData>(
           [
             ['access', 'value'],
             ['loop'],
-            ['ref', $date_FtDomainModelsSagAktor],
+            ['ref', $date_FtDomainModelsSagAktør],
           ],
         ],
       },
@@ -16094,14 +16094,14 @@ export async function sagIdSagAktorGet<FetcherData>(
  * Add new entity to related SagAktør
  * Tags: Sag, SagAktør
  */
-export async function sagIdSagAktorPost<FetcherData>(
+export async function sagIdSagAktørPost<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
   },
-  body: FtDomainModelsSagAktorCreate,
+  body: FtDomainModelsSagAktørCreate,
   opts?: FetcherData
-): Promise<FtDomainModelsSagAktor> {
+): Promise<FtDomainModelsSagAktør> {
   const req = await ctx.createRequest({
     path: '/Sag({id})/SagAkt\u00F8r',
     params,
@@ -16110,7 +16110,7 @@ export async function sagIdSagAktorPost<FetcherData>(
   })
   const res = await ctx.sendRequest(req, opts)
   return ctx.handleResponse(res, {
-    '201': { transforms: { date: [[['ref', $date_FtDomainModelsSagAktor]]] } },
+    '201': { transforms: { date: [[['ref', $date_FtDomainModelsSagAktør]]] } },
   })
 }
 /**
@@ -16577,7 +16577,7 @@ export async function sagIdSagstypeGet<FetcherData>(
  * Get entities from SagAktør
  * Tags: SagAktør
  */
-export async function sagAktorGet<FetcherData>(
+export async function sagAktørGet<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -16608,7 +16608,7 @@ export async function sagAktorGet<FetcherData>(
   opts?: FetcherData
 ): Promise<{
   '@count'?: Count
-  value?: FtDomainModelsSagAktor[]
+  value?: FtDomainModelsSagAktør[]
 }> {
   const req = await ctx.createRequest({
     path: '/SagAkt\u00F8r',
@@ -16632,7 +16632,7 @@ export async function sagAktorGet<FetcherData>(
           [
             ['access', 'value'],
             ['loop'],
-            ['ref', $date_FtDomainModelsSagAktor],
+            ['ref', $date_FtDomainModelsSagAktør],
           ],
         ],
       },
@@ -16643,12 +16643,12 @@ export async function sagAktorGet<FetcherData>(
  * Add new entity to SagAktør
  * Tags: SagAktør
  */
-export async function sagAktorPost<FetcherData>(
+export async function sagAktørPost<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {},
-  body: FtDomainModelsSagAktorCreate,
+  body: FtDomainModelsSagAktørCreate,
   opts?: FetcherData
-): Promise<FtDomainModelsSagAktor> {
+): Promise<FtDomainModelsSagAktør> {
   const req = await ctx.createRequest({
     path: '/SagAkt\u00F8r',
     params,
@@ -16657,14 +16657,14 @@ export async function sagAktorPost<FetcherData>(
   })
   const res = await ctx.sendRequest(req, opts)
   return ctx.handleResponse(res, {
-    '201': { transforms: { date: [[['ref', $date_FtDomainModelsSagAktor]]] } },
+    '201': { transforms: { date: [[['ref', $date_FtDomainModelsSagAktør]]] } },
   })
 }
 /**
  * Get entity from SagAktør by key
  * Tags: SagAktør
  */
-export async function sagAktorIdGet<FetcherData>(
+export async function sagAktørIdGet<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: (
@@ -16678,7 +16678,7 @@ export async function sagAktorIdGet<FetcherData>(
     id: number
   },
   opts?: FetcherData
-): Promise<FtDomainModelsSagAktor> {
+): Promise<FtDomainModelsSagAktør> {
   const req = await ctx.createRequest({
     path: '/SagAkt\u00F8r({id})',
     params,
@@ -16687,19 +16687,19 @@ export async function sagAktorIdGet<FetcherData>(
   })
   const res = await ctx.sendRequest(req, opts)
   return ctx.handleResponse(res, {
-    '200': { transforms: { date: [[['ref', $date_FtDomainModelsSagAktor]]] } },
+    '200': { transforms: { date: [[['ref', $date_FtDomainModelsSagAktør]]] } },
   })
 }
 /**
  * Update entity in SagAktør
  * Tags: SagAktør
  */
-export async function sagAktorIdPatch<FetcherData>(
+export async function sagAktørIdPatch<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
   },
-  body: FtDomainModelsSagAktorUpdate,
+  body: FtDomainModelsSagAktørUpdate,
   opts?: FetcherData
 ): Promise<any> {
   const req = await ctx.createRequest({
@@ -16715,7 +16715,7 @@ export async function sagAktorIdPatch<FetcherData>(
  * Delete entity from SagAktør
  * Tags: SagAktør
  */
-export async function sagAktorIdDelete<FetcherData>(
+export async function sagAktørIdDelete<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -16734,7 +16734,7 @@ export async function sagAktorIdDelete<FetcherData>(
  * Get related Aktør
  * Tags: SagAktør, Aktør
  */
-export async function sagAktorIdAktorGet<FetcherData>(
+export async function sagAktørIdAktørGet<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: (
@@ -16765,7 +16765,7 @@ export async function sagAktorIdAktorGet<FetcherData>(
     id: number
   },
   opts?: FetcherData
-): Promise<FtDomainModelsAktor> {
+): Promise<FtDomainModelsAktør> {
   const req = await ctx.createRequest({
     path: '/SagAkt\u00F8r({id})/Akt\u00F8r',
     params,
@@ -16774,14 +16774,14 @@ export async function sagAktorIdAktorGet<FetcherData>(
   })
   const res = await ctx.sendRequest(req, opts)
   return ctx.handleResponse(res, {
-    '200': { transforms: { date: [[['ref', $date_FtDomainModelsAktor]]] } },
+    '200': { transforms: { date: [[['ref', $date_FtDomainModelsAktør]]] } },
   })
 }
 /**
  * Get related Sag
  * Tags: SagAktør, Sag
  */
-export async function sagAktorIdSagGet<FetcherData>(
+export async function sagAktørIdSagGet<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: (
@@ -16850,7 +16850,7 @@ export async function sagAktorIdSagGet<FetcherData>(
  * Get related SagAktørRolle
  * Tags: SagAktør, SagAktørRolle
  */
-export async function sagAktorIdSagAktorRolleGet<FetcherData>(
+export async function sagAktørIdSagAktørRolleGet<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: ('id' | 'rolle' | 'opdateringsdato')[]
@@ -16858,7 +16858,7 @@ export async function sagAktorIdSagAktorRolleGet<FetcherData>(
     id: number
   },
   opts?: FetcherData
-): Promise<FtDomainModelsSagAktorRolle> {
+): Promise<FtDomainModelsSagAktørRolle> {
   const req = await ctx.createRequest({
     path: '/SagAkt\u00F8r({id})/SagAkt\u00F8rRolle',
     params,
@@ -16868,7 +16868,7 @@ export async function sagAktorIdSagAktorRolleGet<FetcherData>(
   const res = await ctx.sendRequest(req, opts)
   return ctx.handleResponse(res, {
     '200': {
-      transforms: { date: [[['ref', $date_FtDomainModelsSagAktorRolle]]] },
+      transforms: { date: [[['ref', $date_FtDomainModelsSagAktørRolle]]] },
     },
   })
 }
@@ -16876,7 +16876,7 @@ export async function sagAktorIdSagAktorRolleGet<FetcherData>(
  * Get entities from SagAktørRolle
  * Tags: SagAktørRolle
  */
-export async function sagAktorRolleGet<FetcherData>(
+export async function sagAktørRolleGet<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -16897,7 +16897,7 @@ export async function sagAktorRolleGet<FetcherData>(
   opts?: FetcherData
 ): Promise<{
   '@count'?: Count
-  value?: FtDomainModelsSagAktorRolle[]
+  value?: FtDomainModelsSagAktørRolle[]
 }> {
   const req = await ctx.createRequest({
     path: '/SagAkt\u00F8rRolle',
@@ -16921,7 +16921,7 @@ export async function sagAktorRolleGet<FetcherData>(
           [
             ['access', 'value'],
             ['loop'],
-            ['ref', $date_FtDomainModelsSagAktorRolle],
+            ['ref', $date_FtDomainModelsSagAktørRolle],
           ],
         ],
       },
@@ -16932,12 +16932,12 @@ export async function sagAktorRolleGet<FetcherData>(
  * Add new entity to SagAktørRolle
  * Tags: SagAktørRolle
  */
-export async function sagAktorRollePost<FetcherData>(
+export async function sagAktørRollePost<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {},
-  body: FtDomainModelsSagAktorRolleCreate,
+  body: FtDomainModelsSagAktørRolleCreate,
   opts?: FetcherData
-): Promise<FtDomainModelsSagAktorRolle> {
+): Promise<FtDomainModelsSagAktørRolle> {
   const req = await ctx.createRequest({
     path: '/SagAkt\u00F8rRolle',
     params,
@@ -16947,7 +16947,7 @@ export async function sagAktorRollePost<FetcherData>(
   const res = await ctx.sendRequest(req, opts)
   return ctx.handleResponse(res, {
     '201': {
-      transforms: { date: [[['ref', $date_FtDomainModelsSagAktorRolle]]] },
+      transforms: { date: [[['ref', $date_FtDomainModelsSagAktørRolle]]] },
     },
   })
 }
@@ -16955,7 +16955,7 @@ export async function sagAktorRollePost<FetcherData>(
  * Get entity from SagAktørRolle by key
  * Tags: SagAktørRolle
  */
-export async function sagAktorRolleIdGet<FetcherData>(
+export async function sagAktørRolleIdGet<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: ('id' | 'rolle' | 'opdateringsdato')[]
@@ -16963,7 +16963,7 @@ export async function sagAktorRolleIdGet<FetcherData>(
     id: number
   },
   opts?: FetcherData
-): Promise<FtDomainModelsSagAktorRolle> {
+): Promise<FtDomainModelsSagAktørRolle> {
   const req = await ctx.createRequest({
     path: '/SagAkt\u00F8rRolle({id})',
     params,
@@ -16973,7 +16973,7 @@ export async function sagAktorRolleIdGet<FetcherData>(
   const res = await ctx.sendRequest(req, opts)
   return ctx.handleResponse(res, {
     '200': {
-      transforms: { date: [[['ref', $date_FtDomainModelsSagAktorRolle]]] },
+      transforms: { date: [[['ref', $date_FtDomainModelsSagAktørRolle]]] },
     },
   })
 }
@@ -16981,12 +16981,12 @@ export async function sagAktorRolleIdGet<FetcherData>(
  * Update entity in SagAktørRolle
  * Tags: SagAktørRolle
  */
-export async function sagAktorRolleIdPatch<FetcherData>(
+export async function sagAktørRolleIdPatch<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
   },
-  body: FtDomainModelsSagAktorRolleUpdate,
+  body: FtDomainModelsSagAktørRolleUpdate,
   opts?: FetcherData
 ): Promise<any> {
   const req = await ctx.createRequest({
@@ -17002,7 +17002,7 @@ export async function sagAktorRolleIdPatch<FetcherData>(
  * Delete entity from SagAktørRolle
  * Tags: SagAktørRolle
  */
-export async function sagAktorRolleIdDelete<FetcherData>(
+export async function sagAktørRolleIdDelete<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -17021,7 +17021,7 @@ export async function sagAktorRolleIdDelete<FetcherData>(
  * Get entities from related SagAktør
  * Tags: SagAktørRolle, SagAktør
  */
-export async function sagAktorRolleIdSagAktorGet<FetcherData>(
+export async function sagAktørRolleIdSagAktørGet<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -17053,7 +17053,7 @@ export async function sagAktorRolleIdSagAktorGet<FetcherData>(
   opts?: FetcherData
 ): Promise<{
   '@count'?: Count
-  value?: FtDomainModelsSagAktor[]
+  value?: FtDomainModelsSagAktør[]
 }> {
   const req = await ctx.createRequest({
     path: '/SagAkt\u00F8rRolle({id})/SagAkt\u00F8r',
@@ -17077,7 +17077,7 @@ export async function sagAktorRolleIdSagAktorGet<FetcherData>(
           [
             ['access', 'value'],
             ['loop'],
-            ['ref', $date_FtDomainModelsSagAktor],
+            ['ref', $date_FtDomainModelsSagAktør],
           ],
         ],
       },
@@ -17088,14 +17088,14 @@ export async function sagAktorRolleIdSagAktorGet<FetcherData>(
  * Add new entity to related SagAktør
  * Tags: SagAktørRolle, SagAktør
  */
-export async function sagAktorRolleIdSagAktorPost<FetcherData>(
+export async function sagAktørRolleIdSagAktørPost<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
   },
-  body: FtDomainModelsSagAktorCreate,
+  body: FtDomainModelsSagAktørCreate,
   opts?: FetcherData
-): Promise<FtDomainModelsSagAktor> {
+): Promise<FtDomainModelsSagAktør> {
   const req = await ctx.createRequest({
     path: '/SagAkt\u00F8rRolle({id})/SagAkt\u00F8r',
     params,
@@ -17104,7 +17104,7 @@ export async function sagAktorRolleIdSagAktorPost<FetcherData>(
   })
   const res = await ctx.sendRequest(req, opts)
   return ctx.handleResponse(res, {
-    '201': { transforms: { date: [[['ref', $date_FtDomainModelsSagAktor]]] } },
+    '201': { transforms: { date: [[['ref', $date_FtDomainModelsSagAktør]]] } },
   })
 }
 /**
@@ -18735,7 +18735,7 @@ export async function sagstrinIdDagsordenspunktPost<FetcherData>(
  * Get entities from related SagstrinAktør
  * Tags: Sagstrin, SagstrinAktør
  */
-export async function sagstrinIdSagstrinAktorGet<FetcherData>(
+export async function sagstrinIdSagstrinAktørGet<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -18767,7 +18767,7 @@ export async function sagstrinIdSagstrinAktorGet<FetcherData>(
   opts?: FetcherData
 ): Promise<{
   '@count'?: Count
-  value?: FtDomainModelsSagstrinAktor[]
+  value?: FtDomainModelsSagstrinAktør[]
 }> {
   const req = await ctx.createRequest({
     path: '/Sagstrin({id})/SagstrinAkt\u00F8r',
@@ -18791,7 +18791,7 @@ export async function sagstrinIdSagstrinAktorGet<FetcherData>(
           [
             ['access', 'value'],
             ['loop'],
-            ['ref', $date_FtDomainModelsSagstrinAktor],
+            ['ref', $date_FtDomainModelsSagstrinAktør],
           ],
         ],
       },
@@ -18802,14 +18802,14 @@ export async function sagstrinIdSagstrinAktorGet<FetcherData>(
  * Add new entity to related SagstrinAktør
  * Tags: Sagstrin, SagstrinAktør
  */
-export async function sagstrinIdSagstrinAktorPost<FetcherData>(
+export async function sagstrinIdSagstrinAktørPost<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
   },
-  body: FtDomainModelsSagstrinAktorCreate,
+  body: FtDomainModelsSagstrinAktørCreate,
   opts?: FetcherData
-): Promise<FtDomainModelsSagstrinAktor> {
+): Promise<FtDomainModelsSagstrinAktør> {
   const req = await ctx.createRequest({
     path: '/Sagstrin({id})/SagstrinAkt\u00F8r',
     params,
@@ -18819,7 +18819,7 @@ export async function sagstrinIdSagstrinAktorPost<FetcherData>(
   const res = await ctx.sendRequest(req, opts)
   return ctx.handleResponse(res, {
     '201': {
-      transforms: { date: [[['ref', $date_FtDomainModelsSagstrinAktor]]] },
+      transforms: { date: [[['ref', $date_FtDomainModelsSagstrinAktør]]] },
     },
   })
 }
@@ -19212,7 +19212,7 @@ export async function sagstrinIdSagstrinstypeGet<FetcherData>(
  * Get entities from SagstrinAktør
  * Tags: SagstrinAktør
  */
-export async function sagstrinAktorGet<FetcherData>(
+export async function sagstrinAktørGet<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -19243,7 +19243,7 @@ export async function sagstrinAktorGet<FetcherData>(
   opts?: FetcherData
 ): Promise<{
   '@count'?: Count
-  value?: FtDomainModelsSagstrinAktor[]
+  value?: FtDomainModelsSagstrinAktør[]
 }> {
   const req = await ctx.createRequest({
     path: '/SagstrinAkt\u00F8r',
@@ -19267,7 +19267,7 @@ export async function sagstrinAktorGet<FetcherData>(
           [
             ['access', 'value'],
             ['loop'],
-            ['ref', $date_FtDomainModelsSagstrinAktor],
+            ['ref', $date_FtDomainModelsSagstrinAktør],
           ],
         ],
       },
@@ -19278,12 +19278,12 @@ export async function sagstrinAktorGet<FetcherData>(
  * Add new entity to SagstrinAktør
  * Tags: SagstrinAktør
  */
-export async function sagstrinAktorPost<FetcherData>(
+export async function sagstrinAktørPost<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {},
-  body: FtDomainModelsSagstrinAktorCreate,
+  body: FtDomainModelsSagstrinAktørCreate,
   opts?: FetcherData
-): Promise<FtDomainModelsSagstrinAktor> {
+): Promise<FtDomainModelsSagstrinAktør> {
   const req = await ctx.createRequest({
     path: '/SagstrinAkt\u00F8r',
     params,
@@ -19293,7 +19293,7 @@ export async function sagstrinAktorPost<FetcherData>(
   const res = await ctx.sendRequest(req, opts)
   return ctx.handleResponse(res, {
     '201': {
-      transforms: { date: [[['ref', $date_FtDomainModelsSagstrinAktor]]] },
+      transforms: { date: [[['ref', $date_FtDomainModelsSagstrinAktør]]] },
     },
   })
 }
@@ -19301,7 +19301,7 @@ export async function sagstrinAktorPost<FetcherData>(
  * Get entity from SagstrinAktør by key
  * Tags: SagstrinAktør
  */
-export async function sagstrinAktorIdGet<FetcherData>(
+export async function sagstrinAktørIdGet<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: (
@@ -19315,7 +19315,7 @@ export async function sagstrinAktorIdGet<FetcherData>(
     id: number
   },
   opts?: FetcherData
-): Promise<FtDomainModelsSagstrinAktor> {
+): Promise<FtDomainModelsSagstrinAktør> {
   const req = await ctx.createRequest({
     path: '/SagstrinAkt\u00F8r({id})',
     params,
@@ -19325,7 +19325,7 @@ export async function sagstrinAktorIdGet<FetcherData>(
   const res = await ctx.sendRequest(req, opts)
   return ctx.handleResponse(res, {
     '200': {
-      transforms: { date: [[['ref', $date_FtDomainModelsSagstrinAktor]]] },
+      transforms: { date: [[['ref', $date_FtDomainModelsSagstrinAktør]]] },
     },
   })
 }
@@ -19333,12 +19333,12 @@ export async function sagstrinAktorIdGet<FetcherData>(
  * Update entity in SagstrinAktør
  * Tags: SagstrinAktør
  */
-export async function sagstrinAktorIdPatch<FetcherData>(
+export async function sagstrinAktørIdPatch<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
   },
-  body: FtDomainModelsSagstrinAktorUpdate,
+  body: FtDomainModelsSagstrinAktørUpdate,
   opts?: FetcherData
 ): Promise<any> {
   const req = await ctx.createRequest({
@@ -19354,7 +19354,7 @@ export async function sagstrinAktorIdPatch<FetcherData>(
  * Delete entity from SagstrinAktør
  * Tags: SagstrinAktør
  */
-export async function sagstrinAktorIdDelete<FetcherData>(
+export async function sagstrinAktørIdDelete<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -19373,7 +19373,7 @@ export async function sagstrinAktorIdDelete<FetcherData>(
  * Get related Aktør
  * Tags: SagstrinAktør, Aktør
  */
-export async function sagstrinAktorIdAktorGet<FetcherData>(
+export async function sagstrinAktørIdAktørGet<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: (
@@ -19404,7 +19404,7 @@ export async function sagstrinAktorIdAktorGet<FetcherData>(
     id: number
   },
   opts?: FetcherData
-): Promise<FtDomainModelsAktor> {
+): Promise<FtDomainModelsAktør> {
   const req = await ctx.createRequest({
     path: '/SagstrinAkt\u00F8r({id})/Akt\u00F8r',
     params,
@@ -19413,14 +19413,14 @@ export async function sagstrinAktorIdAktorGet<FetcherData>(
   })
   const res = await ctx.sendRequest(req, opts)
   return ctx.handleResponse(res, {
-    '200': { transforms: { date: [[['ref', $date_FtDomainModelsAktor]]] } },
+    '200': { transforms: { date: [[['ref', $date_FtDomainModelsAktør]]] } },
   })
 }
 /**
  * Get related Sagstrin
  * Tags: SagstrinAktør, Sagstrin
  */
-export async function sagstrinAktorIdSagstrinGet<FetcherData>(
+export async function sagstrinAktørIdSagstrinGet<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: (
@@ -19466,7 +19466,7 @@ export async function sagstrinAktorIdSagstrinGet<FetcherData>(
  * Get related SagstrinAktørRolle
  * Tags: SagstrinAktør, SagstrinAktørRolle
  */
-export async function sagstrinAktorIdSagstrinAktorRolleGet<FetcherData>(
+export async function sagstrinAktørIdSagstrinAktørRolleGet<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: ('id' | 'rolle' | 'opdateringsdato')[]
@@ -19474,7 +19474,7 @@ export async function sagstrinAktorIdSagstrinAktorRolleGet<FetcherData>(
     id: number
   },
   opts?: FetcherData
-): Promise<FtDomainModelsSagstrinAktorRolle> {
+): Promise<FtDomainModelsSagstrinAktørRolle> {
   const req = await ctx.createRequest({
     path: '/SagstrinAkt\u00F8r({id})/SagstrinAkt\u00F8rRolle',
     params,
@@ -19484,7 +19484,7 @@ export async function sagstrinAktorIdSagstrinAktorRolleGet<FetcherData>(
   const res = await ctx.sendRequest(req, opts)
   return ctx.handleResponse(res, {
     '200': {
-      transforms: { date: [[['ref', $date_FtDomainModelsSagstrinAktorRolle]]] },
+      transforms: { date: [[['ref', $date_FtDomainModelsSagstrinAktørRolle]]] },
     },
   })
 }
@@ -19492,7 +19492,7 @@ export async function sagstrinAktorIdSagstrinAktorRolleGet<FetcherData>(
  * Get entities from SagstrinAktørRolle
  * Tags: SagstrinAktørRolle
  */
-export async function sagstrinAktorRolleGet<FetcherData>(
+export async function sagstrinAktørRolleGet<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -19513,7 +19513,7 @@ export async function sagstrinAktorRolleGet<FetcherData>(
   opts?: FetcherData
 ): Promise<{
   '@count'?: Count
-  value?: FtDomainModelsSagstrinAktorRolle[]
+  value?: FtDomainModelsSagstrinAktørRolle[]
 }> {
   const req = await ctx.createRequest({
     path: '/SagstrinAkt\u00F8rRolle',
@@ -19537,7 +19537,7 @@ export async function sagstrinAktorRolleGet<FetcherData>(
           [
             ['access', 'value'],
             ['loop'],
-            ['ref', $date_FtDomainModelsSagstrinAktorRolle],
+            ['ref', $date_FtDomainModelsSagstrinAktørRolle],
           ],
         ],
       },
@@ -19548,12 +19548,12 @@ export async function sagstrinAktorRolleGet<FetcherData>(
  * Add new entity to SagstrinAktørRolle
  * Tags: SagstrinAktørRolle
  */
-export async function sagstrinAktorRollePost<FetcherData>(
+export async function sagstrinAktørRollePost<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {},
-  body: FtDomainModelsSagstrinAktorRolleCreate,
+  body: FtDomainModelsSagstrinAktørRolleCreate,
   opts?: FetcherData
-): Promise<FtDomainModelsSagstrinAktorRolle> {
+): Promise<FtDomainModelsSagstrinAktørRolle> {
   const req = await ctx.createRequest({
     path: '/SagstrinAkt\u00F8rRolle',
     params,
@@ -19563,7 +19563,7 @@ export async function sagstrinAktorRollePost<FetcherData>(
   const res = await ctx.sendRequest(req, opts)
   return ctx.handleResponse(res, {
     '201': {
-      transforms: { date: [[['ref', $date_FtDomainModelsSagstrinAktorRolle]]] },
+      transforms: { date: [[['ref', $date_FtDomainModelsSagstrinAktørRolle]]] },
     },
   })
 }
@@ -19571,7 +19571,7 @@ export async function sagstrinAktorRollePost<FetcherData>(
  * Get entity from SagstrinAktørRolle by key
  * Tags: SagstrinAktørRolle
  */
-export async function sagstrinAktorRolleIdGet<FetcherData>(
+export async function sagstrinAktørRolleIdGet<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: ('id' | 'rolle' | 'opdateringsdato')[]
@@ -19579,7 +19579,7 @@ export async function sagstrinAktorRolleIdGet<FetcherData>(
     id: number
   },
   opts?: FetcherData
-): Promise<FtDomainModelsSagstrinAktorRolle> {
+): Promise<FtDomainModelsSagstrinAktørRolle> {
   const req = await ctx.createRequest({
     path: '/SagstrinAkt\u00F8rRolle({id})',
     params,
@@ -19589,7 +19589,7 @@ export async function sagstrinAktorRolleIdGet<FetcherData>(
   const res = await ctx.sendRequest(req, opts)
   return ctx.handleResponse(res, {
     '200': {
-      transforms: { date: [[['ref', $date_FtDomainModelsSagstrinAktorRolle]]] },
+      transforms: { date: [[['ref', $date_FtDomainModelsSagstrinAktørRolle]]] },
     },
   })
 }
@@ -19597,12 +19597,12 @@ export async function sagstrinAktorRolleIdGet<FetcherData>(
  * Update entity in SagstrinAktørRolle
  * Tags: SagstrinAktørRolle
  */
-export async function sagstrinAktorRolleIdPatch<FetcherData>(
+export async function sagstrinAktørRolleIdPatch<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
   },
-  body: FtDomainModelsSagstrinAktorRolleUpdate,
+  body: FtDomainModelsSagstrinAktørRolleUpdate,
   opts?: FetcherData
 ): Promise<any> {
   const req = await ctx.createRequest({
@@ -19618,7 +19618,7 @@ export async function sagstrinAktorRolleIdPatch<FetcherData>(
  * Delete entity from SagstrinAktørRolle
  * Tags: SagstrinAktørRolle
  */
-export async function sagstrinAktorRolleIdDelete<FetcherData>(
+export async function sagstrinAktørRolleIdDelete<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -19637,7 +19637,7 @@ export async function sagstrinAktorRolleIdDelete<FetcherData>(
  * Get entities from related SagstrinAktør
  * Tags: SagstrinAktørRolle, SagstrinAktør
  */
-export async function sagstrinAktorRolleIdSagstrinAktorGet<FetcherData>(
+export async function sagstrinAktørRolleIdSagstrinAktørGet<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -19669,7 +19669,7 @@ export async function sagstrinAktorRolleIdSagstrinAktorGet<FetcherData>(
   opts?: FetcherData
 ): Promise<{
   '@count'?: Count
-  value?: FtDomainModelsSagstrinAktor[]
+  value?: FtDomainModelsSagstrinAktør[]
 }> {
   const req = await ctx.createRequest({
     path: '/SagstrinAkt\u00F8rRolle({id})/SagstrinAkt\u00F8r',
@@ -19693,7 +19693,7 @@ export async function sagstrinAktorRolleIdSagstrinAktorGet<FetcherData>(
           [
             ['access', 'value'],
             ['loop'],
-            ['ref', $date_FtDomainModelsSagstrinAktor],
+            ['ref', $date_FtDomainModelsSagstrinAktør],
           ],
         ],
       },
@@ -19704,14 +19704,14 @@ export async function sagstrinAktorRolleIdSagstrinAktorGet<FetcherData>(
  * Add new entity to related SagstrinAktør
  * Tags: SagstrinAktørRolle, SagstrinAktør
  */
-export async function sagstrinAktorRolleIdSagstrinAktorPost<FetcherData>(
+export async function sagstrinAktørRolleIdSagstrinAktørPost<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
   },
-  body: FtDomainModelsSagstrinAktorCreate,
+  body: FtDomainModelsSagstrinAktørCreate,
   opts?: FetcherData
-): Promise<FtDomainModelsSagstrinAktor> {
+): Promise<FtDomainModelsSagstrinAktør> {
   const req = await ctx.createRequest({
     path: '/SagstrinAkt\u00F8rRolle({id})/SagstrinAkt\u00F8r',
     params,
@@ -19721,7 +19721,7 @@ export async function sagstrinAktorRolleIdSagstrinAktorPost<FetcherData>(
   const res = await ctx.sendRequest(req, opts)
   return ctx.handleResponse(res, {
     '201': {
-      transforms: { date: [[['ref', $date_FtDomainModelsSagstrinAktor]]] },
+      transforms: { date: [[['ref', $date_FtDomainModelsSagstrinAktør]]] },
     },
   })
 }
@@ -21253,7 +21253,7 @@ export async function stemmeIdAfstemningGet<FetcherData>(
  * Get related Aktør
  * Tags: Stemme, Aktør
  */
-export async function stemmeIdAktorGet<FetcherData>(
+export async function stemmeIdAktørGet<FetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: (
@@ -21284,7 +21284,7 @@ export async function stemmeIdAktorGet<FetcherData>(
     id: number
   },
   opts?: FetcherData
-): Promise<FtDomainModelsAktor> {
+): Promise<FtDomainModelsAktør> {
   const req = await ctx.createRequest({
     path: '/Stemme({id})/Akt\u00F8r',
     params,
@@ -21293,7 +21293,7 @@ export async function stemmeIdAktorGet<FetcherData>(
   })
   const res = await ctx.sendRequest(req, opts)
   return ctx.handleResponse(res, {
-    '200': { transforms: { date: [[['ref', $date_FtDomainModelsAktor]]] } },
+    '200': { transforms: { date: [[['ref', $date_FtDomainModelsAktør]]] } },
   })
 }
 /**

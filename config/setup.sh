@@ -15,7 +15,8 @@ case $1 in
     docker exec -it sql_server /opt/mssql-tools/bin/sqlcmd \
     -S localhost -U SA -P 'YourStrong!Passw0rd' \
     -Q 'RESTORE DATABASE OdaDB FROM DISK = "/var/opt/mssql/backup/oda.bak" WITH MOVE "OdaDB" TO "/var/opt/mssql/data/OdaDB.mdf", MOVE "OdaDB_log" TO "/var/opt/mssql/data/OdaDB_log.ldf"'
-  oda_migrate)
+  ;;
+oda_migrate)
     # Drop the oda database in postgres
     PGPASSWORD=root psql -h localhost -U postgres -c "DROP DATABASE IF EXISTS oda;"
     PGPASSWORD=root psql -h localhost -U postgres -c "DROP DATABASE IF EXISTS oda_fresh;"
@@ -23,7 +24,7 @@ case $1 in
     # Create the oda database in postgres
     PGPASSWORD=root psql -h localhost -U postgres -c "CREATE DATABASE oda;"
     PGPASSWORD=root psql -h localhost -U postgres -c "GRANT ALL PRIVILEGES ON DATABASE oda TO postgres;"
-    
+
 
     # Run the docker command to load the database
     docker run --network host --rm --name pgloader -v ./loadfile.load:/data/loadfile.load dimitri/pgloader:latest pgloader --debug /data/loadfile.load
@@ -34,7 +35,7 @@ case $1 in
     # Create fresh clone for cache
     PGPASSWORD=root psql -h localhost -U postgres -c "CREATE DATABASE oda_fresh;"
     PGPASSWORD=root psql -h localhost -U postgres -c "GRANT ALL PRIVILEGES ON DATABASE oda_fresh TO postgres;"
-    
+
     echo "Dumping oda database to oda.sql"
 
     PGPASSWORD=root pg_dump -h localhost -U postgres oda > oda.sql
@@ -50,7 +51,7 @@ case $1 in
     # Create the oda database in postgres
     PGPASSWORD=root psql -h localhost -U postgres -c "CREATE DATABASE oda;"
     PGPASSWORD=root psql -h localhost -U postgres -c "GRANT ALL PRIVILEGES ON DATABASE oda TO postgres;"
-    
+
     # Import from oda_fresh
     PGPASSWORD=root psql -h localhost -U postgres oda < oda.sql
 
@@ -69,9 +70,9 @@ case $1 in
     --to-schema-datamodel prisma/schema.prisma \
     --script > prisma/migrations/0_init/migration.sql
 
-    bunx prisma migrate resolve --applied 0_init 
+    bunx prisma migrate resolve --applied 0_init
 
-    python3 schema_relations.py
+    python3 config/schema_relations.py
 
     bunx prisma migrate dev --create-only --name "added_relations"
 

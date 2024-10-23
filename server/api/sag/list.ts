@@ -1,48 +1,73 @@
-import { defineEventHandler } from 'h3'
-import logger from '../../../utils/logger'
-import prisma from '../../../prisma/client'
+import { defineEventHandler, getQuery } from 'h3';
+import { eq, desc, or, ilike, sql } from 'drizzle-orm';
+import logger from '../../../utils/logger';
+import { db } from '../db';
+import { sag } from '../../database/schema';
 
 export default defineEventHandler(async (event) => {
-  const query = getQuery(event)
-  const periodeid = parseInt(query.periodeid, 10) || null
-  const page = parseInt(query.page) || 1
-  const pageSize = parseInt(query.pageSize) || 10
-
-  const where = {
-    typeid: 3,
-  }
-
-  if (query.periodeid) {
-    where.periodeid = periodeid
-  }
+  const query = getQuery(event);
+  console.log(query.typeid, query.periodeid, query.search, query.page, query.pageSize);
+  const typeid = parseInt(query.typeid as string, 10);
+  const periodeid = parseInt(query.periodeid as string, 10);
+  const searchQuery = (query.search as string) || '';
+  const page = parseInt(query.page as string) || 1;
+  const pageSize = parseInt(query.pageSize as string) || 10;
 
   try {
-    const skip = (page - 1) * pageSize
-    const sagList = await prisma.sag.findMany({
-      select: {
-        id: true,
-        titelkort: true,
-        titel: true,
-        nummer: true,
-        opdateringsdato: true,
-        resume: true,
-        afstemningskonklusion: true,
-      },
-      where,
-      orderBy: { opdateringsdato: 'desc' },
-      take: pageSize,
-      skip,
-    })
+    const skip = (page - 1) * pageSize;
+    let sagQuery = db
+      .select({
+        id: sag.id,
+        titelkort: sag.titelkort,
+        titel: sag.titel,
+        nummer: sag.nummer,
+        opdateringsdato: sag.opdateringsdato,
+        resume: sag.resume,
+        afstemningskonklusion: sag.afstemningskonklusion,
+        typeid: sag.typeid,
+        periodeid: sag.periodeid,
+      })
+      .from(sag);
 
-    return sagList || []
-  } catch (error) {
-    // Handle the error appropriately
-    if (error instanceof Error) {
-      logger.error(error)
-      return { error: error.message }
-    } else {
-      logger.error('An unknown error occurred')
-      return { error: 'An unknown error occurred' }
+    if (!Number.isNaN(typeid)) {
+      sagQuery = sagQuery.where(eq(sag.typeid, typeid));
     }
+
+    if (!Number.isNaN(periodeid)) {
+      sagQuery = sagQuery.where(eq(sag.periodeid, periodeid));
+    }
+
+    if (searchQuery) {
+      sagQuery = sagQuery.where(
+        or(
+          ilike(sag.titelkort, `%${searchQuery}%`),
+          ilike(sag.titel, `%${searchQuery}%`),
+          ilike(sag.nummer, `%${searchQuery}%`),
+          ilike(sag.resume, `%${searchQuery}%`)
+        )
+      );
+    }
+
+    const totalCountResult = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(sagQuery.as('subquery'));
+    const totalCount = totalCountResult[0].count;
+    const totalPages = Math.ceil(totalCount / pageSize);
+
+    const sagList = await sagQuery
+      .orderBy(desc(sag.opdateringsdato))
+      .limit(pageSize)
+      .offset(skip);
+
+    return {
+      items: sagList,
+      totalPages,
+      currentPage: page,
+      pageSize,
+      totalCount,
+    };
+  } catch (error) {
+    logger.error(error);
+    return { error: error instanceof Error ? error.message : 'An unknown error occurred' };
   }
-})
+});

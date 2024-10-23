@@ -1,19 +1,15 @@
+import { desc } from 'drizzle-orm'
 import { defineEventHandler } from 'h3'
-import prisma from '../../../prisma/client'
+import { db } from '../db'
+import { sag } from '../../database/schema'
 
 export default defineEventHandler(async (event) => {
   try {
-    const sagList = await prisma.sag.findMany({
-      select: {
-        id: true,
-        titelkort: true,
-        titel: true,
-        opdateringsdato: true,
-      },
-      // where: { typeid: 2 },
-      orderBy: { opdateringsdato: 'desc' },
-      take: 10,
-    })
+    const sagList = await db
+      .select()
+      .from(sag)
+      .orderBy(desc(sag.opdateringsdato))
+      .limit(10)
 
     return sagList || []
   } catch (error) {

@@ -1,8 +1,10 @@
-load database
-     from mssql://prisma:1234AbAb@localhost:1433/ODA
-     into postgresql://postgres:root@localhost:5432/oda
-     WITH prefetch rows = 10000
+LOAD DATABASE
+     FROM mssql://SA:1234AbCd!@MSSQLDB:1433/ODA
+     INTO postgresql://postgres:root@pgsqldb/oda
 
-alter schema 'dbo' rename to 'public'
+WITH prefetch rows = 10000
+WITH batch concurrency = 1
 
-before load do $$ drop schema if exists cascade; $$;
+ALTER SCHEMA 'dbo' RENAME TO 'public'
+
+BEFORE LOAD DO $$ DROP SCHEMA IF EXISTS public CASCADE; $$;

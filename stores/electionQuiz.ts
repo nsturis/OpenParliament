@@ -12,7 +12,7 @@ interface Party {
 }
 
 interface IObjectKeys {
-  [key: string]: any
+  [key: string]: string | string[]
 }
 
 interface Election extends IObjectKeys {

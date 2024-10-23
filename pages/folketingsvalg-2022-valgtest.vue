@@ -1,45 +1,40 @@
 <template>
   <div class="relative">
-    <div
+    <UBadge
       id="quiz-progress"
-      class="absolute -right-4 -top-5 h-8 w-20 rounded-lg bg-emerald-700 text-center text-xl font-bold text-white lg:-right-10 lg:-top-10"
+      class="absolute -right-4 -top-5 lg:-right-10 lg:-top-10"
+      color="emerald"
+      size="lg"
     >
-      <span
-        >{{ electionQuizStore.step + 1 }} /
-        {{ electionQuizStore.quiz.length }}</span
-      >
-    </div>
-    <div class="grid md:grid-cols-2">
-      <Parties class="order-last md:order-first" />
-      <Question
-        v-if="electionQuizStore.step < electionQuizStore.quiz.length"
-        class="lg:ml-5"
-      />
-      <div
-        v-if="electionQuizStore.step === electionQuizStore.quiz.length"
-        class="text-xl lg:ml-5"
-      >
-        <h1>Færdig!</h1>
-        <p>
-          Du er nået til enden. Om du kan bruge denne test til noget, er helt op
-          til dig selv.
-        </p>
-        <p>
-          Du kan se det samlede
-          <NuxtLink to="/valgtest-resultat">resultat her.</NuxtLink>
-        </p>
-        <div class="h-20 w-20">
-          <button v-if="electionQuizStore.step !== 0" @click="previousStep">
-            <RewindIcon class="block h-20 w-20 text-yellow-600" />
-          </button>
-        </div>
-      </div>
-    </div>
+      {{ electionQuizStore.step + 1 }} / {{ electionQuizStore.quiz.length }}
+    </UBadge>
+    <UContainer>
+      <UGrid cols="1" md="2">
+        <Parties class="order-last md:order-first" />
+        <Question
+          v-if="electionQuizStore.step < electionQuizStore.quiz.length"
+          class="lg:ml-5"
+        />
+        <UCard v-else class="text-xl lg:ml-5">
+          <UTypography variant="h1">Færdig!</UTypography>
+          <UTypography>
+            Du er nået til enden. Om du kan bruge denne test til noget, er helt op
+            til dig selv.
+          </UTypography>
+          <UTypography>
+            Du kan se det samlede
+            <NuxtLink to="/valgtest-resultat">
+              <UButton>resultat her</UButton>
+            </NuxtLink>.
+          </UTypography>
+          <UButton v-if="electionQuizStore.step !== 0" icon="i-heroicons-arrow-uturn-left" color="yellow" @click="previousStep" />
+        </UCard>
+      </UGrid>
+    </UContainer>
   </div>
 </template>
 
 <script setup lang="ts">
-import { RewindIcon } from '@heroicons/vue/solid/esm/index.js'
 import { useElectionQuizStore } from '@/stores/electionQuiz'
 import { useMainStore } from '@/stores/main'
 
@@ -80,11 +75,11 @@ const saveResult = async () => {
 }
 
 useHead({
-  title: 'Folketingsvalg 2022 – Den Historiske Valgtest – Parlamentet.dk',
+  title: 'Folketingsvalg 2022 – Den Historiske Valgtest – Unfuck The System.dk',
   meta: [
     {
       property: 'og:image',
-      content: 'https://parlamentet-dk.vercel.app/valgtest.jpg',
+      content: 'https://Unfuck The System-dk.vercel.app/valgtest.jpg',
     },
     {
       property: 'description',

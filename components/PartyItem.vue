@@ -5,7 +5,7 @@
       class="h-10"
       :alt="`Partilogo for ${party.initials}`"
       :title="party.title"
-    />
+    >
     <div class="ml-3 w-full">
       <div
         class="progress-bar flex h-full items-center justify-center whitespace-nowrap rounded-r-full font-bold text-white transition-transform"

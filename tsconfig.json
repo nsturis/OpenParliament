@@ -1,10 +1,9 @@
 {
   // https://v3.nuxtjs.org/concepts/typescript
   "extends": "./.nuxt/tsconfig.json",
-  "compilerOptions": {
-    "resolveJsonModule": true,
-    "types": [
-      "@pinia/nuxt"
-    ]
-  }
+  "exclude": [
+    "node_modules",
+    "dist",
+    "**/*.spec.ts"
+  ]
 }

@@ -1,91 +1,92 @@
-import prisma from '../../../prisma/client'
+import { defineEventHandler, createError, getQuery } from 'h3'
+import { eq, and } from 'drizzle-orm'
+import { db } from '../db'
+import { sagdokument, fil, filContent } from '../../database/schema'
 
-import { defineEventHandler } from 'h3'
-import { parse } from 'node-html-parser';
-import fetch from 'node-fetch'
-
-function extractMainText(htmlContent: string): string {
-  const root = parse(htmlContent);
-  const bodyElement = root.querySelector('body');
-
-  if (!bodyElement) return '';
-
-  // Remove all <script> tags
-  bodyElement.querySelectorAll('script').forEach((script) => script.remove());
-
-  // Convert block-level elements to line breaks to preserve basic formatting
-  bodyElement.querySelectorAll('p, br, div, h1, h2, h3, h4, h5, h6').forEach((element) => {
-    element.insertAdjacentHTML('beforebegin', '\n');
-  });
-
-  // Extract text with preserved line breaks
-  const formattedText = bodyElement.textContent.trim();
-
-  return formattedText;
-}
-
-function convertPdfUrlToHtmlUrl(pdfUrl: string): string {
-  // If the URL contains 'ripdf', replace '.pdf' with '.htm'
-  if (pdfUrl.includes('ripdf')) {
-    return pdfUrl.replace('.pdf', '.htm');
-  }
-  // If the URL does not contain 'ripdf', replace '.pdf' with '/index.htm'
-  return pdfUrl.replace('.pdf', '/index.htm');
+type FileWithContent = {
+  id: number
+  dokumentid: number
+  titel: string | null
+  versionsdato: Date
+  filurl: string
+  opdateringsdato: Date
+  variantkode: string
+  format: string
+  content?: string
+  error?: string
 }
 
 export default defineEventHandler(async (event) => {
   const query = getQuery(event)
+  const sagId = parseInt(query.id as string, 10)
+  const page = parseInt(query.page as string, 10) || 1
+  const limit = 10 // Number of documents per page
 
-  const sagId = parseInt(query.id, 10)
+  if (isNaN(sagId)) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: 'ID must be an integer',
+    })
+  }
 
+  try {
+    const sagDocuments = await db.query.sagdokument.findMany({
+      where: eq(sagdokument.sagid, sagId),
+      with: {
+        dokument: {
+          with: {
+            fil: {
+              with: {
+                filContent: true,
+              },
+            },
+          },
+        },
+      },
+      limit,
+      offset: (page - 1) * limit,
+    })
 
-  // Fetch related SagDokument and SagstrinDokument, selecting only 2 of each
-  const sagDocuments = await prisma.sagDokument.findMany({
-    where: { sagid: sagId },
-    include: { Dokument: { include: { Fil: true } } },
-  })
+    const files: FileWithContent[] = sagDocuments.flatMap((doc) =>
+      doc.dokument.fil.map((file) => ({
+        ...file,
+      })),
+    )
 
-  // const sagstrinDocuments = await prisma.sagstrinDokument.findMany({
-  //   where: { Sagstrin: { sagid: sagId } },
-  //   include: { Dokument: { include: { Fil: true } } },
-  // })
+    const documentsWithContent = await Promise.all(
+      files.map(async (file) => {
+        try {
+          // Check if we have content stored in FilContent
+          const storedContent = await db.query.filContent.findFirst({
+            where: and(
+              eq(filContent.filId, file.id),
+              eq(filContent.chunkIndex, 0),
+            ),
+          })
 
-  // Extract Fil records and convert PDF URLs to HTML
-  const files = [...sagDocuments].flatMap((doc) =>
-    doc.Dokument.Fil.map((file) => ({
-      ...file,
-      htmlUrl: convertPdfUrlToHtmlUrl(file.filurl)
-    }))
-  )
+          if (storedContent) {
+            return { ...file, content: storedContent.content }
+          } else {
+            // If no stored content, return the file without content
+            return { ...file, content: 'Content not available' }
+          }
+        } catch (error) {
+          console.error('Error fetching content:', error)
+          return {
+            ...file,
+            content: 'Error fetching content',
+            error: error instanceof Error ? error.message : String(error),
+          }
+        }
+      }),
+    )
 
-  const htmlContents = await Promise.all(files.map(async (file, index) => {
-    try {
-      const response = await fetch(file.htmlUrl);
-      if (!response.ok) {
-        throw new Error(`Failed to fetch HTML content from ${file.htmlUrl}`);
-      }
-      const html = await response.text();
-      const mainText = extractMainText(html); // Use the function defined earlier
-  
-      // Append the mainText to the corresponding file object
-      files[index].content = mainText;
-      return mainText;
-    } catch (error) {
-      console.error('Error fetching HTML content:', error);
-      // Append the error message to the corresponding file object
-      files[index].content = null;
-      files[index].error = error instanceof Error ? error.message : String(error);
-      return null;
-    }
-  }));
-
-  // Combine the files structure with their corresponding htmlContents
-  const filesWithContent = files.map((file, index) => ({
-    ...file,
-    htmlContent: htmlContents[index]
-  }));
-
-  return filesWithContent;
-  // Return the scraped HTML contents
-  return htmlContents
+    return documentsWithContent
+  } catch (error) {
+    console.error('Error in documents handler:', error)
+    throw createError({
+      statusCode: 500,
+      statusMessage: 'Internal Server Error',
+    })
+  }
 })

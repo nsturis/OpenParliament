@@ -1,0 +1,1 @@
+ALTER TABLE "taleSegment" ADD COLUMN "chunk_index" integer NOT NULL;

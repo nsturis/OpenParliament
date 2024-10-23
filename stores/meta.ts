@@ -1,33 +1,30 @@
-// stores/meta.ts
 import { defineStore } from 'pinia'
+import type { Periode, Actor } from '~/types/actors'
+import type { Sagstype } from '~/types/sag'
 
-interface Periode {
-  id: number;
-  titel: string | null;
-  titelkort: string | null;
-  typeid: number;
-  kategoriid: number | null;
-  offentlighedskode: string | null;
-  nummer: string | null;
-  nummerprefix: string | null;
-  nummernumerisk: string | null;
-  nummerpostfix: string | null;
-  resume: string | null;
-  afstemningskonklusion: string | null;
-}
-export const useSagStore = defineStore('meta', {
+export const useMetaStore = defineStore('meta', {
   state: () => ({
     perioder: [] as Periode[],
-    selectedPeriode: null as Periode | null,
+    currentPeriode: null as Periode | null,
+    actors: {} as Record<number, Record<string, Actor[]>>,
+    sagstyper: [] as Sagstype[],
+    currentSagstype: null as Sagstype | null,
   }),
-  getters: {
-    getPerioder(state) {
-      return state.perioder
-    },
-  },
   actions: {
-    setSelectedPeriode(periode: Periode) {
-      this.selectedPeriode = periode
+    setPerioder(perioder: Periode[]) {
+      this.perioder = perioder
+    },
+    setCurrentPeriode(periode: Periode | null) {
+      this.currentPeriode = periode
+    },
+    setActors(periodeId: number, actors: Record<string, Actor[]>) {
+      this.actors[periodeId] = actors
+    },
+    setSagstyper(sagstyper: Sagstype[]) {
+      this.sagstyper = sagstyper
+    },
+    setCurrentSagstype(sagstype: Sagstype | null) {
+      this.currentSagstype = sagstype
     },
   },
 })

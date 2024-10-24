@@ -91,7 +91,7 @@ onMounted(() => {
 <template>
   <div class="container mx-auto py-10">
     <div v-if="isLoading" class="flex justify-center">
-      <ULoadingBar />
+      ...
     </div>
     
     <div v-else>

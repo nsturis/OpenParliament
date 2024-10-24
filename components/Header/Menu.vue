@@ -22,7 +22,7 @@ v-for="item in navigation" :key="item.name" :to="item.href"
             <ColorModeButton />
             <div class="hidden md:block">
               <div class="ml-4 flex items-center md:ml-6">
-                <a href="https://github.com/huulbaek/Unfuck The System.dk">
+                <a href="https://github.com/nsturis/unfuckthesystem.dk">
                   <img src="/github.png" class="h-8" alt="Github logo">
                 </a>
               </div>

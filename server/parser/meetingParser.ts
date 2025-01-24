@@ -36,15 +36,19 @@ interface AgendaItem {
   FTCaseType?: string
   FTCaseStage?: string
   ShortTitle?: string
-  FTCaseTingdokID?: string
+  FTCaseTingdokID?: string | number | undefined
   FullText?: string
   taler: Tale[]
   subItems?: SubItem[]
 }
 
+interface ParsedAgendaItem extends AgendaItem {
+  sagId?: number
+}
+
 interface SubItem {
   SubItemNo: string
-  FTCaseTingdokID: number
+  FTCaseTingdokID: string
   FTCaseNumber: string
   FTCaseType: string
   ShortTitle: string
@@ -63,25 +67,70 @@ interface Tale {
   chunkIndex: number
 }
 
-interface TaleSegment {
-  TekstGruppe?: {
-    Exitus: Array<{
-      Linea: Array<{
-        Char:
-          | string
-          | Array<{
-              '#text'?: string
-              '@_formaChar'?: string
-            }>
-      }>
-    }>
-  }
-  MetaSpeechSegment: {
-    LastModified: string
-    EdixiStatus: string
-    StartDateTime: string
-    EndDateTime: string
-  }
+interface MetaSpeakerMP {
+  '@_tingdokID'?: string;
+  OratorFirstName?: string;
+  OratorLastName?: string;
+  fornavn?: string;
+  efternavn?: string;
+}
+
+interface MetaSubItem {
+  SubItemNo?: string;
+  FTCase?: { '@_tingdokID': string };
+  FTCaseNumber?: string;
+  FTCaseType?: string;
+  ShortTitle?: string;
+}
+
+interface RawSubItem {
+  MetaFTAgendaSubItem?: MetaSubItem;
+  Tale?: unknown[];
+}
+
+interface RawAgendaItem {
+  MetaFTAgendaItem?: {
+    ItemNo?: string;
+    FTCaseNumber?: string;
+    FTCaseType?: string;
+    FTCaseStage?: string;
+    ShortTitle?: string;
+    FTCase?: string;
+  };
+  PunktTekst?: unknown;
+  Aktivitet?: {
+    DagsordenUnderpunkt?: RawSubItem[];
+    Tale?: unknown[];
+  }[];
+}
+
+interface MetaMeeting {
+  ParliamentarySession: {
+    '@_tingdokID': string;
+    '#text': string;
+  };
+  ParliamentaryGroup: {
+    '@_tingdokID': string;
+    '#text': string;
+  };
+  DateOfSitting: string;
+  MeetingNumber: string;
+  Location: string;
+}
+
+interface RawTale {
+  TaleSegment?: {
+    TekstGruppe?: unknown;
+    MetaSpeechSegment?: {
+      LastModified?: string;
+      EdixiStatus?: string;
+      StartDateTime?: string;
+      EndDateTime?: string;
+    };
+  };
+  Taler?: {
+    MetaSpeakerMP?: MetaSpeakerMP;
+  };
 }
 
 // Utility functions
@@ -149,14 +198,18 @@ async function generateEmbedding(
       {
         method: 'POST',
         body: { text },
-        retry: 3, // Add retry logic
-        retryDelay: 10000, // Wait 1 second between retries
+        retry: 3,
+        retryDelay: 10000,
       }
     )
     return response
-  } catch (error) {
-    consola.error('Failed to generate embedding:', error.detail)
-    return null // Return null instead of throwing an error
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      consola.error('Failed to generate embedding:', error.message)
+    } else {
+      consola.error('Failed to generate embedding:', error)
+    }
+    return null
   }
 }
 
@@ -167,19 +220,18 @@ async function saveTaleToDatabase(
 ): Promise<Tale[]> {
   for (const tale of taler) {
     if (!tale?.aktørTingdokID) {
-      consola.warn('Missing aktørTingdokID for tale:', tale)
-      // Resolve promise with a warning and continue
-      return Promise.resolve([tale])
+      consola.warn('Missing aktørTingdokID for tale:', tale);
+      continue;
     }
 
-    const aktørTingdokID = tale.aktørTingdokID
+    const aktørTingdokID = tale.aktørTingdokID;
 
     consola.info(`Attempting to save tale chunks in database:`, {
       aktørTingdokID,
-      taler,
       sagId,
       mødeid,
-    })
+    });
+
     try {
       await db.insert(taleSegment).values({
         content: tale.content,
@@ -189,23 +241,25 @@ async function saveTaleToDatabase(
         lastModified: tale.LastModified,
         aktørid: tale.aktørTingdokID,
         opdateringsdato: new Date().toISOString(),
-        embedding: tale.embedding,
+        embedding: tale.embedding ?? [],
         sagid: tale.sagId,
         chunkIndex: tale.chunkIndex,
-      })
-    } catch (error) {
-      consola.error('Error saving tale chunks in database:', error)
+      });
+    } catch (error: unknown) {
+      consola.error('Error saving tale chunks in database:', error);
       if (error instanceof Error) {
-        consola.error('Error message:', error.message)
-        consola.error('Error stack:', error.stack)
+        consola.error('Error message:', error.message);
+        consola.error('Error stack:', error.stack);
       }
     }
   }
+
+  return taler;
 }
 
 // Main parsing functions
 async function processTaleSegments(
-  taler: any[],
+  taler: RawTale[],
   mødeid: number,
   sagId: number | undefined
 ): Promise<Tale[]> {
@@ -284,7 +338,7 @@ async function processTaleSegments(
         }))
 
         // Save each chunk to the database
-        await saveTaleToDatabase(processedTaler, mødeid, sagId)
+        // await saveTaleToDatabase(processedTaler, mødeid, sagId)
 
         parsedTaler.push(...processedTaler)
       }
@@ -297,18 +351,23 @@ async function processTaleSegments(
   return parsedTaler
 }
 
-async function findAktørId(item: any): Promise<number | undefined> {
-  consola.info(`Finding aktørId for:`, item)
+async function findAktørId(item?: MetaSpeakerMP): Promise<number | undefined> {
+  if (!item) {
+    consola.warn('No MetaSpeakerMP provided');
+    return undefined;
+  }
 
-  let aktørId: number | undefined
+  consola.info(`Finding aktørId for:`, item);
+
+  let aktørId: number | undefined;
 
   // First, try to get the aktørId using the tingdokID
   if (item['@_tingdokID']) {
-    aktørId = await extractTingdokID(item['@_tingdokID'], 'Aktør')
+    aktørId = await extractTingdokID(item['@_tingdokID'], 'Aktør');
     consola.info(`Extracted aktørId using tingdokID:`, {
       aktørId,
       tingdokID: item['@_tingdokID'],
-    })
+    });
   }
 
   // If aktørId is not found using tingdokID, look it up using name
@@ -342,15 +401,15 @@ async function findAktørId(item: any): Promise<number | undefined> {
 }
 
 async function findMødeId(
-  metadata: MeetingData['metadata']
+  metadata: MetaMeeting
 ): Promise<number | undefined> {
   consola.info('Finding møde ID for:', metadata)
 
   let periodeId: number | undefined
 
   // First, try to get the periodeId using the periodeTingdokID
-  if (metadata.periodeTingdokID) {
-    periodeId = await extractTingdokID(metadata.periodeTingdokID, 'Periode')
+  if (metadata.ParliamentarySession['@_tingdokID']) {
+    periodeId = await extractTingdokID(metadata.ParliamentarySession['@_tingdokID'], 'Periode')
   }
 
   // If periodeId is not found using tingdokID, look it up using ParliamentarySession
@@ -360,7 +419,7 @@ async function findMødeId(
       .from(periode)
       .where(
         and(
-          eq(periode.kode, metadata.parlamentariskSession),
+          eq(periode.kode, metadata.ParliamentarySession['#text']),
           eq(periode.type, 'samling')
         )
       )
@@ -373,7 +432,7 @@ async function findMødeId(
 
   if (!periodeId) {
     consola.warn(
-      `No periode found for parlamentariskSession: ${metadata.parlamentariskSession}`
+      `No periode found for parlamentariskSession: ${metadata.ParliamentarySession['#text']}`
     )
     return undefined
   }
@@ -390,7 +449,7 @@ async function findMødeId(
     .where(
       and(
         eq(møde.periodeid, periodeId),
-        eq(møde.nummer, metadata.mødeNummer.toString()),
+        eq(møde.nummer, metadata.MeetingNumber.toString()),
         eq(møde.typeid, 1)
       )
     )
@@ -400,7 +459,7 @@ async function findMødeId(
 
   if (!mødeResult.length) {
     consola.warn(
-      `No møde found for periode: ${periodeId}, mødeNummer: ${metadata.mødeNummer}, typeid: 1`
+      `No møde found for periode: ${periodeId}, mødeNummer: ${metadata.MeetingNumber}, typeid: 1`
     )
     return undefined
   }
@@ -416,14 +475,13 @@ async function findSagId(
 
   let sagId: number | undefined
 
-  // First, try to get the sagId using the FTCaseTingdokID
   try {
-    sagId = await extractTingdokID(agendaItem.FTCaseTingdokID.toString(), 'Sag')
+    sagId = await extractTingdokID(agendaItem.FTCaseTingdokID?.toString() ?? '', 'Sag')
     consola.info(`Extracted sagId using FTCaseTingdokID:`, {
       sagId,
       FTCaseTingdokID: agendaItem.FTCaseTingdokID,
     })
-  } catch (error) {
+  } catch (_error) {
     const periodeId = await findPeriodeId(mødeid)
     consola.info(`Found periodeId:`, { periodeId, mødeid })
 
@@ -476,7 +534,7 @@ async function findPeriodeId(mødeid: number): Promise<number | undefined> {
 }
 
 async function parseSubAgendaItems(
-  subItems: any[],
+  subItems: RawSubItem[],
   mødeid: number,
   parentSagId: number | undefined
 ): Promise<SubItem[]> {
@@ -484,56 +542,72 @@ async function parseSubAgendaItems(
     mødeid,
     parentSagId,
     subItemsCount: subItems.length,
-  })
-  return await Promise.all(
-    subItems.map(async (subItem: any) => {
-      const metaSubItem = subItem.MetaFTAgendaSubItem || {}
-      consola.info(`Processing sub-item:`, { metaSubItem })
+  });
 
-      const newSubItem: SubItem = {
-        SubItemNo: metaSubItem.SubItemNo || '',
-        FTCaseTingdokID: metaSubItem.FTCase?.['@_tingdokID'] || '',
-        FTCaseNumber: metaSubItem.FTCaseNumber || '',
-        FTCaseType: metaSubItem.FTCaseType || '',
-        ShortTitle: metaSubItem.ShortTitle || '',
-        taler: [],
-      }
+  try {
+    return await Promise.all(
+      subItems.map(async (subItem: RawSubItem) => {
+        const metaSubItem = subItem.MetaFTAgendaSubItem || {};
+        consola.info(`Processing sub-item:`, { metaSubItem });
 
-      const sagId =
-        (await extractTingdokID(metaSubItem.FTCase, 'Sag')) || parentSagId
-      consola.info(`Extracted sagId for sub-item:`, {
-        sagId,
-        FTCaseTingdokID: newSubItem.FTCaseTingdokID,
+        const newSubItem: SubItem = {
+          SubItemNo: metaSubItem.SubItemNo || '',
+          FTCaseTingdokID: metaSubItem.FTCase?.['@_tingdokID'] || '',
+          FTCaseNumber: metaSubItem.FTCaseNumber || '',
+          FTCaseType: metaSubItem.FTCaseType || '',
+          ShortTitle: metaSubItem.ShortTitle || '',
+          taler: [],
+        };
+
+        const sagId = await extractTingdokID(
+          metaSubItem.FTCase?.['@_tingdokID'] ?? '',
+          'Sag'
+        ) || parentSagId;
+
+        consola.info(`Extracted sagId for sub-item:`, {
+          sagId,
+          FTCaseTingdokID: newSubItem.FTCaseTingdokID,
+        });
+
+        if (subItem.Tale) {
+          const taler = Array.isArray(subItem.Tale)
+            ? subItem.Tale
+            : [subItem.Tale];
+          newSubItem.taler = await processTaleSegments(
+            taler.map((t): RawTale => t as RawTale),
+            mødeid,
+            sagId
+          );
+        }
+
+        consola.info(`Parsed sub-item:`, {
+          SubItemNo: newSubItem.SubItemNo,
+          talerCount: newSubItem.taler.length,
+        });
+        return newSubItem;
       })
-
-      if (subItem.Tale) {
-        const taler = Array.isArray(subItem.Tale)
-          ? subItem.Tale
-          : [subItem.Tale]
-        newSubItem.taler = await processTaleSegments(taler, mødeid, sagId)
-      }
-
-      consola.info(`Parsed sub-item:`, {
-        SubItemNo: newSubItem.SubItemNo,
-        talerCount: newSubItem.taler.length,
-      })
-      return newSubItem
-    })
-  )
+    );
+  } catch (error: unknown) {
+    consola.error('Error parsing sub-items:', error);
+    if (error instanceof Error) {
+      consola.error('Error details:', error.message);
+    }
+    return [];
+  }
 }
 
 async function parseAgendaItem(
-  item: any,
+  item: RawAgendaItem,
   mødeid: number
 ): Promise<ParsedAgendaItem> {
   try {
-    const metaFTAgendaItem = item.MetaFTAgendaItem || {}
-    consola.info(`Parsing agenda item:`, { mødeid, metaFTAgendaItem })
+    const metaFTAgendaItem = item.MetaFTAgendaItem || {};
+    consola.info(`Parsing agenda item:`, { mødeid, metaFTAgendaItem });
 
     const FTCaseTingdokID = await extractTingdokID(
-      metaFTAgendaItem.FTCase,
+      metaFTAgendaItem.FTCase ?? '',
       'Sag'
-    )
+    );
 
     const agendaItem: AgendaItem = {
       ItemNo: metaFTAgendaItem.ItemNo,
@@ -545,83 +619,66 @@ async function parseAgendaItem(
       FullText: extractTextContent(item.PunktTekst),
       subItems: [],
       taler: [],
-    }
+    };
 
-    const sagId = await findSagId(agendaItem, mødeid)
-
-    consola.info(`Found sagId for agenda item:`, {
-      sagId,
-      FTCaseTingdokID: agendaItem.FTCaseTingdokID,
-      FTCaseNumber: agendaItem.FTCaseNumber,
-      FTCaseType: agendaItem.FTCaseType,
-    })
+    const sagId = await findSagId(agendaItem, mødeid);
 
     if (item.Aktivitet) {
       const activities = Array.isArray(item.Aktivitet)
         ? item.Aktivitet
-        : [item.Aktivitet]
-      consola.info(`Processing activities:`, {
-        activitiesCount: activities.length,
-      })
+        : [item.Aktivitet];
 
       for (const aktivitet of activities) {
         if (aktivitet.DagsordenUnderpunkt) {
           agendaItem.subItems = await parseSubAgendaItems(
-            aktivitet.DagsordenUnderpunkt,
+            aktivitet.DagsordenUnderpunkt.map((p): RawSubItem => p as RawSubItem),
             mødeid,
             sagId
-          )
+          );
         }
 
         if (aktivitet.Tale) {
           const taler = Array.isArray(aktivitet.Tale)
             ? aktivitet.Tale
-            : [aktivitet.Tale]
-          agendaItem.taler = await processTaleSegments(taler, mødeid, sagId)
+            : [aktivitet.Tale];
+          agendaItem.taler = await processTaleSegments(
+            taler.map((t): RawTale => t as RawTale),
+            mødeid,
+            sagId
+          );
         }
       }
     }
 
-    consola.info(`Parsed agenda item:`, {
-      ItemNo: agendaItem.ItemNo,
-      talerCount: agendaItem.taler.length,
-      subItemsCount: agendaItem.subItems?.length,
-    })
-    return agendaItem
-  } catch (error) {
-    consola.error('Error parsing agenda item:', error)
+    return { ...agendaItem, sagId };
+  } catch (error: unknown) {
+    consola.error('Error parsing agenda item:', error);
+    if (error instanceof Error) {
+      consola.error('Error details:', error.message);
+    }
     return {
       ItemNo: item.MetaFTAgendaItem?.ItemNo || 'Unknown',
       ShortTitle: item.MetaFTAgendaItem?.ShortTitle || 'Unknown',
       taler: [],
       sagId: undefined,
       subItems: [],
-    }
+    };
   }
 }
 
 async function extractMeetingMetadata(
-  metaMeeting: any
+  metaMeeting: MetaMeeting
 ): Promise<MeetingData['metadata']> {
   return {
-    parlamentariskSession: metaMeeting.ParliamentarySession,
+    parlamentariskSession: metaMeeting.ParliamentarySession['@_tingdokID'],
     periodeTingdokID: metaMeeting.ParliamentarySession['@_tingdokID'],
-    aktørGruppe: metaMeeting.ParliamentaryGroup,
+    aktørGruppe: metaMeeting.ParliamentaryGroup['@_tingdokID'],
     aktørTingdokID: metaMeeting.ParliamentaryGroup['@_tingdokID'],
     mødeDato: metaMeeting.DateOfSitting,
     mødeNummer: parseInt(metaMeeting.MeetingNumber, 10),
     lokale: metaMeeting.Location,
   }
 }
-
-// function createParserOptions(): X2jOptions {
-//   return {
-//     ignoreAttributes: false,
-//     attributeNamePrefix: '@_',
-//     textNodeName: '#text',
-//     parseAttributeValue: true,
-//   }
-// }
 
 function createParserOptions(): X2jOptions {
   return {
@@ -631,41 +688,42 @@ function createParserOptions(): X2jOptions {
     parseAttributeValue: true,
     attributeValueProcessor: (attrName: string, attrValue: string) => {
       if (attrName === 'tingdokID') {
-        return attrValue.trim()
+        return attrValue.trim();
       }
+      return attrValue;
     },
   }
 }
 
 async function parseMeetingXML(filePath: string): Promise<MeetingData> {
-  consola.info(`Parsing meeting XML:`, { filePath })
-  const options = createParserOptions()
-  const parser = new XMLParser(options)
-  const xmlData = fs.readFileSync(filePath, 'utf8')
-  const result = parser.parse(xmlData)
+  consola.info(`Parsing meeting XML:`, { filePath });
+  const options = createParserOptions();
+  const parser = new XMLParser(options);
+  const xmlData = fs.readFileSync(filePath, 'utf8');
+  const result = parser.parse(xmlData);
 
-  const metaMeeting = result.Dokument.MetaMeeting
-  const metadata = await extractMeetingMetadata(metaMeeting)
-  const mødeid = await findMødeId(metadata)
+  const metaMeeting = result.Dokument.MetaMeeting as MetaMeeting;
+  const metadata = await extractMeetingMetadata(metaMeeting);
+  const mødeid = await findMødeId(metaMeeting);
 
   if (!mødeid) {
-    throw new Error(`Could not find mødeid for file: ${filePath}`)
+    throw new Error(`Could not find mødeid for file: ${filePath}`);
   }
 
   const meetingData: MeetingData = {
     metadata,
     agendaItems: [],
-  }
+  };
 
-  const agendaItems = result.Dokument.DagsordenPunkt || []
+  const agendaItems = (result.Dokument.DagsordenPunkt || []) as RawAgendaItem[];
   consola.info(`Parsing agenda items:`, {
     agendaItemsCount: agendaItems.length,
     mødeid,
-  })
+  });
 
   const parsedAgendaItems = await Promise.allSettled(
-    agendaItems.map((item) => parseAgendaItem(item, mødeid))
-  )
+    agendaItems.map((item: RawAgendaItem) => parseAgendaItem(item, mødeid))
+  );
 
   const successfulItems = parsedAgendaItems
     .filter(
@@ -695,7 +753,7 @@ async function parseMeetingXML(filePath: string): Promise<MeetingData> {
 export async function parseMeetings(
   meetingKey?: string
 ): Promise<Record<string, MeetingData>> {
-  const directory = 'assets/data/meetings/'
+  const directory = 'assets/data/meetings/20222'
   consola.info(`Parsing meetings from ${directory}`)
   const allMeetings: Record<string, MeetingData> = {}
 

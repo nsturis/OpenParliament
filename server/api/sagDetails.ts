@@ -2,10 +2,7 @@ import { db } from './db';
 import { sag } from '../database/schema';
 import { eq } from 'drizzle-orm';
 import type {
-  DokumentWithRelations,
-  SagAktørWithRelations,
   SagWithRelations,
-  TaleSegment,
   SagDetails,
 } from '../../types/sag';
 
@@ -31,7 +28,7 @@ export async function getSagDetails(sagId: number): Promise<SagDetails> {
           },
         },
       },
-      taleSegment: true,
+      taleSegmentRaw: true,
     },
   });
 

@@ -7,7 +7,7 @@
             <div class="flex items-center">
               <div class="flex-shrink-0">
                 <NuxtLink to="/">
-                  <img class="h-8 w-8" src="/favicon.png" alt="Unfuck The System.dk logo">
+                  <img class="h-8 w-8" src="/favicon.png" alt="Parlamentet.dk logo">
                 </NuxtLink>
               </div>
               <div class="hidden md:block">
@@ -69,7 +69,7 @@ import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 const mainStore = useMainStore()
 
 const navigation = [
-  { name: 'Om Unfuck The System', href: '/' },
+  { name: 'Om Parlamentet.dk', href: '/' },
   { name: 'Valgtest', href: '/folketingsvalg-2022-valgtest' },
   { name: 'Ugeplan', href: '/agenda' },
   { name: 'Sager', href: '/sager' },

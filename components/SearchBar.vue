@@ -2,7 +2,14 @@
 import { ref, defineEmits } from 'vue'
 
 const searchQuery = ref('')
-const searchResults = ref([])
+const searchResults = ref<SearchResult[]>([])
+
+interface SearchResult {
+  id: number
+  content: string
+  similarity: number
+  source: string
+}
 
 const performSearch = async () => {
   const response = await $fetch('/api/search', {
@@ -11,7 +18,7 @@ const performSearch = async () => {
       q: searchQuery.value,
     },
   })
-  searchResults.value = response
+  searchResults.value = response as SearchResult[]
   emit('search', searchQuery.value)
 }
 

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useMainStore } from '@/stores/main'
 import { useMetadata } from '~/composables/useMetadata'
-import type { Sag } from '~/types/sag'
+import type { SelectedMention } from '~/types/mentions'
 
 const mainStore = useMainStore()
 const {
@@ -11,46 +11,54 @@ const {
   sagstyper,
   currentSagstype,
   setCurrentSagstype,
-  fetchMetadata,
   isLoading: isMetadataLoading,
 } = useMetadata()
 
 const filters = reactive({
   search: '',
-  typeid: null,
-  periodeid: null,
+  typeid: 3,
+  periodeid: currentPeriode.value?.id,
+  aktører: [] as number[],
 })
 
 const pagination = reactive({
   currentPage: 1,
-  pageSize: 10,
+  pageSize: 20,
   totalPages: 1,
 })
 
-// Add a key for better caching control
-const { data: sagData, pending: isSagLoading } = await useAsyncData(
-  'sager-list',
-  async () => {
-    await fetchMetadata()
-    
-    filters.typeid = currentSagstype.value?.id || null
-    filters.periodeid = currentPeriode.value?.id || null
+const selectedMentions = ref<SelectedMention[]>([])
 
-    return $fetch<{ items: Sag[]; totalPages: number }>('/api/sag/list', {
+const asyncKey = computed(() => {
+  return `sager-list-${JSON.stringify(filters)}-${pagination.currentPage}`
+})
+
+const { data: sagData, pending: isSagLoading } = useAsyncData(
+  asyncKey.value,
+  () => {
+    return $fetch('/api/sag/list', {
       query: {
-        ...filters,
         page: pagination.currentPage,
         pageSize: pagination.pageSize,
+        search: filters.search,
+        typeid: filters.typeid,
+        periodeid: filters.periodeid,
+        aktører: filters.aktører,
       },
     })
   },
   {
-    watch: [filters, () => pagination.currentPage],
+    watch: [
+      () => currentSagstype.value?.id,
+      () => currentPeriode.value?.id,
+      () => filters.search,
+      () => pagination.currentPage,
+    ],
     transform: (response) => {
       pagination.totalPages = response.totalPages
       return response.items
     },
-  }
+  },
 )
 
 // Add a computed for overall loading state
@@ -58,9 +66,10 @@ const isLoading = computed(() => isMetadataLoading.value || isSagLoading.value)
 
 const sager = computed(() => sagData.value || [])
 
-const handleSearch = (query: string) => {
-  filters.search = query
-  pagination.currentPage = 1 // Reset pagination
+const handleSearch = (query: { politicians: number[]; committees: number[]; ministers: number[]; text: string }) => {
+  filters.aktører = [...query.politicians, ...query.committees, ...query.ministers]
+  filters.search = query.text
+  pagination.currentPage = 1
 }
 
 const changePage = (newPage: number) => {
@@ -69,18 +78,9 @@ const changePage = (newPage: number) => {
 
 // Combine the watchers for both store values
 watch([() => currentSagstype.value, () => currentPeriode.value], ([newSagstype, newPeriode]) => {
-  filters.typeid = newSagstype?.id || null
-  filters.periodeid = newPeriode?.id || null
+  filters.typeid = newSagstype?.id
+  filters.periodeid = newPeriode?.id
   pagination.currentPage = 1
-})
-
-// Watch for state changes
-watch([currentSagstype, currentPeriode, sagData], ([newSagstype, newPeriode, newSagData]) => {
-  console.log('State updated:', {
-    sagstype: newSagstype,
-    periode: newPeriode,
-    sager: newSagData
-  })
 })
 
 onMounted(() => {
@@ -107,7 +107,10 @@ onMounted(() => {
           @update:current-sagtype="setCurrentSagstype"
         />
       </div>
-      <AdvancedSearch @search="handleSearch" />
+      <MentionableSearch 
+        v-model:selected-items="selectedMentions"
+        @search="handleSearch"
+      />
       <SagTable :sager="sager" />
       <PaginationControls
         :current-page="pagination.currentPage"

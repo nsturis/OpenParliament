@@ -1,7 +1,7 @@
 /// <reference lib="webworker" />
 
-import fs from 'fs'
-import path from 'path'
+import fs from 'node:fs'
+import path from 'node:path'
 import { db } from '../server/api/db'
 import { dokument, fil, filContent } from '../server/database/schema'
 import { sql, eq, gt, and } from 'drizzle-orm'

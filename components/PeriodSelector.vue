@@ -1,6 +1,6 @@
 <template>
   <USelectMenu
-    v-model="localCurrentPeriode"
+    v-model="selectedPeriode"
     :options="perioder"
     class="mb-4 w-full lg:w-96"
     placeholder="Vælg en periode"
@@ -26,17 +26,17 @@ const props = defineProps<{
 }>()
 
 const emits = defineEmits(['update:current-periode'])
-const localCurrentPeriode = ref(props.currentPeriode)
+const selectedPeriode = ref(props.currentPeriode)
 
 watch(
   () => props.currentPeriode,
   (newVal) => {
-    localCurrentPeriode.value = newVal
+    selectedPeriode.value = newVal
   },
 )
 
 const emitChangePeriode = () => {
-  emits('update:current-periode', localCurrentPeriode.value)
+  emits('update:current-periode', selectedPeriode.value)
 }
 </script>
 

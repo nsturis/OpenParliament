@@ -8,5 +8,6 @@ export default defineVitestConfig({
         rootDir: process.cwd(),
       },
     },
+    include: ['tests/**/*.spec.ts'],
   },
 })

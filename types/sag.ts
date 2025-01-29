@@ -55,5 +55,3 @@ export type SagDetails = {
 };
 
 export interface Sagstype extends InferSelectModel<typeof schema.sagstype> {}
-
-}

@@ -5,11 +5,11 @@
       <h1>Oh ohno!</h1>
       <p>
         Vi kunne ikke finde siden. Det er allermest sandsynligt, at siden er en
-        del af det "gamle" Unfuck The System.dk.
+        del af det "gamle" Parlamentet.dk.
       </p>
       <p>
         Det kan være, at den kommer igen engang; tjek planerne på
-        <a href="https://github.com/huulbaek/Unfuck The System.dk">GitHub</a>
+        <a href="https://github.com/huulbaek/Parlamentet.dk">GitHub</a>
       </p>
     </div>
   </div>
@@ -21,7 +21,7 @@ import { useMainStore } from '@/stores/main'
 const mainStore = useMainStore()
 
 useHead({
-  title: 'Unfuck The System.dk – side ikke fundet',
+  title: 'Parlamentet.dk – side ikke fundet',
 })
 
 onMounted(() => {

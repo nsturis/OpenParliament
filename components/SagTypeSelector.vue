@@ -21,13 +21,14 @@ const props = defineProps<{
   sagTypes: Sagstype[]
 }>()
 
-const emit = defineEmits(['update:currentSagstype'])
+const emit = defineEmits(['update:current-sagtype'])
 
-const selectedSagtypeId = computed({
+const selectedSagtypeId = computed<number | undefined>({
   get: () => props.currentSagstype?.id,
   set: (newId: number | undefined) => {
     const newSagstype = props.sagTypes.find(st => st.id === newId) || null
-    emit('update:currentSagstype', newSagstype)
-  }
+    // Emit the matching kebab-case event name
+    emit('update:current-sagtype', newSagstype)
+  },
 })
 </script>

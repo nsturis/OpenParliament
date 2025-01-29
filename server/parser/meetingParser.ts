@@ -1,20 +1,14 @@
+import fs from 'node:fs'
+import path from 'node:path'
+import logger from '../../utils/logger'
+import type { SQL } from 'drizzle-orm'
+import { and, eq, isNull } from 'drizzle-orm'
 import type { X2jOptions } from 'fast-xml-parser'
 import { XMLParser } from 'fast-xml-parser'
-import fs from 'fs'
-import path from 'path'
 import { glob } from 'glob'
-import consola from 'consola'
 import { $fetch } from 'ofetch'
 import { db } from '../api/db'
-import {
-  taleSegment,
-  idmap,
-  aktør,
-  møde,
-  sag,
-  periode,
-} from '../database/schema'
-import { eq, and } from 'drizzle-orm'
+import { aktør, idmap, møde, periode, sag, taleSegmentChunk, taleSegmentRaw } from '../database/schema'
 
 // Interfaces
 interface MeetingData {
@@ -47,7 +41,7 @@ interface ParsedAgendaItem extends AgendaItem {
 }
 
 interface SubItem {
-  SubItemNo: string
+  ItemNo: string
   FTCaseTingdokID: string
   FTCaseNumber: string
   FTCaseType: string
@@ -68,77 +62,111 @@ interface Tale {
 }
 
 interface MetaSpeakerMP {
-  '@_tingdokID'?: string;
-  OratorFirstName?: string;
-  OratorLastName?: string;
-  fornavn?: string;
-  efternavn?: string;
+  '@_tingdokID'?: string
+  OratorFirstName?: string
+  OratorLastName?: string
+  fornavn?: string
+  efternavn?: string
 }
 
 interface MetaSubItem {
-  SubItemNo?: string;
-  FTCase?: { '@_tingdokID': string };
-  FTCaseNumber?: string;
-  FTCaseType?: string;
-  ShortTitle?: string;
+  ItemNo?: string
+  FTCase?: { '@_tingdokID': string } | undefined
+  FTCaseNumber?: string
+  FTCaseType?: string
+  ShortTitle?: string
 }
 
 interface RawSubItem {
-  MetaFTAgendaSubItem?: MetaSubItem;
-  Tale?: unknown[];
+  MetaFTAgendaSubItem?: MetaSubItem
+  Tale?: unknown[]
+}
+
+interface MetaFTAgendaItem {  
+  ItemNo?: string
+  FTCaseNumber?: string
+  FTCaseType?: string
+  FTCaseStage?: string
+  ShortTitle?: string
+  FTCase?: { '@_tingdokID': string }
 }
 
 interface RawAgendaItem {
-  MetaFTAgendaItem?: {
-    ItemNo?: string;
-    FTCaseNumber?: string;
-    FTCaseType?: string;
-    FTCaseStage?: string;
-    ShortTitle?: string;
-    FTCase?: string;
-  };
-  PunktTekst?: unknown;
+  MetaFTAgendaItem?: MetaFTAgendaItem
+  PunktTekst?: unknown
   Aktivitet?: {
-    DagsordenUnderpunkt?: RawSubItem[];
-    Tale?: unknown[];
-  }[];
+    DagsordenUnderpunkt?: RawSubItem[]
+    Tale?: unknown[]
+  }[]
 }
 
 interface MetaMeeting {
   ParliamentarySession: {
-    '@_tingdokID': string;
-    '#text': string;
-  };
+    '@_tingdokID': string
+    '#text': string
+  }
   ParliamentaryGroup: {
-    '@_tingdokID': string;
-    '#text': string;
-  };
-  DateOfSitting: string;
-  MeetingNumber: string;
-  Location: string;
+    '@_tingdokID': string
+    '#text': string
+  }
+  DateOfSitting: string
+  MeetingNumber: string
+  Location: string
 }
 
 interface RawTale {
-  TaleSegment?: {
-    TekstGruppe?: unknown;
-    MetaSpeechSegment?: {
-      LastModified?: string;
-      EdixiStatus?: string;
-      StartDateTime?: string;
-      EndDateTime?: string;
-    };
-  };
-  Taler?: {
-    MetaSpeakerMP?: MetaSpeakerMP;
-  };
+  TaleSegment: {
+    TekstGruppe: unknown
+    MetaSpeechSegment: {
+      LastModified: string
+      EdixiStatus: string
+      StartDateTime: string
+      EndDateTime: string
+    }
+  }
+  Taler: {
+    MetaSpeakerMP: MetaSpeakerMP
+  }
+}
+
+interface ParsingStats {
+  totalMeetings: number
+  successfulMeetings: number
+  failedMeetings: number
+  agendaItems: {
+    total: number
+    successful: number
+    failed: number
+    failureExamples: Array<{
+      itemNo?: string
+      error: string
+    }>
+  }
+  sagLookups: {
+    total: number
+    successful: number
+    failed: number
+    failureExamples: Array<{
+      caseNumber?: string
+      caseType?: string
+      error: string
+    }>
+  }
+  aktørLookups: {
+    total: number
+    successful: number
+    failed: number
+    failureExamples: Array<{
+      name?: string
+      tingdokID?: string
+      error: string
+    }>
+  }
 }
 
 // Utility functions
-async function extractTingdokID(
-  tingdokID: string,
-  entity: string
-): Promise<number | undefined> {
-  consola.info(`Extracting TingdokID for ${entity}:`, { tingdokID })
+async function extractTingdokID(tingdokID: string, entity: string): Promise<number | undefined> {
+  logger.info(`Extracting TingdokID for ${entity}:`, { tingdokID })
 
   const mappedId = await db
     .select({ id: idmap.id })
@@ -146,7 +174,7 @@ async function extractTingdokID(
     .where(and(eq(idmap.originalid, tingdokID), eq(idmap.entity, entity)))
     .limit(1)
 
-  consola.info(`Mapped ID for ${entity}:`, {
+  logger.info(`Mapped ID for ${entity}:`, {
     tingdokID,
     mappedId: mappedId[0]?.id,
   })
@@ -164,19 +192,21 @@ async function extractTingdokID(
 function extractTextContent(tekstGruppe: unknown): string {
   if (!tekstGruppe) return ''
 
-  if (typeof tekstGruppe === 'string') return tekstGruppe.trim()
+  if (typeof tekstGruppe === 'string')
+    return tekstGruppe.trim()
 
-  if (Array.isArray(tekstGruppe)) {
+  if (Array.isArray(tekstGruppe))
     return tekstGruppe.map(extractTextContent).join(' ')
-  }
 
   if (typeof tekstGruppe === 'object' && tekstGruppe !== null) {
-    if ('#text' in tekstGruppe && typeof tekstGruppe['#text'] === 'string') {
+    // If the node itself has a #text property, return that text.
+    if ('#text' in tekstGruppe && typeof tekstGruppe['#text'] === 'string')
       return tekstGruppe['#text'].trim()
-    }
-    return Object.values(tekstGruppe)
-      .filter((value): value is string | object => value != null)
-      .map(extractTextContent)
+
+    // Else, recurse into any child properties that are not attributes (i.e., skip keys starting with "@_").
+    return Object.entries(tekstGruppe)
+      .filter(([key]) => !key.startsWith('@_'))  // <--- Skip all XML attributes
+      .map(([_, value]) => extractTextContent(value))
       .join(' ')
   }
 
@@ -189,185 +219,165 @@ type DocumentResponse = {
   embeddings: number[][]
 }
 
-async function generateEmbedding(
-  text: string
-): Promise<DocumentResponse | null> {
+async function generateEmbedding(text: string): Promise<DocumentResponse | null> {
   try {
-    const response: DocumentResponse = await $fetch(
-      'http://127.0.0.1:8000/process_document_embeddings',
-      {
-        method: 'POST',
-        body: { text },
-        retry: 3,
-        retryDelay: 10000,
-      }
-    )
+    const response: DocumentResponse = await $fetch('http://127.0.0.1:8000/process_document_embeddings', {
+      method: 'POST',
+      body: { text },
+      retry: 3,
+      retryDelay: 10000,
+    })
     return response
   } catch (error: unknown) {
     if (error instanceof Error) {
-      consola.error('Failed to generate embedding:', error.message)
+      logger.error('Failed to generate embedding:', error.message)
     } else {
-      consola.error('Failed to generate embedding:', error)
+      logger.error('Failed to generate embedding:', error)
     }
     return null
   }
 }
-
-async function saveTaleToDatabase(
-  taler: Tale[],
-  mødeid: number,
-  sagId: number | undefined
-): Promise<Tale[]> {
-  for (const tale of taler) {
-    if (!tale?.aktørTingdokID) {
-      consola.warn('Missing aktørTingdokID for tale:', tale);
-      continue;
-    }
-
-    const aktørTingdokID = tale.aktørTingdokID;
-
-    consola.info(`Attempting to save tale chunks in database:`, {
-      aktørTingdokID,
-      sagId,
-      mødeid,
-    });
-
-    try {
-      await db.insert(taleSegment).values({
-        content: tale.content,
-        mødeid,
-        starttid: tale.StartDateTime,
-        sluttid: tale.EndDateTime,
-        lastModified: tale.LastModified,
-        aktørid: tale.aktørTingdokID,
-        opdateringsdato: new Date().toISOString(),
-        embedding: tale.embedding ?? [],
-        sagid: tale.sagId,
-        chunkIndex: tale.chunkIndex,
-      });
-    } catch (error: unknown) {
-      consola.error('Error saving tale chunks in database:', error);
-      if (error instanceof Error) {
-        consola.error('Error message:', error.message);
-        consola.error('Error stack:', error.stack);
-      }
-    }
-  }
-
-  return taler;
-}
-
 // Main parsing functions
+/**
+ * Processes an array of RawTale segments, checking each one for an existing entry in:
+ *  1) taleSegmentRaw (to see if it's already been inserted)
+ *  2) taleSegmentChunk (to see if embeddings have already been generated)
+ * 
+ * If either is missing, it proceeds with insertion or embedding generation accordingly.
+ */
 async function processTaleSegments(
   taler: RawTale[],
   mødeid: number,
-  sagId: number | undefined
+  sagId: number | undefined,
+  stats: ParsingStats,
 ): Promise<Tale[]> {
   const parsedTaler: Tale[] = []
 
   for (const tale of taler) {
-    if (!tale) {
-      consola.warn('Encountered undefined tale, skipping...')
-      continue
-    }
-
     try {
-      const segments = Array.isArray(tale.TaleSegment)
-        ? tale.TaleSegment
-        : [tale.TaleSegment]
+      // A "TaleSegment" can actually be an array in some XML data
+      const segments = Array.isArray(tale.TaleSegment) ? tale.TaleSegment : [tale.TaleSegment]
+
       for (const segment of segments) {
-        if (!segment?.TekstGruppe) {
-          consola.warn('No TekstGruppe found for speech segment:', {
-            segment,
-            tale,
-          })
+        // 1) Extract raw text from the XML
+        const rawContent = extractTextContent(segment.TekstGruppe)
+
+        // 2) Find aktør (speaker) ID from DB
+        const aktørTingdokID = await findAktørId(tale.Taler.MetaSpeakerMP, stats)
+        if (!aktørTingdokID) {
+          logger.error('No aktørTingdokID found for tale:', tale)
           continue
         }
 
-        const speechMetadata = segment?.MetaSpeechSegment || {}
-        const content = extractTextContent(segment.TekstGruppe)
+        // 3) Check for an existing matching segment in taleSegmentRaw
+        //    We'll match on mødeid, start/end time, aktørID, sagId, and content
+        const existingSegment = await db
+          .select({ id: taleSegmentRaw.id })
+          .from(taleSegmentRaw)
+          .where(
+            and(
+              eq(taleSegmentRaw.mødeid, mødeid),
+              eq(taleSegmentRaw.starttid, segment.MetaSpeechSegment.StartDateTime),
+              eq(taleSegmentRaw.sluttid, segment.MetaSpeechSegment.EndDateTime),
+              eq(taleSegmentRaw.aktørid, aktørTingdokID),
+              sagId == null
+                ? isNull(taleSegmentRaw.sagid)
+                : eq(taleSegmentRaw.sagid, sagId),
+              eq(taleSegmentRaw.content, rawContent),
+            ),
+          )
+          .limit(1)
 
-        const aktørTingdokID = await findAktørId(tale.Taler?.MetaSpeakerMP)
-        let chunks: string[] = []
-        let embeddings: number[][] = []
-        try {
-          // Generate embedding with chunking
-          const embeddingResponse = await generateEmbedding(content)
+        let rawSegmentId: number
 
-          if (!embeddingResponse) {
-            consola.warn('Failed to generate embedding for tale segment:', {
-              content,
+        if (existingSegment.length > 0) {
+          // 3a) If it exists, re-use its ID so we can check embeddings
+          rawSegmentId = existingSegment[0].id
+          logger.info(
+            `Skipping insertion for existing taleSegmentRaw (id=${rawSegmentId}, mødeid=${mødeid}, aktørid=${aktørTingdokID})`,
+          )
+        } else {
+          // 3b) Insert a new raw segment if none existed
+          const [rawSegment] = await db
+            .insert(taleSegmentRaw)
+            .values({
+              content: rawContent,
+              mødeid,
+              starttid: segment.MetaSpeechSegment.StartDateTime,
+              sluttid: segment.MetaSpeechSegment.EndDateTime,
+              lastModified: segment.MetaSpeechSegment.LastModified,
+              sagid: sagId,
+              aktørid: aktørTingdokID,
+              opdateringsdato: new Date().toISOString(),
             })
-            continue // Skip this tale if embedding generation failed
-          }
-
-          const {
-            status,
-            chunks: responseChunks,
-            embeddings: responseEmbeddings,
-          } = embeddingResponse
-
-          if (status === 'success' && responseChunks && responseEmbeddings) {
-            chunks = responseChunks
-            embeddings = responseEmbeddings
-          } else {
-            consola.warn(
-              `Unexpected response from embedding service:`,
-              embeddingResponse
-            )
-          }
-        } catch (error) {
-          consola.error(`Failed to generate embedding for tale segment:`, error)
-          consola.error(content)
-          // Create a dummy embedding (all zeros) as fallback
-          chunks = [content]
-          embeddings = [[0]]
+            .returning()
+          rawSegmentId = rawSegment.id
+          logger.info(`Inserted new taleSegmentRaw (id=${rawSegmentId})`)
         }
 
-        const processedTaler: Tale[] = chunks.map((chunk, index) => ({
+        // 4) Check if embeddings are already generated for this segment
+        const existingChunks = await db
+          .select({ id: taleSegmentChunk.id })
+          .from(taleSegmentChunk)
+          .where(eq(taleSegmentChunk.taleSegmentId, rawSegmentId))
+          .limit(1)
+
+        // If no embeddings are found, generate them
+        if (existingChunks.length === 0) {
+          const embeddingResponse = await generateEmbedding(rawContent)
+          if (embeddingResponse?.status === 'success') {
+            // Store each chunk with its embedding
+            for (let i = 0; i < embeddingResponse.chunks.length; i++) {
+              await db.insert(taleSegmentChunk).values({
+                taleSegmentId: rawSegmentId,
+                content: embeddingResponse.chunks[i],
+                embedding: embeddingResponse.embeddings[i],
+                chunkIndex: i,
+                totalChunks: embeddingResponse.chunks.length,
+              })
+            }
+            logger.info(`Generated and inserted embeddings for taleSegmentRaw (id=${rawSegmentId})`)
+          } else {
+            logger.warn(`Failed to generate embedding for taleSegmentRaw (id=${rawSegmentId})`)
+          }
+        } else {
+          logger.info(`Embeddings already exist for taleSegmentRaw (id=${rawSegmentId}). Skipping generation.`)
+        }
+
+        // 5) Add the final data to the response structure in memory
+        parsedTaler.push({
           aktørTingdokID,
-          LastModified: speechMetadata.LastModified || null,
-          EdixiStatus: speechMetadata.EdixiStatus || '',
-          StartDateTime: speechMetadata.StartDateTime || null,
-          EndDateTime: speechMetadata.EndDateTime || null,
-          content: chunk,
-          mødeid,
-          embedding: embeddings[index],
+          LastModified: segment?.MetaSpeechSegment?.LastModified || null,
+          EdixiStatus: segment?.MetaSpeechSegment?.EdixiStatus || '',
+          StartDateTime: segment?.MetaSpeechSegment?.StartDateTime || null,
+          EndDateTime: segment?.MetaSpeechSegment?.EndDateTime || null,
+          content: rawContent,
           sagId,
-          chunkIndex: index,
-        }))
-
-        // Save each chunk to the database
-        // await saveTaleToDatabase(processedTaler, mødeid, sagId)
-
-        parsedTaler.push(...processedTaler)
+          chunkIndex: 0, // for backward compatibility
+        })
       }
-    } catch (error) {
-      consola.error('Error processing tale:', error)
-      consola.error('Problematic tale data:', JSON.stringify(tale, null, 2))
+    } catch (error: unknown) {
+      // Log and collect errors in stats
+      stats.agendaItems.failed++
+      stats.agendaItems.failureExamples.push({
+        error: error instanceof Error ? error.message : 'Unknown tale processing error',
+      })
+      logger.error('Error processing tale:', error)
+      logger.error('Problematic tale data:', JSON.stringify(tale, null, 2))
     }
   }
 
   return parsedTaler
 }
 
-async function findAktørId(item?: MetaSpeakerMP): Promise<number | undefined> {
-  if (!item) {
-    consola.warn('No MetaSpeakerMP provided');
-    return undefined;
-  }
+async function findAktørId(item: MetaSpeakerMP, stats: ParsingStats): Promise<number | undefined> {
+  stats.aktørLookups.total++
 
-  consola.info(`Finding aktørId for:`, item);
-
-  let aktørId: number | undefined;
+  let aktørId: number | undefined
 
   // First, try to get the aktørId using the tingdokID
   if (item['@_tingdokID']) {
-    aktørId = await extractTingdokID(item['@_tingdokID'], 'Aktør');
-    consola.info(`Extracted aktørId using tingdokID:`, {
-      aktørId,
-      tingdokID: item['@_tingdokID'],
-    });
+    aktørId = await extractTingdokID(item['@_tingdokID'], 'Aktør')
   }
 
   // If aktørId is not found using tingdokID, look it up using name
@@ -382,28 +392,26 @@ async function findAktørId(item?: MetaSpeakerMP): Promise<number | undefined> {
         .where(and(eq(aktør.fornavn, fornavn), eq(aktør.efternavn, efternavn)))
         .limit(1)
 
-      if (aktørResult.length > 0) {
-        aktørId = aktørResult[0].id
-        consola.info(`Found aktør by name:`, {
-          fornavn,
-          efternavn,
-          id: aktørId,
-        })
-      }
+      aktørId = aktørResult[0]?.id
     }
   }
 
   if (!aktørId) {
-    consola.warn(`No aktør found for:`, item)
+    stats.aktørLookups.failed++
+    stats.aktørLookups.failureExamples.push({
+      name: `${item.OratorFirstName || item.fornavn} ${item.OratorLastName || item.efternavn}`,
+      tingdokID: item['@_tingdokID'],
+      error: 'No matching aktør found',
+    })
+  } else {
+    stats.aktørLookups.successful++
   }
 
   return aktørId
 }
 
-async function findMødeId(
-  metadata: MetaMeeting
-): Promise<number | undefined> {
-  consola.info('Finding møde ID for:', metadata)
+async function findMødeId(metadata: MetaMeeting): Promise<number | undefined> {
+  logger.info('Finding møde ID for:', metadata)
 
   let periodeId: number | undefined
 
@@ -417,23 +425,16 @@ async function findMødeId(
     const periodeResult = await db
       .select({ id: periode.id })
       .from(periode)
-      .where(
-        and(
-          eq(periode.kode, metadata.ParliamentarySession['#text']),
-          eq(periode.type, 'samling')
-        )
-      )
+      .where(and(eq(periode.kode, metadata.ParliamentarySession['#text']), eq(periode.type, 'samling')))
       .limit(1)
 
     periodeId = periodeResult[0]?.id
   }
 
-  consola.info('Found periodeId:', periodeId)
+  logger.info('Found periodeId:', periodeId)
 
   if (!periodeId) {
-    consola.warn(
-      `No periode found for parlamentariskSession: ${metadata.ParliamentarySession['#text']}`
-    )
+    logger.warn(`No periode found for parlamentariskSession: ${metadata.ParliamentarySession['#text']}`)
     return undefined
   }
 
@@ -446,77 +447,75 @@ async function findMødeId(
       periodeid: møde.periodeid,
     })
     .from(møde)
-    .where(
-      and(
-        eq(møde.periodeid, periodeId),
-        eq(møde.nummer, metadata.MeetingNumber.toString()),
-        eq(møde.typeid, 1)
-      )
-    )
+    .where(and(eq(møde.periodeid, periodeId), eq(møde.nummer, metadata.MeetingNumber.toString()), eq(møde.typeid, 1)))
     .limit(1)
 
-  consola.info('Møde query result:', mødeResult)
+  logger.info('Møde query result:', mødeResult)
 
   if (!mødeResult.length) {
-    consola.warn(
-      `No møde found for periode: ${periodeId}, mødeNummer: ${metadata.MeetingNumber}, typeid: 1`
-    )
+    logger.warn(`No møde found for periode: ${periodeId}, mødeNummer: ${metadata.MeetingNumber}, typeid: 1`)
     return undefined
   }
 
   return mødeResult[0].id
 }
 
-async function findSagId(
-  agendaItem: AgendaItem,
-  mødeid: number
-): Promise<number | undefined> {
-  consola.info('Finding sagId for:', { agendaItem, mødeid })
+async function findSagId(metaFTAgendaItem: MetaFTAgendaItem, mødeid: number, stats: ParsingStats): Promise<number | undefined> {
+  stats.sagLookups.total++
+  logger.info('Finding sagId for:', { metaFTAgendaItem, mødeid })
 
   let sagId: number | undefined
 
   try {
-    sagId = await extractTingdokID(agendaItem.FTCaseTingdokID?.toString() ?? '', 'Sag')
-    consola.info(`Extracted sagId using FTCaseTingdokID:`, {
-      sagId,
-      FTCaseTingdokID: agendaItem.FTCaseTingdokID,
-    })
-  } catch (_error) {
+    if (metaFTAgendaItem.FTCase && metaFTAgendaItem.FTCase['@_tingdokID'] !== '') {
+      sagId = await extractTingdokID(metaFTAgendaItem.FTCase['@_tingdokID'], 'Sag')
+      logger.info('Extracted sagId using FTCaseTingdokID:', {
+        sagId,
+        FTCaseTingdokID: metaFTAgendaItem.FTCase['@_tingdokID'],
+      })
+    }
+  } catch (error) {
+    logger.error('Error extracting sagId:', error)
     const periodeId = await findPeriodeId(mødeid)
-    consola.info(`Found periodeId:`, { periodeId, mødeid })
+    logger.info('Found periodeId:', { periodeId, mødeid })
 
     if (!periodeId) {
-      consola.warn(`No periode found for møde: ${mødeid}`)
+      logger.warn(`No periode found for møde: ${mødeid}`)
       return undefined
     }
 
+    const conditions: SQL<unknown>[] = [eq(sag.periodeid, periodeId)]
+
+    if (metaFTAgendaItem.FTCaseNumber) {
+      conditions.push(eq(sag.nummernumerisk, metaFTAgendaItem.FTCaseNumber))
+    }
+    if (metaFTAgendaItem.FTCaseType) {
+      conditions.push(eq(sag.nummerprefix, metaFTAgendaItem.FTCaseType))
+    }
     const sagResult = await db
       .select({ id: sag.id })
       .from(sag)
-      .where(
-        and(
-          eq(sag.nummernumerisk, agendaItem.FTCaseNumber),
-          eq(sag.nummerprefix, agendaItem.FTCaseType),
-          eq(sag.periodeid, periodeId)
-        )
-      )
+      .where(and(...conditions))
       .limit(1)
 
     sagId = sagResult[0]?.id
-    consola.info(`Extracted sagId using fallback method:`, {
+    logger.info('Extracted sagId using fallback method:', {
       sagId,
-      FTCaseNumber: agendaItem.FTCaseNumber,
-      FTCaseType: agendaItem.FTCaseType,
+      FTCaseNumber: metaFTAgendaItem.FTCaseNumber,
+      FTCaseType: metaFTAgendaItem.FTCaseType,
       periodeId,
     })
   }
 
   if (!sagId) {
-    consola.warn(
-      `No sag found for FTCaseNumber: ${agendaItem.FTCaseNumber}, FTCaseType: ${
-        agendaItem.FTCaseType
-      }, periodeId: ${await findPeriodeId(mødeid)}`
-    )
+    stats.sagLookups.failed++
+    stats.sagLookups.failureExamples.push({
+      caseNumber: metaFTAgendaItem.FTCaseNumber,
+      caseType: metaFTAgendaItem.FTCaseType,
+      error: 'No matching sag found',
+    })
+  } else {
+    stats.sagLookups.successful++
   }
 
   return sagId
@@ -524,11 +523,7 @@ async function findSagId(
 
 // Helper function to find periodeId for a given mødeid
 async function findPeriodeId(mødeid: number): Promise<number | undefined> {
-  const mødeResult = await db
-    .select({ periodeid: møde.periodeid })
-    .from(møde)
-    .where(eq(møde.id, mødeid))
-    .limit(1)
+  const mødeResult = await db.select({ periodeid: møde.periodeid }).from(møde).where(eq(møde.id, mødeid)).limit(1)
 
   return mødeResult[0]?.periodeid
 }
@@ -536,146 +531,138 @@ async function findPeriodeId(mødeid: number): Promise<number | undefined> {
 async function parseSubAgendaItems(
   subItems: RawSubItem[],
   mødeid: number,
-  parentSagId: number | undefined
+  parentSagId: number | undefined,
+  stats: ParsingStats,
 ): Promise<SubItem[]> {
-  consola.info(`Parsing sub-items:`, {
+  logger.info('Parsing sub-items:', {
     mødeid,
     parentSagId,
     subItemsCount: subItems.length,
-  });
+  })
 
   try {
     return await Promise.all(
       subItems.map(async (subItem: RawSubItem) => {
-        const metaSubItem = subItem.MetaFTAgendaSubItem || {};
-        consola.info(`Processing sub-item:`, { metaSubItem });
+        const metaSubItem = subItem.MetaFTAgendaSubItem || {}
+        logger.info('Processing sub-item:', { metaSubItem })
 
         const newSubItem: SubItem = {
-          SubItemNo: metaSubItem.SubItemNo || '',
+          ItemNo: metaSubItem.ItemNo || '',
           FTCaseTingdokID: metaSubItem.FTCase?.['@_tingdokID'] || '',
           FTCaseNumber: metaSubItem.FTCaseNumber || '',
           FTCaseType: metaSubItem.FTCaseType || '',
           ShortTitle: metaSubItem.ShortTitle || '',
           taler: [],
-        };
+        }
 
-        const sagId = await extractTingdokID(
-          metaSubItem.FTCase?.['@_tingdokID'] ?? '',
-          'Sag'
-        ) || parentSagId;
+        // const sagId = (await extractTingdokID(metaSubItem.FTCase?.['@_tingdokID'] ?? '', 'Sag')) || parentSagId
 
-        consola.info(`Extracted sagId for sub-item:`, {
+        const sagId = (metaSubItem.FTCase ? await findSagId(metaSubItem, mødeid, stats) : parentSagId)
+
+        logger.info('Extracted sagId for sub-item:', {
           sagId,
           FTCaseTingdokID: newSubItem.FTCaseTingdokID,
-        });
+        })
 
         if (subItem.Tale) {
-          const taler = Array.isArray(subItem.Tale)
-            ? subItem.Tale
-            : [subItem.Tale];
+          const taler = Array.isArray(subItem.Tale) ? subItem.Tale : [subItem.Tale]
           newSubItem.taler = await processTaleSegments(
             taler.map((t): RawTale => t as RawTale),
             mødeid,
-            sagId
-          );
+            sagId,
+            stats,
+          )
         }
 
-        consola.info(`Parsed sub-item:`, {
-          SubItemNo: newSubItem.SubItemNo,
+        logger.info('Parsed sub-item:', {
+          ItemNo: newSubItem.ItemNo,
           talerCount: newSubItem.taler.length,
-        });
-        return newSubItem;
-      })
-    );
+        })
+        return newSubItem
+      }),
+    )
   } catch (error: unknown) {
-    consola.error('Error parsing sub-items:', error);
+    logger.error('Error parsing sub-items:', error)
     if (error instanceof Error) {
-      consola.error('Error details:', error.message);
+      logger.error('Error details:', error.message)
     }
-    return [];
+    return []
   }
 }
 
-async function parseAgendaItem(
-  item: RawAgendaItem,
-  mødeid: number
-): Promise<ParsedAgendaItem> {
+async function parseAgendaItem(item: RawAgendaItem, mødeid: number, stats: ParsingStats): Promise<ParsedAgendaItem> {
+  stats.agendaItems.total++
   try {
-    const metaFTAgendaItem = item.MetaFTAgendaItem || {};
-    consola.info(`Parsing agenda item:`, { mødeid, metaFTAgendaItem });
+    const metaFTAgendaItem = item.MetaFTAgendaItem || {}
+    logger.info('Parsing agenda item:', { mødeid, metaFTAgendaItem })
 
-    const FTCaseTingdokID = await extractTingdokID(
-      metaFTAgendaItem.FTCase ?? '',
-      'Sag'
-    );
-
+    const sagId = await findSagId(metaFTAgendaItem, mødeid, stats)
     const agendaItem: AgendaItem = {
       ItemNo: metaFTAgendaItem.ItemNo,
       FTCaseNumber: metaFTAgendaItem.FTCaseNumber,
       FTCaseType: metaFTAgendaItem.FTCaseType,
       FTCaseStage: metaFTAgendaItem.FTCaseStage,
       ShortTitle: metaFTAgendaItem.ShortTitle,
-      FTCaseTingdokID,
+      FTCaseTingdokID: sagId,
       FullText: extractTextContent(item.PunktTekst),
       subItems: [],
       taler: [],
-    };
+    }
 
-    const sagId = await findSagId(agendaItem, mødeid);
+
 
     if (item.Aktivitet) {
-      const activities = Array.isArray(item.Aktivitet)
-        ? item.Aktivitet
-        : [item.Aktivitet];
+      const activities = Array.isArray(item.Aktivitet) ? item.Aktivitet : [item.Aktivitet]
 
       for (const aktivitet of activities) {
         if (aktivitet.DagsordenUnderpunkt) {
           agendaItem.subItems = await parseSubAgendaItems(
             aktivitet.DagsordenUnderpunkt.map((p): RawSubItem => p as RawSubItem),
             mødeid,
-            sagId
-          );
+            sagId,
+            stats,
+          )
         }
 
         if (aktivitet.Tale) {
-          const taler = Array.isArray(aktivitet.Tale)
-            ? aktivitet.Tale
-            : [aktivitet.Tale];
+          const taler = Array.isArray(aktivitet.Tale) ? aktivitet.Tale : [aktivitet.Tale]
           agendaItem.taler = await processTaleSegments(
             taler.map((t): RawTale => t as RawTale),
             mødeid,
-            sagId
-          );
+            sagId,
+            stats,
+          )
         }
       }
     }
 
-    return { ...agendaItem, sagId };
+    stats.agendaItems.successful++
+    return { ...agendaItem, sagId }
   } catch (error: unknown) {
-    consola.error('Error parsing agenda item:', error);
-    if (error instanceof Error) {
-      consola.error('Error details:', error.message);
-    }
+    stats.agendaItems.failed++
+    stats.agendaItems.failureExamples.push({
+      itemNo: item.MetaFTAgendaItem?.ItemNo,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    })
+
     return {
       ItemNo: item.MetaFTAgendaItem?.ItemNo || 'Unknown',
       ShortTitle: item.MetaFTAgendaItem?.ShortTitle || 'Unknown',
       taler: [],
       sagId: undefined,
       subItems: [],
-    };
+    }
   }
 }
 
-async function extractMeetingMetadata(
-  metaMeeting: MetaMeeting
-): Promise<MeetingData['metadata']> {
+async function extractMeetingMetadata(metaMeeting: MetaMeeting): Promise<MeetingData['metadata']> {
   return {
     parlamentariskSession: metaMeeting.ParliamentarySession['@_tingdokID'],
     periodeTingdokID: metaMeeting.ParliamentarySession['@_tingdokID'],
     aktørGruppe: metaMeeting.ParliamentaryGroup['@_tingdokID'],
     aktørTingdokID: metaMeeting.ParliamentaryGroup['@_tingdokID'],
     mødeDato: metaMeeting.DateOfSitting,
-    mødeNummer: parseInt(metaMeeting.MeetingNumber, 10),
+    mødeNummer: Number.parseInt(metaMeeting.MeetingNumber, 10),
     lokale: metaMeeting.Location,
   }
 }
@@ -688,73 +675,93 @@ function createParserOptions(): X2jOptions {
     parseAttributeValue: true,
     attributeValueProcessor: (attrName: string, attrValue: string) => {
       if (attrName === 'tingdokID') {
-        return attrValue.trim();
+        return attrValue.trim()
       }
-      return attrValue;
+      return attrValue
     },
   }
 }
 
-async function parseMeetingXML(filePath: string): Promise<MeetingData> {
-  consola.info(`Parsing meeting XML:`, { filePath });
-  const options = createParserOptions();
-  const parser = new XMLParser(options);
-  const xmlData = fs.readFileSync(filePath, 'utf8');
-  const result = parser.parse(xmlData);
+export async function parseMeetingXML(filePath: string, stats: ParsingStats): Promise<MeetingData> {
+  logger.info('Parsing meeting XML:', filePath)
+  const options = createParserOptions()
+  const parser = new XMLParser(options)
+  const xmlData = fs.readFileSync(filePath, 'utf8')
+  const result = parser.parse(xmlData)
 
-  const metaMeeting = result.Dokument.MetaMeeting as MetaMeeting;
-  const metadata = await extractMeetingMetadata(metaMeeting);
-  const mødeid = await findMødeId(metaMeeting);
+  const metaMeeting = result.Dokument.MetaMeeting as MetaMeeting
+  const metadata = await extractMeetingMetadata(metaMeeting)
+  const mødeid = await findMødeId(metaMeeting)
 
   if (!mødeid) {
-    throw new Error(`Could not find mødeid for file: ${filePath}`);
+    throw new Error(`Could not find mødeid for file: ${filePath}`)
   }
 
   const meetingData: MeetingData = {
     metadata,
     agendaItems: [],
-  };
+  }
 
-  const agendaItems = (result.Dokument.DagsordenPunkt || []) as RawAgendaItem[];
-  consola.info(`Parsing agenda items:`, {
+  const agendaItems = (result.Dokument.DagsordenPunkt || []) as RawAgendaItem[]
+  logger.info(`Parsing agenda items:`, {
     agendaItemsCount: agendaItems.length,
     mødeid,
-  });
+  })
 
   const parsedAgendaItems = await Promise.allSettled(
-    agendaItems.map((item: RawAgendaItem) => parseAgendaItem(item, mødeid))
-  );
+    agendaItems.map((item: RawAgendaItem) => parseAgendaItem(item, mødeid, stats)),
+  )
 
   const successfulItems = parsedAgendaItems
-    .filter(
-      (result): result is PromiseFulfilledResult<ParsedAgendaItem> =>
-        result.status === 'fulfilled'
-    )
-    .map((result) => result.value)
+    .filter((r): r is PromiseFulfilledResult<ParsedAgendaItem> => r.status === 'fulfilled')
+    .map((r) => r.value)
 
   const failedItems = parsedAgendaItems.filter(
-    (result): result is PromiseRejectedResult => result.status === 'rejected'
+    (r): r is PromiseRejectedResult => r.status === 'rejected',
   )
 
-  failedItems.forEach((item) =>
-    consola.error('Failed to parse agenda item:', item.reason)
-  )
+  failedItems.forEach((item) => logger.error('Failed to parse agenda item:', item.reason))
 
   meetingData.agendaItems = successfulItems
 
-  consola.info(`Parsed meeting data:`, {
+  logger.info(`Parsed meeting data:`, {
     metadata: meetingData.metadata,
     agendaItemsCount: meetingData.agendaItems.length,
     mødeid,
   })
+
   return meetingData
 }
 
 export async function parseMeetings(
-  meetingKey?: string
-): Promise<Record<string, MeetingData>> {
-  const directory = 'assets/data/meetings/20222'
-  consola.info(`Parsing meetings from ${directory}`)
+  meetingKey?: string,
+): Promise<{ meetings: Record<string, MeetingData>; stats: ParsingStats }> {
+  const stats: ParsingStats = {
+    totalMeetings: 0,
+    successfulMeetings: 0,
+    failedMeetings: 0,
+    agendaItems: {
+      total: 0,
+      successful: 0,
+      failed: 0,
+      failureExamples: [],
+    },
+    sagLookups: {
+      total: 0,
+      successful: 0,
+      failed: 0,
+      failureExamples: [],
+    },
+    aktørLookups: {
+      total: 0,
+      successful: 0,
+      failed: 0,
+      failureExamples: [],
+    },
+  }
+
+  const directory = 'assets/data/meetings'
+  logger.info(`Parsing meetings from ${directory}`)
   const allMeetings: Record<string, MeetingData> = {}
 
   let xmlFiles: string[]
@@ -769,15 +776,61 @@ export async function parseMeetings(
     xmlFiles = glob.sync(path.join(directory, '**/*.xml'))
   }
 
-  consola.info(`Found ${xmlFiles.length} XML file(s)`)
+  logger.info(`Found ${xmlFiles.length} XML file(s)`)
+
+  stats.totalMeetings = xmlFiles.length
 
   await Promise.all(
     xmlFiles.map(async (xmlFile) => {
       const key = path.parse(xmlFile).name.replace('_helemoedet', '')
-      allMeetings[key] = await parseMeetingXML(xmlFile)
-    })
+      try {
+        const meetingData = await parseMeetingXML(xmlFile, stats)
+        allMeetings[key] = meetingData
+        stats.successfulMeetings++
+      } catch (error) {
+        stats.failedMeetings++
+        logger.error(`Failed to parse meeting ${key}:`, error)
+      }
+    }),
   )
 
-  consola.info(`Parsed ${Object.keys(allMeetings).length} meeting(s)`)
-  return allMeetings
+  // Log final statistics
+  logger.info('Parsing Statistics:', {
+    meetings: {
+      total: stats.totalMeetings,
+      successful: stats.successfulMeetings,
+      failed: stats.failedMeetings,
+    },
+    agendaItems: {
+      total: stats.agendaItems.total,
+      successful: stats.agendaItems.successful,
+      failed: stats.agendaItems.failed,
+      failureRate: `${((stats.agendaItems.failed / stats.agendaItems.total) * 100).toFixed(2)}%`,
+    },
+    sagLookups: {
+      total: stats.sagLookups.total,
+      successful: stats.sagLookups.successful,
+      failed: stats.sagLookups.failed,
+      failureRate: `${((stats.sagLookups.failed / stats.sagLookups.total) * 100).toFixed(2)}%`,
+    },
+    aktørLookups: {
+      total: stats.aktørLookups.total,
+      successful: stats.aktørLookups.successful,
+      failed: stats.aktørLookups.failed,
+      failureRate: `${((stats.aktørLookups.failed / stats.aktørLookups.total) * 100).toFixed(2)}%`,
+    },
+  })
+
+  // Log some example failures
+  if (stats.agendaItems.failureExamples.length > 0) {
+    logger.info('Sample Agenda Item Failures:', stats.agendaItems.failureExamples.slice(0, 3))
+  }
+  if (stats.sagLookups.failureExamples.length > 0) {
+    logger.info('Sample Sag Lookup Failures:', stats.sagLookups.failureExamples.slice(0, 3))
+  }
+  if (stats.aktørLookups.failureExamples.length > 0) {
+    logger.info('Sample Aktør Lookup Failures:', stats.aktørLookups.failureExamples.slice(0, 3))
+  }
+
+  return { meetings: allMeetings, stats }
 }

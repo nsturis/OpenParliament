@@ -1,5 +1,5 @@
 import { defineEventHandler, getQuery } from 'h3'
-import { eq, and, gte, lte, inArray, or, isNull } from 'drizzle-orm'
+import { eq, and, gte, lte, inArray, or, isNull , sql } from 'drizzle-orm'
 import { db } from '../db'
 import {
   møde,
@@ -20,8 +20,8 @@ export default defineEventHandler(async (event) => {
     : undefined
   const periodeId = query.periodeId ? Number(query.periodeId) : undefined
 
-  // Fetch meetings for the week starting from the given date
-  let meetingsQuery = db
+  // Prepare the base meetings query with placeholders
+  const meetingsQuery = db
     .select({
       id: møde.id,
       titel: møde.titel,
@@ -33,46 +33,50 @@ export default defineEventHandler(async (event) => {
     .from(møde)
     .where(
       and(
-        gte(møde.dato, startDate.toISOString()),
-        lte(møde.dato, oneWeekLater.toISOString()),
-      ),
+        gte(møde.dato, sql.placeholder('startDate')),
+        lte(møde.dato, sql.placeholder('endDate')),
+        mødetypeIds ? inArray(møde.typeid, sql.placeholder('mødetypeIds')) : undefined,
+        periodeId ? eq(møde.periodeid, sql.placeholder('periodeId')) : undefined,
+        aktørId
+          ? sql`exists (
+              select 1 from ${mødeAktør}
+              where ${mødeAktør.mødeid} = ${møde.id}
+              and ${mødeAktør.aktørid} = ${sql.placeholder('aktørId')}
+            )`
+          : undefined
+      )
     )
+    .orderBy(møde.dato)
+    .prepare('weekly_meetings')
 
-  if (mødetypeIds) {
-    meetingsQuery = meetingsQuery.where(inArray(møde.typeid, mødetypeIds))
-  }
+  // Execute the prepared statement with parameters
+  const upcomingMeetings = await meetingsQuery.execute({
+    startDate: startDate.toISOString(),
+    endDate: oneWeekLater.toISOString(),
+    ...(mødetypeIds && { mødetypeIds }),
+    ...(periodeId && { periodeId }),
+    ...(aktørId && { aktørId }),
+  })
 
-  if (aktørId) {
-    meetingsQuery = meetingsQuery
-      .innerJoin(mødeAktør, eq(mødeAktør.mødeid, møde.id))
-      .where(eq(mødeAktør.aktørid, aktørId))
-  }
+  // Prepare the agenda items query
+  const agendaItemsQuery = db
+    .select({
+      id: dagsordenspunkt.id,
+      titel: dagsordenspunkt.titel,
+      nummer: dagsordenspunkt.nummer,
+      kommentar: dagsordenspunkt.kommentar,
+    })
+    .from(dagsordenspunkt)
+    .where(eq(dagsordenspunkt.mødeid, sql.placeholder('mødeid')))
+    .orderBy(dagsordenspunkt.nummer)
+    .prepare('agenda_items')
 
-  if (periodeId) {
-    meetingsQuery = meetingsQuery.where(eq(møde.periodeid, periodeId))
-  }
-
-  const upcomingMeetings = await meetingsQuery.orderBy(møde.dato)
-
-  // Fetch agenda items for each meeting
+  // Fetch agenda items for each meeting using the prepared statement
   const meetingsWithAgenda = await Promise.all(
-    upcomingMeetings.map(async (meeting) => {
-      const agendaItems = await db
-        .select({
-          id: dagsordenspunkt.id,
-          titel: dagsordenspunkt.titel,
-          nummer: dagsordenspunkt.nummer,
-          kommentar: dagsordenspunkt.kommentar,
-        })
-        .from(dagsordenspunkt)
-        .where(eq(dagsordenspunkt.mødeid, meeting.id))
-        .orderBy(dagsordenspunkt.nummer)
-
-      return {
-        ...meeting,
-        agendaItems,
-      }
-    }),
+    upcomingMeetings.map(async (meeting) => ({
+      ...meeting,
+      agendaItems: await agendaItemsQuery.execute({ mødeid: meeting.id }),
+    }))
   )
 
   // Fetch relevant aktører for the specified timeframe

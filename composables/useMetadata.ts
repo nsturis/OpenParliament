@@ -1,7 +1,7 @@
 import { useMetaStore } from '~/stores/meta'
 import { storeToRefs } from 'pinia'
-import { ref, watch } from 'vue'
-import type { Periode, Actor } from '~/types/actors'
+import { ref } from 'vue'
+import type { Periode, Actor, ActorType } from '~/types/actors'
 import type { Sagstype } from '~/types/sag'
 
 export function useMetadata() {
@@ -56,24 +56,11 @@ export function useMetadata() {
       return
     }
 
-    const fetchedActors = await $fetch<Actor[]>('/api/actors/by-period', {
+    const fetchedActors = await $fetch<Record<ActorType, Actor[]>>('/api/actors/by-period', {
       params: { periodeId },
     })
 
-    // Extract unique actor types
-    const typesSet = new Set<string>()
-    fetchedActors.forEach((actor) => typesSet.add(actor.type))
-    actorTypes.value = Array.from(typesSet)
-
-    // Group actors by their type
-    const groupedActors = fetchedActors.reduce((acc, actor) => {
-      const actorType = actor.type || 'Unknown'
-      if (!acc[actorType]) acc[actorType] = []
-      acc[actorType].push(actor)
-      return acc
-    }, {} as Record<string, Actor[]>)
-
-    metaStore.setActors(periodeId, groupedActors)
+    metaStore.setActors(periodeId, fetchedActors)
   }
 
   return {

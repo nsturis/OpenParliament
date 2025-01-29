@@ -1,6 +1,6 @@
 import { defineEventHandler, createError, getQuery } from 'h3'
 import { eq, and } from 'drizzle-orm'
-import { db } from '../db'
+import { db, explainAnalyze } from '../db'
 import { sagdokument, fil, filContent } from '../../database/schema'
 
 type FileWithContent = {
@@ -53,7 +53,7 @@ export default defineEventHandler(async (event) => {
       })),
     )
 
-    const documentsWithContent = await Promise.all(
+    const documentsWithContent: FileWithContent[] = await Promise.all(
       files.map(async (file) => {
         try {
           // Check if we have content stored in FilContent

@@ -106,7 +106,7 @@ const getStatusText = (statusId: number) => {
           <li v-for="doc in documents" :key="doc.id" class="mb-4">
             <strong>{{ doc.titel }}</strong>
             <p>Format: {{ doc.format }}</p>
-            <PdfViewer :pdf-url="doc.filurl" :button-text="doc.titel" />
+            <!-- <PdfViewer :pdf-url="doc.filurl" :button-text="doc.titel" /> -->
             <div v-if="doc.content" class="mt-2">
               <h4 class="font-semibold">Content Preview:</h4>
               <p class="whitespace-pre-wrap">
@@ -132,6 +132,6 @@ const getStatusText = (statusId: number) => {
       <div v-else>Ingen aktører tilgængelige</div>
     </div>
     <div v-else>No data available</div>
-    <PartyStanceVisualization />
+    <!-- <PartyStanceVisualization /> -->
   </div>
 </template>

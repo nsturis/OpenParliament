@@ -1,10 +1,11 @@
 <template>
   <div>
-    <h1>Welcome to the Danish Parliament Question Generator</h1>
-    <RandomQuestion />
+    <h1>Hvad leder du efter?</h1>
+    <!-- <RandomQuestion /> -->
+    <SearchBar />
   </div>
 </template>
 
 <script setup lang="ts">
-import RandomQuestion from '~/components/RandomQuestion.vue'
+
 </script>

@@ -11,6 +11,7 @@ import {
   primaryKey,
   timestamp,
   vector,
+  type AnyPgColumn,
 } from 'drizzle-orm/pg-core'
 
 export const synclogger = pgTable('synclogger', {
@@ -121,7 +122,7 @@ export const dagsordenspunkt = pgTable('dagsordenspunkt', {
   nummer: text('nummer'),
   forhandlingskode: text('forhandlingskode'),
   forhandling: text('forhandling'),
-  superid: integer('superid').references(() => dagsordenspunkt.id),
+  superid: integer('superid').references((): AnyPgColumn => dagsordenspunkt.id),
   sagstrinid: integer('sagstrinid').references(() => sagstrin.id),
   mødeid: integer('mødeid').references(() => møde.id),
   offentlighedskode: text('offentlighedskode').notNull(),
@@ -176,7 +177,7 @@ export const dokument = pgTable('dokument', {
   paragrafnummer: text('paragrafnummer'),
   spørgsmålsordlyd: text('spørgsmålsordlyd'),
   spørgsmålstitel: text('spørgsmålstitel'),
-  spørgsmålsid: integer('spørgsmålsid').references(() => dokument.id),
+  spørgsmålsid: integer('spørgsmålsid').references((): AnyPgColumn => dokument.id),
   procedurenummer: text('procedurenummer'),
   grundnotatstatus: text('grundnotatstatus'),
   dagsordenudgavenummer: smallint('dagsordenudgavenummer'),
@@ -456,8 +457,8 @@ export const sag = pgTable(
       mode: 'string',
     }),
     retsinformationsurl: text('retsinformationsurl'),
-    fremsatundersagid: integer('fremsatundersagid').references(() => sag.id),
-    deltundersagid: integer('deltundersagid').references(() => sag.id),
+    fremsatundersagid: integer('fremsatundersagid').references((): AnyPgColumn => sag.id),
+    deltundersagid: integer('deltundersagid').references((): AnyPgColumn => sag.id),
   },
   (table) => {
     return {
@@ -758,6 +759,40 @@ export const taleSegment = pgTable(
   }
 )
 
+export const taleSegmentRaw = pgTable('taleSegmentRaw', {
+  id: bigserial('id', { mode: 'number' }).primaryKey().notNull(),
+  content: text('content').notNull(),
+  mødeid: integer('mødeid').notNull().references(() => møde.id),
+  starttid: timestamp('starttid', { withTimezone: true, mode: 'string' }).notNull(),
+  sluttid: timestamp('sluttid', { withTimezone: true, mode: 'string' }).notNull(),
+  lastModified: timestamp('last_modified', { withTimezone: true, mode: 'string' }),
+  sagid: integer('sagid').references(() => sag.id),
+  aktørid: integer('aktørid').notNull().references(() => aktør.id),
+  opdateringsdato: timestamp('opdateringsdato', { withTimezone: true, mode: 'string' }).notNull(),
+})
+
+export const taleSegmentChunk = pgTable(
+  'taleSegmentChunk',
+  {
+    id: bigserial('id', { mode: 'number' }).primaryKey().notNull(),
+    taleSegmentId: integer('tale_segment_id')
+      .notNull()
+      .references(() => taleSegmentRaw.id),
+    content: text('content').notNull(),
+    embedding: vector('embedding', { dimensions: 768 }).notNull(),
+    chunkIndex: integer('chunk_index').notNull(),
+    totalChunks: integer('total_chunks').notNull(),
+  },
+  (table) => {
+    return {
+      taleSegmentChunkIndex: index('tale_segment_chunk_index').on(
+        table.taleSegmentId,
+        table.chunkIndex
+      ),
+    }
+  }
+)
+
 export const filContent = pgTable(
   'FilContent',
   {
@@ -768,7 +803,7 @@ export const filContent = pgTable(
     content: text('content').notNull(),
     embedding: vector('embedding', { dimensions: 768 }).notNull(),
     chunkIndex: integer('chunkindex').notNull(),
-    totalChunks: integer('totalchunks').notNull(),
+    totalChunks: integer('totalchunks').notNull(), // Not needed I take it..
     version: integer('version').notNull().default(1),
     extractedAt: timestamp('extracted_at', {
       withTimezone: true,
@@ -787,3 +822,14 @@ export const filContent = pgTable(
     }
   }
 )
+
+export const documentContent = pgTable('DocumentContent', {
+  id: bigserial('id', { mode: 'number' }).primaryKey().notNull(),
+  documentId: integer('document_id').notNull(),
+  rawContent: text('raw_content').notNull(),
+  documentType: text('document_type').notNull(), // 'file' or 'speech'
+  extractedAt: timestamp('extracted_at', { 
+    withTimezone: true,
+    mode: 'string' 
+  }).notNull().defaultNow(),
+})

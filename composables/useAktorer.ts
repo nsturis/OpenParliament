@@ -1,16 +1,11 @@
 import { useQuery } from '@tanstack/vue-query'
 import { useMetadata } from '~/composables/useMetadata'
-import type { Actor, ActorsResponse } from '~/types/actors'
+import type { Actor, ActorsResponse, ActorType } from '~/types/actors'
 import { computed } from 'vue'
 
 interface AktørQueryParams {
   sagId?: number
-  aktørType?:
-    | 'Udvalg'
-    | 'Person'
-    | 'Ministerium'
-    | 'Folketingsgruppe'
-    | 'Ministerområde'
+  aktørType?: ActorType
   rolle?: string
   searchTerm?: string
 }
@@ -18,7 +13,7 @@ interface AktørQueryParams {
 export function useAktorer(params: AktørQueryParams) {
   const { currentPeriode } = useMetadata()
 
-  const getAktører = async (): Promise<ActorsResponse | Actor[]> => {
+  const fetchActors = async (): Promise<ActorsResponse | Actor[]> => {
     const queryParams = new URLSearchParams()
     if (params.sagId) queryParams.append('sagId', params.sagId.toString())
     if (currentPeriode.value)
@@ -27,15 +22,20 @@ export function useAktorer(params: AktørQueryParams) {
     if (params.rolle) queryParams.append('rolle', params.rolle)
     if (params.searchTerm) queryParams.append('search', params.searchTerm)
 
-    return await $fetch<ActorsResponse | Actor[]>('/api/actors', {
-      method: 'GET',
-      params: queryParams,
-    })
+    try {
+      return await $fetch<ActorsResponse | Actor[]>('/api/actors', {
+        method: 'GET',
+        params: queryParams,
+      })
+    } catch (error) {
+      console.error('Failed to fetch actors:', error)
+      throw error
+    }
   }
 
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ['actors', params, currentPeriode.value?.id],
-    queryFn: getAktører,
+    queryFn: fetchActors,
   })
 
   return {

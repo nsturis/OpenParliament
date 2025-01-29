@@ -1,19 +1,3 @@
-<template>
-  <div class="container mx-auto py-10">
-    <FilterSection
-v-model:periode="currentPeriode" v-model:committee="selectedCommittee"
-      v-model:politician="selectedPolitician" v-model:ministry="selectedMinistry" v-model:date="selectedDate"
-      v-model:search-query="searchQuery" :perioder="perioder" :committees="committees" :politicians="politicians"
-      :ministries="ministries" />
-
-    <ProposalList :cases="lovforslag" />
-
-    <PaginationControls
-:current-page="pagination.currentPage" :total-pages="pagination.totalPages"
-      @change-page="changePage" />
-  </div>
-</template>
-
 <script setup lang="ts">
 import { useMetadata } from '~/composables/useMetadata'
 import { useMainStore } from '~/stores/main'
@@ -28,7 +12,7 @@ const {
   committees,
   politicians,
   ministries,
-  fetchMetadata,
+  // fetchMetadata,
   setCurrentPeriode,
 } = useMetadata()
 
@@ -74,7 +58,7 @@ watch(lovforslagQuery.data, (newData) => {
 })
 
 onMounted(async () => {
-  await fetchMetadata()
+  // await fetchMetadata()
   mainStore.updateHeaderTitle('Sager')
 })
 
@@ -95,3 +79,20 @@ watch(perioder, (newPerioder) => {
   }
 }, { immediate: true })
 </script>
+
+<template>
+  <div class="container mx-auto py-10">
+    <FilterSection
+      v-model:periode="currentPeriode" 
+      v-model:committee="selectedCommittee"
+      v-model:politician="selectedPolitician" v-model:ministry="selectedMinistry" v-model:date="selectedDate"
+      v-model:search-query="searchQuery" :perioder="perioder" :committees="committees" :politicians="politicians"
+      :ministries="ministries" />
+
+    <ProposalList :cases="lovforslag" />
+
+    <PaginationControls
+:current-page="pagination.currentPage" :total-pages="pagination.totalPages"
+      @change-page="changePage" />
+  </div>
+</template>

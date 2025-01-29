@@ -1,8 +1,8 @@
 <template>
     <div>
         <label for="actor-type">Select Actor Type:</label>
-        <select id="actor-type" v-model="selectedActorType">
-            <option v-for="type in actorTypes" :key="type" :value="type">
+        <select id="actor-type" v-model="selectedActorType" @change="fetchByActorType">
+            <option v-for="type in possibleActorTypes" :key="type" :value="type">
                 {{ type }}
             </option>
         </select>
@@ -10,19 +10,27 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
-import { useMetadata } from '~/composables/useMetadata';
+import { ref } from 'vue';
+import type { ActorType } from '~/types/actors';
 
-const { actorTypes } = useMetadata();
-const selectedActorType = ref<string>(actorTypes.value[0] || '');
+// Suppose you only want these five, matching your ActorType union
+const possibleActorTypes: ActorType[] = [
+    'Udvalg',
+    'Person',
+    'Ministerium',
+    'Folketingsgruppe',
+    'Ministerområde'
+];
 
-const actorsByType = computed(() => {
-    const { actors, currentPeriode } = useMetadata();
-    if (currentPeriode.value && selectedActorType.value) {
-        return (
-            actors.value[currentPeriode.value.id]?.[selectedActorType.value] || []
-        );
-    }
-    return [];
-});
+const selectedActorType = ref<ActorType>('Person');
+
+async function fetchByActorType() {
+    // Call your /api/actors/by-period with the selected actor type
+    await $fetch('/api/actors/by-period', {
+        params: {
+            periodeId: 123, // example
+            types: selectedActorType.value // e.g. 'Person'
+        }
+    });
+}
 </script>

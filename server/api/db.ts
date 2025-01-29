@@ -1,10 +1,10 @@
 import pkg from 'pg'
 import { drizzle } from 'drizzle-orm/node-postgres'
-import type { Logger } from 'drizzle-orm'
+import type { Logger, SQLWrapper } from 'drizzle-orm'
 import { consola } from 'consola'
 import * as schema from '../database/schema'
 import * as relations from '../database/relations'
-
+import { sql } from 'drizzle-orm'
 const { Pool } = pkg
 
 // Custom Drizzle logger using consola
@@ -28,3 +28,11 @@ export const db = drizzle(pool, {
   schema: { ...schema, ...relations },
   logger: new CustomLogger(),
 })
+
+type DatabaseDefinition = typeof db;
+
+export const explainAnalyze = async <T extends SQLWrapper>(db: DatabaseDefinition, query: T) => {
+    const debugResult = await db.execute(sql`EXPLAIN ANALYZE ${query.getSQL()}`);
+    console.debug(debugResult);
+    return await query;
+};

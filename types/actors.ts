@@ -11,17 +11,21 @@ export interface Periode {
   titel: string
 }
 
-export type ActorType = string // Accept any string as actor type
+export type ActorType = 'Udvalg' | 'Person' | 'Ministerium' | 'Folketingsgruppe' | 'Ministerområde' | 'Parlamentarisk Forsamling' | 'Minister';
 
 export interface Actor {
   id: number
   navn: string
   type: ActorType
-  // ... other properties
+  // period: Periode
 }
 
 export interface Committee extends Actor {
   type: 'Udvalg'
+}
+
+export interface ParlamentariskForsamling extends Actor {
+  type: 'Parlamentarisk Forsamling'
 }
 
 export interface Politician extends Actor {
@@ -30,6 +34,9 @@ export interface Politician extends Actor {
 
 export interface Ministry extends Actor {
   type: 'Ministerium'
+}
+export interface Minister extends Actor {
+  type: 'Minister'
 }
 
 export interface PartyGroup extends Actor {
@@ -40,7 +47,7 @@ export interface MinisterArea extends Actor {
   type: 'Ministerområde'
 }
 
-export type ActorsResponse {
+export type ActorsResponse = {
   committees: Committee[]
   politicians: Politician[]
   ministries: Ministry[]

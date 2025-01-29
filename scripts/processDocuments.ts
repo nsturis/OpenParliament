@@ -1,8 +1,5 @@
-import fs from 'fs'
-import path from 'path'
-import { db } from '../server/api/db'
-import { filContent, fil } from '../server/database/schema'
-import { eq } from 'drizzle-orm'
+import fs from 'node:fs'
+import path from 'node:path'
 
 function getDocumentFiles(directory: string): string[] {
   const files: string[] = []
@@ -59,7 +56,9 @@ async function processDocuments() {
   } catch (error) {
     console.error('Error processing documents:', error)
   } finally {
-    workerPool.forEach((worker) => worker.terminate())
+    for (const worker of workerPool) {
+      worker.terminate()
+    }
   }
 }
 

@@ -1,5 +1,4 @@
 import { defineNuxtConfig } from 'nuxt/config'
-import consola from 'consola'
 // https://v3.nuxtjs.org/api/configuration/nuxt.config
 export default defineNuxtConfig({
   srcDir: '',
@@ -10,6 +9,8 @@ export default defineNuxtConfig({
     },
   },
 
+  ssr: false,
+
   typescript: {
     strict: true,
   },
@@ -18,14 +19,7 @@ export default defineNuxtConfig({
     autoImport: true,
   },
 
-  modules: [
-    '@pinia/nuxt',
-    '@vueuse/nuxt',
-    '@nuxt/ui',
-    '@nuxt/eslint',
-    '@nuxt/test-utils/module',
-    '@nuxt/icon',
-  ],
+  modules: ['@pinia/nuxt', '@vueuse/nuxt', '@nuxt/ui', '@nuxt/test-utils/module', '@nuxt/icon'],
 
   postcss: {
     plugins: {
@@ -39,7 +33,7 @@ export default defineNuxtConfig({
     enabled: true,
 
     timeline: {
-      enabled: true,
+      enabled: false,
     },
   },
 

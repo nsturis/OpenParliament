@@ -6,7 +6,7 @@
       </UFormGroup>
       <UFormGroup label="Vælg person">
         <USelectMenu
-v-model="selectedPerson" :options="aktører" option-attribute="navn" searchable
+v-model="selectedPerson" :options="actorsPeriod" option-attribute="navn" searchable
           placeholder="Vælg person" @change="fetchDocket" />
       </UFormGroup>
       <UFormGroup label="Vælg mødetype">
@@ -52,7 +52,7 @@ const { currentPeriode, actors } = useMetadata()
 
 const weeklyDocket = ref<Meeting[]>([])
 const meetingTypes = ref<MeetingType[]>([])
-const startDate = ref(new Date().toISOString().split('T')[0])
+const startDate = ref(new Date(2023, 1, 1).toISOString().split('T')[0])
 const selectedPerson = ref('')
 const selectedMeetingTypes = ref<number[]>([])
 
@@ -64,7 +64,7 @@ const columns = [
   { key: 'agendaItems', label: 'Dagsorden' },
 ]
 
-const aktører = computed(() => {
+const actorsPeriod = computed(() => {
   if (currentPeriode.value && actors.value[currentPeriode.value.id]) {
     return actors.value[currentPeriode.value.id]['Person'] || []
   }

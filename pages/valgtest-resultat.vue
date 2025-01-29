@@ -17,7 +17,7 @@
         </p>
         <p>
           Hvis du har mod og snilde, kan du selv få
-          <a href="https://github.com/huulbaek/Unfuck The System.dk"
+          <a href="https://github.com/huulbaek/Parlamentet.dk"
             >forslag tilføjet her</a
           >.
         </p>
@@ -131,11 +131,11 @@ const voteWidth = (vote: Vote, type: string): string => {
 
 useHead({
   title:
-    'Gennemsnit af Den Historiske Valgtest – Folketingsvalg 2022 – Unfuck The System.dk',
+    'Gennemsnit af Den Historiske Valgtest – Folketingsvalg 2022 – Parlamentet.dk',
   meta: [
     {
       property: 'og:image',
-      content: 'https://Unfuck The System-dk.vercel.app/valgtest.jpg',
+      content: 'https://Parlamentet-dk.vercel.app/valgtest.jpg',
     },
     {
       property: 'description',

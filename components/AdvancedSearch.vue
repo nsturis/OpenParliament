@@ -6,10 +6,11 @@
 
 <script setup lang="ts">
 import MentionableSearch from '~/components/MentionableSearch.vue'
+import type { MentionSearchQuery } from '~/types/mentions'
 
 const searchQuery = ref('')
 
-function performSearch(query: string) {
+function performSearch(query: MentionSearchQuery) {
     // Handle the search action
     console.log('Search query:', query)
 }

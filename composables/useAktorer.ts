@@ -38,8 +38,27 @@ export function useAktorer(params: AktørQueryParams) {
     queryFn: fetchActors,
   })
 
+  const aktører = computed<Actor[]>(() => {
+    if (!data.value) return []
+
+    // If data is an array, return it directly
+    if (Array.isArray(data.value)) {
+      return data.value
+    }
+
+    // If data is ActorsResponse, flatten all actor types
+    const response = data.value as ActorsResponse
+    return [
+      ...(response.committees || []),
+      ...(response.politicians || []),
+      ...(response.ministries || []),
+      ...(response.parties || []),
+      ...(response.ministerAreas || []),
+    ]
+  })
+
   return {
-    aktører: computed(() => data.value || []),
+    aktører,
     isLoading,
     error,
     refetch,

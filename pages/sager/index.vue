@@ -78,7 +78,7 @@ const changePage = (newPage: number) => {
 
 // Combine the watchers for both store values
 watch([() => currentSagstype.value, () => currentPeriode.value], ([newSagstype, newPeriode]) => {
-  filters.typeid = newSagstype?.id
+  if (newSagstype?.id) filters.typeid = newSagstype.id
   filters.periodeid = newPeriode?.id
   pagination.currentPage = 1
 })

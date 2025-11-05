@@ -20,14 +20,15 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { useMetadata } from '~/composables/useMetadata';
+import type { ActorType, Actor } from '~/types/actors';
 
 const { actors, currentPeriode } = useMetadata();
 
-const actorsByType = computed(() => {
+const actorsByType = computed<Record<ActorType, Actor[]>>(() => {
   if (currentPeriode.value) {
-    return actors.value[currentPeriode.value.id] || {};
+    return actors.value[currentPeriode.value.id] || {} as Record<ActorType, Actor[]>;
   }
-  return {};
+  return {} as Record<ActorType, Actor[]>;
 });
 
 const politicians = computed(() => actorsByType.value['Person'] || []);

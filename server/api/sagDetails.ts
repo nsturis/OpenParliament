@@ -4,6 +4,7 @@ import { eq } from 'drizzle-orm';
 import type {
   SagWithRelations,
   SagDetails,
+  SagdokumentWithRelations,
 } from '../../types/sag';
 
 export async function getSagDetails(sagId: number): Promise<SagDetails> {
@@ -28,7 +29,7 @@ export async function getSagDetails(sagId: number): Promise<SagDetails> {
           },
         },
       },
-      taleSegmentRaw: true,
+      taleSegment: true,
     },
   });
 

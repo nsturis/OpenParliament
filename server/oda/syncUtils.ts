@@ -1,14 +1,14 @@
 import type { BaseRepository } from '../repositories/baseRepository'
 import { createContext } from '../../utils/oda'
 
-interface SyncEntityOptions<TSource, TTarget> {
+interface SyncEntityOptions<TSource, TTarget extends { id?: string | number }> {
   entityName: string
   fetchFunction: (ctx: any, params: any) => Promise<any>
   repository: BaseRepository<TTarget>
   mapData: (source: TSource) => TTarget
 }
 
-export async function syncEntity<TSource, TTarget>({
+export async function syncEntity<TSource, TTarget extends { id?: string | number }>({
   entityName,
   fetchFunction,
   repository,

@@ -2,7 +2,7 @@ import { db } from '../server/api/db'
 import { filContent, documentContent } from '../server/database/schema'
 import { eq, sql } from 'drizzle-orm'
 import { $fetch } from 'ofetch'
-import consola from 'consola'
+import { consola } from 'consola'
 import fs from 'fs'
 import path from 'path'
 

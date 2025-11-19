@@ -6,9 +6,9 @@ import { db } from '../server/api/db'
 import { dokument, fil, filContent } from '../server/database/schema'
 import { sql, eq, gt, and } from 'drizzle-orm'
 import { $fetch } from 'ofetch'
-import type { Worker } from 'bun:worker'
 
-declare let self: Worker
+// Using standard Web Worker types from lib.webworker.d.ts
+declare const self: DedicatedWorkerGlobalScope
 
 type DocumentResponse = {
   status: string

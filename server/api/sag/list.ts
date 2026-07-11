@@ -1,108 +1,73 @@
-import { desc, eq, ilike, or, sql } from 'drizzle-orm'
-import { defineEventHandler, getQuery } from 'h3'
+import type { SQL } from 'drizzle-orm'
+import { and, desc, eq, ilike, inArray, or, sql } from 'drizzle-orm'
+import { createError, defineEventHandler, getQuery } from 'h3'
 import logger from '../../../utils/logger'
 import { sag, sagAktør } from '../../database/schema'
-import { db } from '../db'
+import { db } from '../../utils/db'
 
 export default defineEventHandler(async (event) => {
   const query = getQuery(event)
-  logger.info('Received query parameters:', {
-    typeid: query.typeid,
-    periodeid: query.periodeid,
-    aktørid: query.aktørid,
-    search: query.search,
-    page: query.page,
-    pageSize: query.pageSize,
-  })
   const typeid = Number.parseInt(query.typeid as string, 10)
   const periodeid = Number.parseInt(query.periodeid as string, 10)
-  const aktørid = Number.parseInt(query.aktørid as string, 10)
+  // Accepts aktørid=1, aktører=1,2 or repeated aktører params
+  const rawAktører = query.aktører ?? query.aktørid ?? ''
+  const aktørIds = (Array.isArray(rawAktører) ? rawAktører : String(rawAktører).split(','))
+    .map((v) => Number.parseInt(String(v), 10))
+    .filter((n) => !Number.isNaN(n))
   const searchQuery = (query.search as string) || ''
   const page = Number.parseInt(query.page as string) || 1
   const pageSize = Number.parseInt(query.pageSize as string) || 10
 
   try {
     const skip = (page - 1) * pageSize
-    logger.info('Parsed parameters:', {
-      typeid,
-      periodeid,
-      aktørid,
-      searchQuery,
-      page,
-      pageSize,
-      skip,
-    })
+    const filterByAktør = aktørIds.length > 0
 
-    let sagQuery = db
-      .select({
-        id: sag.id,
-        titelkort: sag.titelkort,
-        titel: sag.titel,
-        nummer: sag.nummer,
-        opdateringsdato: sag.opdateringsdato,
-        resume: sag.resume,
-        afstemningskonklusion: sag.afstemningskonklusion,
-        typeid: sag.typeid,
-        periodeid: sag.periodeid,
-      })
-      .from(sag)
-      .$dynamic()
-
-    if (!Number.isNaN(typeid)) {
-      sagQuery = sagQuery.where(eq(sag.typeid, sql.placeholder('typeid')))
-    }
-
-    if (!Number.isNaN(periodeid)) {
-      sagQuery = sagQuery.where(eq(sag.periodeid, sql.placeholder('periodeid')))
-    }
-
-    if (!Number.isNaN(aktørid)) {
-      sagQuery = sagQuery.where(eq(sagAktør.aktørid, sql.placeholder('aktørid')))
-    }
-
+    const conditions: SQL<unknown>[] = []
+    if (!Number.isNaN(typeid)) conditions.push(eq(sag.typeid, typeid))
+    if (!Number.isNaN(periodeid)) conditions.push(eq(sag.periodeid, periodeid))
+    if (filterByAktør) conditions.push(inArray(sagAktør.aktørid, aktørIds))
     if (searchQuery) {
-      sagQuery = sagQuery.where(
+      const pattern = `%${searchQuery}%`
+      conditions.push(
         or(
-          ilike(sag.titelkort, sql.placeholder('search')),
-          ilike(sag.titel, sql.placeholder('search')),
-          ilike(sag.nummer, sql.placeholder('search')),
-          ilike(sag.resume, sql.placeholder('search')),
-        ),
+          ilike(sag.titelkort, pattern),
+          ilike(sag.titel, pattern),
+          ilike(sag.nummer, pattern),
+          ilike(sag.resume, pattern),
+        )!,
       )
     }
+    const where = conditions.length > 0 ? and(...conditions) : undefined
 
-    const preparedQuery = sagQuery
-      .orderBy(desc(sag.opdateringsdato))
-      .limit(sql.placeholder('limit'))
-      .offset(sql.placeholder('offset'))
-      .prepare('sagQuery')
-
-    const params: Record<string, any> = {
-      limit: pageSize,
-      offset: skip,
+    const selection = {
+      id: sag.id,
+      titelkort: sag.titelkort,
+      titel: sag.titel,
+      nummer: sag.nummer,
+      opdateringsdato: sag.opdateringsdato,
+      resume: sag.resume,
+      afstemningskonklusion: sag.afstemningskonklusion,
+      typeid: sag.typeid,
+      periodeid: sag.periodeid,
     }
 
-    if (!Number.isNaN(typeid)) params.typeid = typeid
-    if (!Number.isNaN(periodeid)) params.periodeid = periodeid
-    if (!Number.isNaN(aktørid)) params.aktørid = aktørid
-    if (searchQuery) params.search = `%${searchQuery}%`
+    // The sagAktør join is only needed (and only valid) when filtering by actor;
+    // selectDistinct guards against join fan-out when one actor has several roles.
+    const listQuery = filterByAktør
+      ? db.selectDistinct(selection).from(sag).innerJoin(sagAktør, eq(sagAktør.sagid, sag.id)).where(where).$dynamic()
+      : db.select(selection).from(sag).where(where).$dynamic()
 
-    logger.info('Query parameters:', params)
-    const sagList = await preparedQuery.execute(params)
-    logger.info(`Found ${sagList.length} results`)
+    const sagList = await listQuery
+      .orderBy(desc(sag.opdateringsdato))
+      .limit(pageSize)
+      .offset(skip)
 
-    const totalCountResult = await db
-      .select({ count: sql<number>`count(*)` })
-      .from(sagQuery.as('subquery'))
-      .prepare('totalCountQuery')
-      .execute(params)
+    const countSelection = { count: sql<number>`count(distinct ${sag.id})::int` }
+    const totalCountResult = filterByAktør
+      ? await db.select(countSelection).from(sag).innerJoin(sagAktør, eq(sagAktør.sagid, sag.id)).where(where)
+      : await db.select(countSelection).from(sag).where(where)
 
     const totalCount = totalCountResult[0].count
-    logger.info('Query results:', {
-      totalCount,
-      totalPages: Math.ceil(totalCount / pageSize),
-      currentPage: page,
-    })
 
     return {
       items: sagList,
@@ -113,6 +78,9 @@ export default defineEventHandler(async (event) => {
     }
   } catch (error) {
     logger.error(error)
-    return { error: error instanceof Error ? error.message : 'An unknown error occurred' }
+    throw createError({
+      statusCode: 500,
+      statusMessage: 'Kunne ikke hente sagslisten',
+    })
   }
 })

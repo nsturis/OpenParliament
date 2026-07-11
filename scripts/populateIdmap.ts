@@ -8,7 +8,7 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import { glob } from 'glob'
-import { setDbLogging, db } from '../server/api/db'
+import { setDbLogging, db } from '../server/utils/db'
 import { aktør, idmap } from '../server/database/schema'
 import { eq, and } from 'drizzle-orm'
 

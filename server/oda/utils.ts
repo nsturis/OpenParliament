@@ -1,4 +1,4 @@
-import { db } from '../api/db'
+import { db } from '../utils/db'
 import { sql } from 'drizzle-orm'
 
 export async function getLastSyncTime(entity: string): Promise<Date> {

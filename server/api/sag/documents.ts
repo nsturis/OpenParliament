@@ -1,6 +1,6 @@
 import { defineEventHandler, createError, getQuery } from 'h3'
 import { eq, and } from 'drizzle-orm'
-import { db, explainAnalyze } from '../db'
+import { db, explainAnalyze } from '../../utils/db'
 import { sagdokument, fil, filContent } from '../../database/schema'
 
 type FileWithContent = {

@@ -1,7 +1,7 @@
 <template>
   <UTable :rows="sager" :columns="columns">
-    <template #title-data="{ row }">
-      <nuxt-link :to="`/sag/${row.id}`" class="text-blue-600 hover:text-blue-800 transition-colors duration-200">
+    <template #titelkort-data="{ row }">
+      <nuxt-link :to="`/sager/${row.id}`" class="text-primary-600 hover:text-primary-800 dark:text-primary-400 transition-colors duration-200">
         {{ row.titelkort }}
       </nuxt-link>
     </template>

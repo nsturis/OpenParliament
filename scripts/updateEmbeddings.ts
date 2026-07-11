@@ -1,4 +1,4 @@
-import { db } from '../server/api/db'
+import { db } from '../server/utils/db'
 import { taleSegment } from '../server/database/schema'
 import { eq } from 'drizzle-orm'
 import { consola } from 'consola'

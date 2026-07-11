@@ -1,4 +1,4 @@
-import { db } from '~/server/api/db'
+import { db } from '~/server/utils/db'
 import { sagstype } from '~/server/database/schema'
 
 export default defineEventHandler(async (event) => {

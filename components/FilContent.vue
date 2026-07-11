@@ -33,15 +33,17 @@
 const props = defineProps<{
   files: Array<{
     id: number;
-    title: string;
-    // Add other properties as needed
+    titel: string | null;
+    filurl?: string;
+    format?: string;
+    content?: string;
   }>
 }>()
 
-const accordionItems = computed<{ label: string; content: string }[]>(() => 
+const accordionItems = computed<{ label: string; content: string }[]>(() =>
   props.files.map(file => ({
-    label: file.title,
-    content: JSON.stringify(file) // Convert the file object to a string
+    label: file.titel || `Dokument ${file.id}`,
+    content: file.content || file.filurl || 'Intet indhold tilgængeligt',
   }))
 )
 </script>

@@ -1,6 +1,6 @@
 import { defineEventHandler, createError, getQuery } from 'h3'
 import { eq } from 'drizzle-orm'
-import { db } from '../db'
+import { db } from '../../utils/db'
 import { sag } from '../../database/schema'
 import type { SagWithRelations, SagApiResponse } from '~/types/sag'
 
@@ -67,6 +67,8 @@ export default defineEventHandler(async (event): Promise<SagApiResponse> => {
 
     return { data: result as unknown as SagWithRelations }
   } catch (error) {
+    // Preserve HTTP semantics for the 404 thrown above
+    if (error && typeof error === 'object' && 'statusCode' in error) throw error
     return {
       error:
         error instanceof Error ? error.message : 'An unknown error occurred',

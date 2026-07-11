@@ -3,7 +3,7 @@
     <div class="grid md:grid-cols-2">
       <Parties class="order-last md:order-first" :parties="parties" />
       <div class="lg:ml-4">
-        <h1 class="hidden md:block">Lidt om data</h1>
+        <h2 class="hidden text-xl font-semibold md:block">Lidt om data</h2>
         <p>
           Tallene <span class="hidden md:inline">til venstre</span>
           <span class="inline md:hidden">herunder</span> illustrerer, hvor mange
@@ -27,7 +27,7 @@
       </div>
     </div>
     <div class="mt-10">
-      <h1 class="mb-3">Fordeling på spørgsmål</h1>
+      <h2 class="mb-3 text-xl font-semibold">Fordeling på spørgsmål</h2>
       <div v-for="vote in votes" :key="vote.title">
         <div class="text-xl">{{ vote.title }}</div>
         <div class="relative">
@@ -47,7 +47,7 @@
       </div>
     </div>
     <div class="mt-10">
-      <h1 class="mb-3">Som meningsmåling (vindere)</h1>
+      <h2 class="mb-3 text-xl font-semibold">Som meningsmåling (vindere)</h2>
       <Parties
         class="order-last md:order-first"
         :parties="winners"

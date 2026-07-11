@@ -12,6 +12,7 @@ import {
   primaryKey,
   timestamp,
   vector,
+  jsonb,
   type AnyPgColumn,
 } from 'drizzle-orm/pg-core'
 
@@ -759,6 +760,22 @@ export const taleSegment = pgTable(
     }
   }
 )
+
+// Valgtest (election quiz) persistence
+export const valgtestVote = pgTable('valgtestVote', {
+  id: bigserial('id', { mode: 'number' }).primaryKey().notNull(),
+  ftid: text('ftid').notNull(),
+  samling: text('samling').notNull(),
+  titel: text('titel'),
+  vote: text('vote').notNull(),
+  oprettet: timestamp('oprettet', { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+})
+
+export const valgtestResult = pgTable('valgtestResult', {
+  id: bigserial('id', { mode: 'number' }).primaryKey().notNull(),
+  parties: jsonb('parties').notNull(),
+  oprettet: timestamp('oprettet', { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+})
 
 export const taleSegmentRaw = pgTable('taleSegmentRaw', {
   id: bigserial('id', { mode: 'number' }).primaryKey().notNull(),

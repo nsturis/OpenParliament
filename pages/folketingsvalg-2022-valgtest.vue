@@ -9,27 +9,25 @@
       {{ electionQuizStore.step + 1 }} / {{ electionQuizStore.quiz.length }}
     </UBadge>
     <UContainer>
-      <UGrid cols="1" md="2">
+      <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
         <Parties class="order-last md:order-first" />
         <Question
           v-if="electionQuizStore.step < electionQuizStore.quiz.length"
           class="lg:ml-5"
         />
         <UCard v-else class="text-xl lg:ml-5">
-          <UTypography variant="h1">Færdig!</UTypography>
-          <UTypography>
+          <h2 class="mb-4 text-3xl font-bold">Færdig!</h2>
+          <p class="mb-2">
             Du er nået til enden. Om du kan bruge denne test til noget, er helt op
             til dig selv.
-          </UTypography>
-          <UTypography>
+          </p>
+          <p class="mb-4">
             Du kan se det samlede
-            <NuxtLink to="/valgtest-resultat">
-              <UButton>resultat her</UButton>
-            </NuxtLink>.
-          </UTypography>
+            <UButton to="/valgtest-resultat">resultat her</UButton>.
+          </p>
           <UButton v-if="electionQuizStore.step !== 0" icon="i-heroicons-arrow-uturn-left" color="yellow" @click="previousStep" />
         </UCard>
-      </UGrid>
+      </div>
     </UContainer>
   </div>
 </template>

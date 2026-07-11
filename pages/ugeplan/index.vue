@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="filters">
+    <div class="mb-4 flex flex-col gap-4 sm:flex-row sm:flex-wrap">
       <UFormGroup label="Vælg startdato">
         <UInput v-model="startDate" type="date" @change="fetchDocket" />
       </UFormGroup>
@@ -15,9 +15,18 @@ v-for="type in meetingTypes" :key="type.id" v-model="selectedMeetingTypes" :labe
           :value="type.id" @change="fetchDocket" />
       </UFormGroup>
     </div>
-    <UTable :columns="columns" :rows="weeklyDocket">
+    <div v-if="pending" class="py-8 text-center text-gray-600">Indlæser ugeplan …</div>
+    <div v-else-if="error" class="py-8 text-center text-red-600">{{ error }}</div>
+    <UTable
+      v-else :columns="columns" :rows="weeklyDocket"
+      :empty-state="{ icon: 'i-heroicons-calendar-days', label: 'Ingen møder i den valgte uge.' }">
       <template #date-data="{ row }">
         {{ formatDate(row.dato) }}
+      </template>
+      <template #titel-data="{ row }">
+        <NuxtLink :to="`/meeting/${row.id}`" class="text-primary-600 hover:text-primary-800 dark:text-primary-400">
+          {{ row.titel }}
+        </NuxtLink>
       </template>
       <template #agendaItems-data="{ row }">
         <ul>
@@ -36,25 +45,17 @@ import { useMetadata } from '~/composables/useMetadata'
 import type { Meeting, MeetingType } from '~/types/meeting'
 import type { Actor } from '~/types/actors'
 
-interface WeeklyDocket {
-  date: string
-  title: string
-  startTid: string
-  lokale: string
-  agendaItems: {
-    nummer: number
-    titel: string
-    kommentar: string
-  }[]
-}
-
 const { currentPeriode, actors } = useMetadata()
+const mainStore = useMainStore()
+mainStore.updateHeaderTitle('Ugeplan')
 
 const weeklyDocket = ref<Meeting[]>([])
 const meetingTypes = ref<MeetingType[]>([])
-const startDate = ref(new Date(2023, 1, 1).toISOString().split('T')[0])
-const selectedPerson = ref('')
+const startDate = ref(new Date().toISOString().split('T')[0])
+const selectedPerson = ref<Actor | undefined>(undefined)
 const selectedMeetingTypes = ref<number[]>([])
+const pending = ref(false)
+const error = ref('')
 
 const columns = [
   { key: 'date', label: 'Dato' },
@@ -72,16 +73,24 @@ const actorsPeriod = computed(() => {
 })
 
 const fetchDocket = async () => {
-  const { data } = await useFetch<{ weeklyDocket: Meeting[], meetingTypes: MeetingType[] }>('/api/ugeplan', {
-    params: {
-      date: startDate.value,
-      aktørId: selectedPerson.value,
-      mødetypeIds: selectedMeetingTypes.value.join(','),
-      periodeId: currentPeriode.value?.id,
-    }
-  })
-  weeklyDocket.value = data.value?.weeklyDocket ?? []
-  meetingTypes.value = data.value?.meetingTypes ?? []
+  pending.value = true
+  error.value = ''
+  try {
+    const data = await $fetch<{ weeklyDocket: Meeting[], meetingTypes: MeetingType[] }>('/api/ugeplan', {
+      params: {
+        date: startDate.value,
+        aktørId: selectedPerson.value?.id,
+        mødetypeIds: selectedMeetingTypes.value.join(','),
+        periodeId: currentPeriode.value?.id,
+      }
+    })
+    weeklyDocket.value = data?.weeklyDocket ?? []
+    meetingTypes.value = data?.meetingTypes ?? []
+  } catch {
+    error.value = 'Ugeplanen kunne ikke hentes. Prøv igen senere.'
+  } finally {
+    pending.value = false
+  }
 }
 
 onMounted(async () => {
@@ -98,25 +107,3 @@ const formatDate = (dateString: string | null) => {
   })
 }
 </script>
-
-<style scoped>
-.filters {
-  display: flex;
-  gap: 1rem;
-  margin-bottom: 1rem;
-}
-
-.date-selector,
-.person-selector,
-.meeting-type-selector {
-  display: flex;
-  flex-direction: column;
-}
-
-.meeting {
-  margin-bottom: 2rem;
-  padding: 1rem;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-}
-</style>

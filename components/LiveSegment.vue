@@ -4,7 +4,7 @@
       <p class="font-medium text-sm text-gray-900 dark:text-gray-100">
         {{ segment.speaker || 'Ukendt taler' }}
       </p>
-      <p class="text-xs text-gray-400 mt-0.5">
+      <p class="text-xs text-gray-600 dark:text-gray-400 mt-0.5">
         {{ formatTime(segment.startTime) }}
       </p>
     </div>

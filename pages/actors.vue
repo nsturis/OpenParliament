@@ -1,8 +1,5 @@
 <template>
   <div>
-    <h1>actors Page</h1>
-    <!-- Your page content here -->
-
     <ActorList />
   </div>
 </template>
@@ -12,12 +9,9 @@ import { useMainStore } from '@/stores/main'
 
 const mainStore = useMainStore()
 
-// Set the header title
-mainStore.updateHeaderTitle('actors')
+mainStore.updateHeaderTitle('Aktører')
 
-// Your page logic here
+useHead({
+  title: 'Aktører – Parlamentet.dk',
+})
 </script>
-
-<style scoped>
-/* Your scoped styles here */
-</style>

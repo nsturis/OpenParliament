@@ -16,7 +16,7 @@ export const useSagStore = defineStore('sag', {
       this.loading = true
       this.error = null
       try {
-        const response = await $fetch<{ data: SagWithRelations } | { error: string }>(`/api/sag/${sagId}`)
+        const response = await $fetch<{ data: SagWithRelations } | { error: string }>('/api/sag', { params: { id: sagId } })
         if ('data' in response) {
           this.sag = response.data
         } else {

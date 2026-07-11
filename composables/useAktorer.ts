@@ -14,13 +14,15 @@ export function useAktorer(params: AktørQueryParams) {
   const { currentPeriode } = useMetadata()
 
   const fetchActors = async (): Promise<ActorsResponse | Actor[]> => {
-    const queryParams = new URLSearchParams()
-    if (params.sagId) queryParams.append('sagId', params.sagId.toString())
-    if (currentPeriode.value)
-      queryParams.append('periodeId', currentPeriode.value.id.toString())
-    if (params.aktørType) queryParams.append('type', params.aktørType)
-    if (params.rolle) queryParams.append('rolle', params.rolle)
-    if (params.searchTerm) queryParams.append('search', params.searchTerm)
+    // ofetch needs a plain object — URLSearchParams silently serializes to nothing
+    const queryParams: Record<string, string> = {}
+    if (params.sagId) queryParams.sagId = params.sagId.toString()
+    // Case-scoped lookups must not be periode-filtered: persons have no periodeid
+    if (!params.sagId && currentPeriode.value)
+      queryParams.periodeId = currentPeriode.value.id.toString()
+    if (params.aktørType) queryParams.type = params.aktørType
+    if (params.rolle) queryParams.rolle = params.rolle
+    if (params.searchTerm) queryParams.search = params.searchTerm
 
     try {
       return await $fetch<ActorsResponse | Actor[]>('/api/actors', {

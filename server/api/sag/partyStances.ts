@@ -1,6 +1,6 @@
 import { defineEventHandler, createError, getQuery } from 'h3'
 import { eq, and, sql, inArray, lte, gte, or, isNull } from 'drizzle-orm'
-import { db } from '../db'
+import { db } from '../../utils/db'
 import {
   afstemning,
   stemme,

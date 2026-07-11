@@ -1,5 +1,5 @@
 import { sql } from 'drizzle-orm';
-import { db } from '../api/db';
+import { db } from '../utils/db';
 
 interface Table {
   id?: string | number;

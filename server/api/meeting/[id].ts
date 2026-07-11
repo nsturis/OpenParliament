@@ -1,6 +1,6 @@
 import { defineEventHandler } from 'h3'
 import { eq } from 'drizzle-orm'
-import { db } from '../db'
+import { db } from '../../utils/db'
 import { møde, dagsordenspunkt } from '~/server/database/schema'
 
 export default defineEventHandler(async (event) => {

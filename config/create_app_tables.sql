@@ -353,3 +353,21 @@ ALTER TABLE ONLY public."taleSegment"
 
 
 
+
+-- Danish full-text index backing /api/search's text-search path
+CREATE INDEX IF NOT EXISTS tale_segment_raw_fts_idx ON public."taleSegmentRaw" USING gin (to_tsvector('danish', content));
+
+-- Valgtest (election quiz) persistence
+CREATE TABLE IF NOT EXISTS public."valgtestVote" (
+    id bigserial PRIMARY KEY,
+    ftid text NOT NULL,
+    samling text NOT NULL,
+    titel text,
+    vote text NOT NULL,
+    oprettet timestamp with time zone DEFAULT now() NOT NULL
+);
+CREATE TABLE IF NOT EXISTS public."valgtestResult" (
+    id bigserial PRIMARY KEY,
+    parties jsonb NOT NULL,
+    oprettet timestamp with time zone DEFAULT now() NOT NULL
+);

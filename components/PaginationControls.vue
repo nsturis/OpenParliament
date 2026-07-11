@@ -1,28 +1,30 @@
 <template>
   <div class="flex items-center justify-between mt-4">
-    <button
+    <UButton
       :disabled="currentPage <= 1"
-      class="rounded bg-blue-500 px-4 py-2 text-white disabled:opacity-50"
+      color="primary"
       @click="$emit('change-page', currentPage - 1)"
     >
       Forrige
-    </button>
+    </UButton>
     <span>
       Side {{ currentPage }} af {{ totalPages }}
     </span>
-    <button
+    <UButton
       :disabled="currentPage >= totalPages"
-      class="rounded bg-blue-500 px-4 py-2 text-white disabled:opacity-50"
+      color="primary"
       @click="$emit('change-page', currentPage + 1)"
     >
       Næste
-    </button>
+    </UButton>
   </div>
 </template>
 
 <script setup lang="ts">
-const props = defineProps<{
+defineProps<{
   currentPage: number;
   totalPages: number;
 }>();
+
+defineEmits<{ 'change-page': [page: number] }>();
 </script>

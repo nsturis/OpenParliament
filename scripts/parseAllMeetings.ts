@@ -11,7 +11,7 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import { glob } from 'glob'
-import { db, setDbLogging } from '../server/api/db'
+import { db, setDbLogging } from '../server/utils/db'
 import {
   getUnmatchedSpeakerCounts,
   initCaches,

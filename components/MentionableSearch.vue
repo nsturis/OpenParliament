@@ -40,7 +40,7 @@
         <UInput
           ref="mentionInput"
           v-model="mentionSearchValue"
-          :placeholder="`Search ${currentTrigger === '@' ? 'politicians' : currentTrigger === '#' ? 'committees' : 'ministers'}...`"
+          :placeholder="`Søg ${currentTrigger === '@' ? 'politikere' : currentTrigger === '#' ? 'udvalg' : 'ministre'} …`"
           class="bg-white"
           @keydown="onMentionKeyDown"
           @input="onMentionInput"
@@ -84,7 +84,7 @@
         v-if="!displayedItems.length"
         class="px-4 py-2 text-gray-500"
       >
-        No results
+        Ingen resultater
       </div>
     </UDropdown>
   </div>

@@ -1,5 +1,5 @@
 import { eq, and, aliasedTable, sql } from 'drizzle-orm'
-import { db } from '../db'
+import { db } from '../../utils/db'
 import { aktør, aktørtype, aktørAktør } from '~/server/database/schema'
 
 export default defineEventHandler(async (event) => {

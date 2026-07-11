@@ -69,14 +69,14 @@
         <!-- Empty state -->
         <div
           v-if="isLive && segments.length === 0 && !pendingText"
-          class="p-8 text-center text-gray-400"
+          class="p-8 text-center text-gray-600 dark:text-gray-400"
         >
           Venter på tale...
         </div>
       </div>
 
       <!-- Connection status -->
-      <div class="mt-3 flex items-center gap-2 text-xs text-gray-400">
+      <div class="mt-3 flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400">
         <span
           class="inline-block h-2 w-2 rounded-full"
           :class="isConnected ? 'bg-green-500' : 'bg-red-500'"

@@ -1,7 +1,7 @@
 import { defineEventHandler } from 'h3'
 import { eq, desc } from 'drizzle-orm'
 import { periode } from '../database/schema'
-import { db } from './db'
+import { db } from '../utils/db'
 
 export default defineEventHandler(async () => {
   const perioder = await db

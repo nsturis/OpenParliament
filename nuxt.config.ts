@@ -21,6 +21,12 @@ export default defineNuxtConfig({
 
   modules: ['@pinia/nuxt', '@vueuse/nuxt', '@nuxt/ui', '@nuxt/test-utils/module', '@nuxt/icon'],
 
+  ui: {
+    // Colors bound dynamically (e.g. MentionableSearch badges) are skipped by
+    // the safelist extractor and must be listed explicitly
+    safelistColors: ['orange', 'green', 'emerald', 'red', 'yellow'],
+  },
+
   postcss: {
     plugins: {
       tailwindcss: {},

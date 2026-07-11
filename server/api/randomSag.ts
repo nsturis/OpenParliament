@@ -1,4 +1,4 @@
-import { db } from './db';
+import { db } from '../utils/db';
 import { sag } from '../database/schema';
 import { sql, eq, isNotNull, gt, and } from 'drizzle-orm';
 
@@ -18,3 +18,5 @@ export async function getRandomSag() {
     .limit(1);
   return randomSag[0];
 }
+
+export default defineEventHandler(() => getRandomSag())

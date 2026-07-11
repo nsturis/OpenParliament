@@ -58,10 +58,10 @@ const getStatusText = (statusId: number) => {
 
 <template>
   <div class="container mx-auto py-10">
-    <div v-if="isLoading">Loading...</div>
-    <div v-else-if="sagErrorMessage">Error: {{ sagErrorMessage }}</div>
+    <div v-if="isLoading">Indlæser …</div>
+    <div v-else-if="sagErrorMessage">Fejl: {{ sagErrorMessage }}</div>
     <div v-else-if="sag">
-      <h1 class="mb-4 text-2xl font-bold">{{ sag.titel }}</h1>
+      <h2 class="mb-4 text-2xl font-bold">{{ sag.titel }}</h2>
       <p class="mb-2"><strong>Kort titel:</strong> {{ sag.titelkort }}</p>
       <p class="mb-2"><strong>Nummer:</strong> {{ sag.nummer }}</p>
       <p class="mb-2">
@@ -76,7 +76,7 @@ const getStatusText = (statusId: number) => {
         {{ new Date(sag.opdateringsdato).toLocaleDateString() }}
       </p>
 
-      <h2 class="mb-4 mt-6 text-xl font-semibold">Sagstrin</h2>
+      <h3 class="mb-4 mt-6 text-xl font-semibold">Sagstrin</h3>
       <div v-if="sag.sagstrin && sag.sagstrin.length > 0">
         <ul>
           <li v-for="sagstrin in sag.sagstrin" :key="sagstrin.id" class="mb-4">
@@ -98,8 +98,8 @@ const getStatusText = (statusId: number) => {
       </div>
       <div v-else>Ingen sagstrin tilgængelige</div>
 
-      <h2 class="mb-4 mt-6 text-xl font-semibold">Dokumenter</h2>
-      <div v-if="isLoading">Loading documents...</div>
+      <h3 class="mb-4 mt-6 text-xl font-semibold">Dokumenter</h3>
+      <div v-if="isLoading">Indlæser dokumenter …</div>
       <div v-else-if="error">{{ error }}</div>
       <div v-else-if="documents.length > 0">
         <ul>
@@ -108,7 +108,7 @@ const getStatusText = (statusId: number) => {
             <p>Format: {{ doc.format }}</p>
             <!-- <PdfViewer :pdf-url="doc.filurl" :button-text="doc.titel" /> -->
             <div v-if="doc.content" class="mt-2">
-              <h4 class="font-semibold">Content Preview:</h4>
+              <p class="font-semibold">Uddrag:</p>
               <p class="whitespace-pre-wrap">
                 {{ doc.content.substring(0, 200) }}...
               </p>
@@ -116,11 +116,16 @@ const getStatusText = (statusId: number) => {
             <p v-if="doc.error" class="text-red-500">{{ doc.error }}</p>
           </li>
         </ul>
+        <NuxtLink
+          :to="`/sager/fil/${sag.id}`"
+          class="text-primary-600 hover:text-primary-800 dark:text-primary-400">
+          Se alle dokumenter
+        </NuxtLink>
       </div>
       <div v-else>Ingen dokumenter tilgængelige</div>
 
-      <h2 class="mb-4 mt-6 text-xl font-semibold">Aktører</h2>
-      <div v-if="isLoadingAktører">Loading aktører...</div>
+      <h3 class="mb-4 mt-6 text-xl font-semibold">Aktører</h3>
+      <div v-if="isLoadingAktører">Indlæser aktører …</div>
       <div v-else-if="aktørError">{{ aktørError }}</div>
       <div v-else-if="aktører.length > 0">
         <ul>
@@ -131,7 +136,7 @@ const getStatusText = (statusId: number) => {
       </div>
       <div v-else>Ingen aktører tilgængelige</div>
     </div>
-    <div v-else>No data available</div>
+    <div v-else>Ingen data tilgængelig</div>
     <!-- <PartyStanceVisualization /> -->
   </div>
 </template>

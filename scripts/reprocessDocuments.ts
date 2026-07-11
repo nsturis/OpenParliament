@@ -1,4 +1,4 @@
-import { db } from '../server/api/db'
+import { db } from '../server/utils/db'
 import { filContent, documentContent } from '../server/database/schema'
 import { eq, sql } from 'drizzle-orm'
 import { $fetch } from 'ofetch'

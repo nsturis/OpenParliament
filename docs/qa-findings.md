@@ -59,3 +59,23 @@ styling findings are code-cited but unverified. Fresh data confirmed throughout 
 4. **Case page actor scoping + endpoint limit** (B3) and `/api/meeting/[id].ts` rename (B2).
 5. **Search**: run the embedding backfill (needs the FastAPI service), fix sort direction, add UI states (B4).
 6. Then the scaffold pages (/actors, /meeting) and the styling sweep (C1–C7).
+
+## 6. Fix status (2026-07-11, same day)
+
+All A-findings, all high/medium B-findings, and the core C-findings were fixed and re-verified
+with a fresh headless walkthrough (zero console errors on all pages except the intentionally
+degraded /live, which needs the live transcription service):
+
+- **Nav**: menu now links /, /live, valgtest, /ugeplan, /sager, /actors; mobile menu uses NuxtLink; `$rounded-md` typo fixed.
+- **404**: `pages/404.vue` → `pages/[...slug].vue` catch-all, Danish, in-layout. `/test-api` and `/cases/list` deleted.
+- **/api/sag/list**: conditions AND'ed, separate count query (pagination works: 245 pages verified), `.prepare` removed, actor filter joins `sagAktør` with `inArray` (accepts the `aktører` list the UI sends), errors are real HTTP errors.
+- **/api/meeting/[id]**: renamed route (params now exist); new paginated `/api/meeting/[id]/speeches`; meeting page rebuilt — meta, agenda with sag links, transcript cards with speakers and pagination.
+- **Actor explosion**: root cause was `useAktorer` passing `URLSearchParams` to ofetch (serializes to nothing → unfiltered 423k dump). Fixed with plain object; endpoint now requires ≥1 filter, caps at 1000 rows, and skips the periode filter for case-scoped lookups. Case page shows its 4 actors.
+- **Search**: works today via Danish full-text search (GIN index `tale_segment_raw_fts_idx`, `ts_headline` snippets) over sager + 822k speeches; auto-upgrades to vector search when `taleSegmentChunk` is populated and the LLM service is up (similarity sort direction fixed). SearchBar rebuilt: UInput/UButton, Danish, loading/error/empty states, result links.
+- **Valgtest**: `UGrid`/`UTypography` replaced with real elements (layout restored); votes and results now persist (`valgtestVote`/`valgtestResult` tables + `/api/vote` GET/POST + `/api/election` GET/POST, winners computed against electionData); "Læs mere" visible on mobile.
+- **Scaffolds**: /actors rebuilt (Danish, name filter, grouped Politikere/Udvalg/Folketingsgrupper); ugeplan defaults to today, person filter sends ids, meeting rows link to /meeting/:id, Danish empty state.
+- **Hygiene**: `db.ts`/`sagDetails.ts` moved to `server/utils/` (no longer crashing public routes), `/api/randomSag` has a handler, `stores/sag.ts` fetch fixed, fil page wired to `/api/sag/documents` with `titel`, `/api/sag` rethrows 404s.
+- **Styling**: dark-mode canvas + content card, global `p{mt-5}` and global `.router-link-active` removed/scoped, `#47c691` anchors → primary scale, pagination buttons → UButton primary, contrast bumps (gray-400 → gray-600 + dark variants), Danish strings sweep, heading hierarchy (one h1 per page), `safelistColors` for dynamic badge colors, dead components deleted (Sidebar, AdvancedSearch, ActorTypeSelector, SagList, SagTimeline).
+
+Still open (needs external services/compute): embedding backfill for vector search + document
+content extraction (LLM service), live transcription service for /live, and the P2 parser items.

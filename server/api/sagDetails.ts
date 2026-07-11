@@ -4,6 +4,7 @@ import { eq } from 'drizzle-orm';
 import type {
   SagWithRelations,
   SagDetails,
+  SagdokumentWithRelations,
 } from '../../types/sag';
 
 export async function getSagDetails(sagId: number): Promise<SagDetails> {
@@ -28,7 +29,7 @@ export async function getSagDetails(sagId: number): Promise<SagDetails> {
           },
         },
       },
-      taleSegmentRaw: true,
+      taleSegment: true,
     },
   });
 
@@ -37,13 +38,13 @@ export async function getSagDetails(sagId: number): Promise<SagDetails> {
   }
 
   return {
-    sag: result as SagWithRelations,
-    aktører: result.sagAktør,
-    dokumenter: result.sagdokument.map((sd: SagdokumentWithRelations) => ({
+    sag: result as unknown as SagWithRelations,
+    aktører: result.sagAktør as any,
+    dokumenter: result.sagdokument.map((sd: any) => ({
       titel: sd.dokument.titel,
       fil: sd.dokument.fil[0]?.titel, // Assuming fil is an array
       content: sd.dokument.fil[0]?.filContent?.[0]?.content, // Assuming filContent is an array
-    })),
+    })) as any,
     taler: result.taleSegment,
-  };
+  } as SagDetails;
 }

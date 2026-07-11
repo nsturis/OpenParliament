@@ -9,12 +9,12 @@ describe('App', async () => {
   })
 
   it('App can render', async () => {
-    expect(await $fetch('/')).toMatch('Hello Nuxt!')
+    expect(await $fetch<string>('/')).toMatch('Hello Nuxt!')
   })
 
   if (isDev()) {
     it('[dev] ensure vite client script is added', async () => {
-      expect(await $fetch('/')).toMatch('/_nuxt/@vite/client"')
+      expect(await $fetch<string>('/')).toMatch('/_nuxt/@vite/client"')
     })
   }
 })

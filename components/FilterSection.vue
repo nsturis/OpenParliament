@@ -28,8 +28,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import type { Periode } from '~/types/sag'
-import type { Committee, Politician, Ministry } from '~/types/actors'
+import type { Periode, Committee, Politician, Ministry, Actor } from '~/types/actors'
 
 const props = defineProps({
   perioder: {
@@ -61,15 +60,15 @@ const props = defineProps({
     default: '',
   },
   committees: {
-    type: Array as () => Committee[],
+    type: Array as () => Actor[],
     required: true,
   },
   politicians: {
-    type: Array as () => Politician[],
+    type: Array as () => Actor[],
     required: true,
   },
   ministries: {
-    type: Array as () => Ministry[],
+    type: Array as () => Actor[],
     required: true,
   },
 })
@@ -84,22 +83,22 @@ const emit = defineEmits([
 ])
 
 const periodeModel = computed({
-  get: () => props.periode,
+  get: () => props.periode ?? undefined,
   set: (value) => emit('update:periode', value),
 })
 
 const committeeModel = computed({
-  get: () => props.committee,
+  get: () => props.committee ?? undefined,
   set: (value) => emit('update:committee', value),
 })
 
 const politicianModel = computed({
-  get: () => props.politician,
+  get: () => props.politician ?? undefined,
   set: (value) => emit('update:politician', value),
 })
 
 const ministryModel = computed({
-  get: () => props.ministry,
+  get: () => props.ministry ?? undefined,
   set: (value) => emit('update:ministry', value),
 })
 

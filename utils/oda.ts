@@ -4328,7 +4328,7 @@ const $date_FtDomainModelsStemmetypeUpdate = (): r.TransformField[] => [
   [['access', 'opdateringsdato'], ['this']],
 ]
 export type AuthMethods = {}
-export function createContext<FetcherData>(
+export function createContext<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   params?: r.CreateContextParams<AuthMethods, FetcherData>
 ): r.Context<AuthMethods, FetcherData> {
   return new r.Context<AuthMethods, FetcherData>({
@@ -4341,7 +4341,7 @@ export function createContext<FetcherData>(
  * Get entities from Afstemning
  * Tags: Afstemning
  */
-export async function afstemningGet<FetcherData>(
+export async function afstemningGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -4419,7 +4419,7 @@ export async function afstemningGet<FetcherData>(
  * Add new entity to Afstemning
  * Tags: Afstemning
  */
-export async function afstemningPost<FetcherData>(
+export async function afstemningPost<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {},
   body: FtDomainModelsAfstemningCreate,
@@ -4442,7 +4442,7 @@ export async function afstemningPost<FetcherData>(
  * Get entity from Afstemning by key
  * Tags: Afstemning
  */
-export async function afstemningIdGet<FetcherData>(
+export async function afstemningIdGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: (
@@ -4478,7 +4478,7 @@ export async function afstemningIdGet<FetcherData>(
  * Update entity in Afstemning
  * Tags: Afstemning
  */
-export async function afstemningIdPatch<FetcherData>(
+export async function afstemningIdPatch<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -4499,7 +4499,7 @@ export async function afstemningIdPatch<FetcherData>(
  * Delete entity from Afstemning
  * Tags: Afstemning
  */
-export async function afstemningIdDelete<FetcherData>(
+export async function afstemningIdDelete<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -4518,7 +4518,7 @@ export async function afstemningIdDelete<FetcherData>(
  * Get entities from related Stemme
  * Tags: Afstemning, Stemme
  */
-export async function afstemningIdStemmeGet<FetcherData>(
+export async function afstemningIdStemmeGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -4581,7 +4581,7 @@ export async function afstemningIdStemmeGet<FetcherData>(
  * Add new entity to related Stemme
  * Tags: Afstemning, Stemme
  */
-export async function afstemningIdStemmePost<FetcherData>(
+export async function afstemningIdStemmePost<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -4604,7 +4604,7 @@ export async function afstemningIdStemmePost<FetcherData>(
  * Get related Afstemningstype
  * Tags: Afstemning, Afstemningstype
  */
-export async function afstemningIdAfstemningstypeGet<FetcherData>(
+export async function afstemningIdAfstemningstypeGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: ('id' | 'type' | 'opdateringsdato')[]
@@ -4630,7 +4630,7 @@ export async function afstemningIdAfstemningstypeGet<FetcherData>(
  * Get related Møde
  * Tags: Afstemning, Møde
  */
-export async function afstemningIdModeGet<FetcherData>(
+export async function afstemningIdModeGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: (
@@ -4675,7 +4675,7 @@ export async function afstemningIdModeGet<FetcherData>(
  * Get related Sagstrin
  * Tags: Afstemning, Sagstrin
  */
-export async function afstemningIdSagstrinGet<FetcherData>(
+export async function afstemningIdSagstrinGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: (
@@ -4721,7 +4721,7 @@ export async function afstemningIdSagstrinGet<FetcherData>(
  * Get entities from Afstemningstype
  * Tags: Afstemningstype
  */
-export async function afstemningstypeGet<FetcherData>(
+export async function afstemningstypeGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -4777,7 +4777,7 @@ export async function afstemningstypeGet<FetcherData>(
  * Add new entity to Afstemningstype
  * Tags: Afstemningstype
  */
-export async function afstemningstypePost<FetcherData>(
+export async function afstemningstypePost<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {},
   body: FtDomainModelsAfstemningstypeCreate,
@@ -4800,7 +4800,7 @@ export async function afstemningstypePost<FetcherData>(
  * Get entity from Afstemningstype by key
  * Tags: Afstemningstype
  */
-export async function afstemningstypeIdGet<FetcherData>(
+export async function afstemningstypeIdGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: ('id' | 'type' | 'opdateringsdato')[]
@@ -4826,7 +4826,7 @@ export async function afstemningstypeIdGet<FetcherData>(
  * Update entity in Afstemningstype
  * Tags: Afstemningstype
  */
-export async function afstemningstypeIdPatch<FetcherData>(
+export async function afstemningstypeIdPatch<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -4847,7 +4847,7 @@ export async function afstemningstypeIdPatch<FetcherData>(
  * Delete entity from Afstemningstype
  * Tags: Afstemningstype
  */
-export async function afstemningstypeIdDelete<FetcherData>(
+export async function afstemningstypeIdDelete<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -4866,7 +4866,7 @@ export async function afstemningstypeIdDelete<FetcherData>(
  * Get entities from related Afstemning
  * Tags: Afstemningstype, Afstemning
  */
-export async function afstemningstypeIdAfstemningGet<FetcherData>(
+export async function afstemningstypeIdAfstemningGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -4945,7 +4945,7 @@ export async function afstemningstypeIdAfstemningGet<FetcherData>(
  * Add new entity to related Afstemning
  * Tags: Afstemningstype, Afstemning
  */
-export async function afstemningstypeIdAfstemningPost<FetcherData>(
+export async function afstemningstypeIdAfstemningPost<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -4970,7 +4970,7 @@ export async function afstemningstypeIdAfstemningPost<FetcherData>(
  * Get entities from Aktstykke
  * Tags: Aktstykke
  */
-export async function aktstykkeGet<FetcherData>(
+export async function aktstykkeGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -5099,7 +5099,7 @@ export async function aktstykkeGet<FetcherData>(
  * Add new entity to Aktstykke
  * Tags: Aktstykke
  */
-export async function aktstykkePost<FetcherData>(
+export async function aktstykkePost<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {},
   body: FtDomainModelsAktstykkeCreate,
@@ -5120,7 +5120,7 @@ export async function aktstykkePost<FetcherData>(
  * Get entity from Aktstykke by key
  * Tags: Aktstykke
  */
-export async function aktstykkeIdGet<FetcherData>(
+export async function aktstykkeIdGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: (
@@ -5173,7 +5173,7 @@ export async function aktstykkeIdGet<FetcherData>(
  * Update entity in Aktstykke
  * Tags: Aktstykke
  */
-export async function aktstykkeIdPatch<FetcherData>(
+export async function aktstykkeIdPatch<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -5194,7 +5194,7 @@ export async function aktstykkeIdPatch<FetcherData>(
  * Delete entity from Aktstykke
  * Tags: Aktstykke
  */
-export async function aktstykkeIdDelete<FetcherData>(
+export async function aktstykkeIdDelete<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -5213,7 +5213,7 @@ export async function aktstykkeIdDelete<FetcherData>(
  * Get entities from Aktør
  * Tags: Aktør
  */
-export async function aktørGet<FetcherData>(
+export async function aktørGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -5304,7 +5304,7 @@ export async function aktørGet<FetcherData>(
  * Add new entity to Aktør
  * Tags: Aktør
  */
-export async function aktørPost<FetcherData>(
+export async function aktørPost<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {},
   body: FtDomainModelsAktørCreate,
@@ -5325,7 +5325,7 @@ export async function aktørPost<FetcherData>(
  * Get entity from Aktør by key
  * Tags: Aktør
  */
-export async function aktørIdGet<FetcherData>(
+export async function aktørIdGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: (
@@ -5372,7 +5372,7 @@ export async function aktørIdGet<FetcherData>(
  * Update entity in Aktør
  * Tags: Aktør
  */
-export async function aktørIdPatch<FetcherData>(
+export async function aktørIdPatch<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -5393,7 +5393,7 @@ export async function aktørIdPatch<FetcherData>(
  * Delete entity from Aktør
  * Tags: Aktør
  */
-export async function aktørIdDelete<FetcherData>(
+export async function aktørIdDelete<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -5412,7 +5412,7 @@ export async function aktørIdDelete<FetcherData>(
  * Get entities from related FraAktørAktør
  * Tags: Aktør, AktørAktør
  */
-export async function aktørIdFraAktørAktørGet<FetcherData>(
+export async function aktørIdFraAktørAktørGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -5490,7 +5490,7 @@ export async function aktørIdFraAktørAktørGet<FetcherData>(
  * Add new entity to related FraAktørAktør
  * Tags: Aktør, AktørAktør
  */
-export async function aktørIdFraAktørAktørPost<FetcherData>(
+export async function aktørIdFraAktørAktørPost<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -5515,7 +5515,7 @@ export async function aktørIdFraAktørAktørPost<FetcherData>(
  * Get entities from related TilAktørAktør
  * Tags: Aktør, AktørAktør
  */
-export async function aktørIdTilAktørAktørGet<FetcherData>(
+export async function aktørIdTilAktørAktørGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -5593,7 +5593,7 @@ export async function aktørIdTilAktørAktørGet<FetcherData>(
  * Add new entity to related TilAktørAktør
  * Tags: Aktør, AktørAktør
  */
-export async function aktørIdTilAktørAktørPost<FetcherData>(
+export async function aktørIdTilAktørAktørPost<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -5618,7 +5618,7 @@ export async function aktørIdTilAktørAktørPost<FetcherData>(
  * Get entities from related DokumentAktør
  * Tags: Aktør, DokumentAktør
  */
-export async function aktørIdDokumentAktørGet<FetcherData>(
+export async function aktørIdDokumentAktørGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -5685,7 +5685,7 @@ export async function aktørIdDokumentAktørGet<FetcherData>(
  * Add new entity to related DokumentAktør
  * Tags: Aktør, DokumentAktør
  */
-export async function aktørIdDokumentAktørPost<FetcherData>(
+export async function aktørIdDokumentAktørPost<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -5710,7 +5710,7 @@ export async function aktørIdDokumentAktørPost<FetcherData>(
  * Get entities from related MødeAktør
  * Tags: Aktør, MødeAktør
  */
-export async function aktørIdMødeAktørGet<FetcherData>(
+export async function aktørIdMødeAktørGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -5769,7 +5769,7 @@ export async function aktørIdMødeAktørGet<FetcherData>(
  * Add new entity to related MødeAktør
  * Tags: Aktør, MødeAktør
  */
-export async function aktørIdMødeAktørPost<FetcherData>(
+export async function aktørIdMødeAktørPost<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -5792,7 +5792,7 @@ export async function aktørIdMødeAktørPost<FetcherData>(
  * Get entities from related SagAktør
  * Tags: Aktør, SagAktør
  */
-export async function aktørIdSagAktørGet<FetcherData>(
+export async function aktørIdSagAktørGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -5859,7 +5859,7 @@ export async function aktørIdSagAktørGet<FetcherData>(
  * Add new entity to related SagAktør
  * Tags: Aktør, SagAktør
  */
-export async function aktørIdSagAktørPost<FetcherData>(
+export async function aktørIdSagAktørPost<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -5882,7 +5882,7 @@ export async function aktørIdSagAktørPost<FetcherData>(
  * Get entities from related SagstrinAktør
  * Tags: Aktør, SagstrinAktør
  */
-export async function aktørIdSagstrinAktørGet<FetcherData>(
+export async function aktørIdSagstrinAktørGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -5949,7 +5949,7 @@ export async function aktørIdSagstrinAktørGet<FetcherData>(
  * Add new entity to related SagstrinAktør
  * Tags: Aktør, SagstrinAktør
  */
-export async function aktørIdSagstrinAktørPost<FetcherData>(
+export async function aktørIdSagstrinAktørPost<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -5974,7 +5974,7 @@ export async function aktørIdSagstrinAktørPost<FetcherData>(
  * Get entities from related Stemme
  * Tags: Aktør, Stemme
  */
-export async function aktørIdStemmeGet<FetcherData>(
+export async function aktørIdStemmeGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -6037,7 +6037,7 @@ export async function aktørIdStemmeGet<FetcherData>(
  * Add new entity to related Stemme
  * Tags: Aktør, Stemme
  */
-export async function aktørIdStemmePost<FetcherData>(
+export async function aktørIdStemmePost<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -6060,7 +6060,7 @@ export async function aktørIdStemmePost<FetcherData>(
  * Get related Aktørtype
  * Tags: Aktør, Aktørtype
  */
-export async function aktørIdAktørtypeGet<FetcherData>(
+export async function aktørIdAktørtypeGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: ('id' | 'type' | 'opdateringsdato')[]
@@ -6084,7 +6084,7 @@ export async function aktørIdAktørtypeGet<FetcherData>(
  * Get related Periode
  * Tags: Aktør, Periode
  */
-export async function aktørIdPeriodeGet<FetcherData>(
+export async function aktørIdPeriodeGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: (
@@ -6116,7 +6116,7 @@ export async function aktørIdPeriodeGet<FetcherData>(
  * Get entities from AktørAktør
  * Tags: AktørAktør
  */
-export async function aktørAktørGet<FetcherData>(
+export async function aktørAktørGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -6193,7 +6193,7 @@ export async function aktørAktørGet<FetcherData>(
  * Add new entity to AktørAktør
  * Tags: AktørAktør
  */
-export async function aktørAktørPost<FetcherData>(
+export async function aktørAktørPost<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {},
   body: FtDomainModelsAktørAktørCreate,
@@ -6216,7 +6216,7 @@ export async function aktørAktørPost<FetcherData>(
  * Get entity from AktørAktør by key
  * Tags: AktørAktør
  */
-export async function aktørAktørIdGet<FetcherData>(
+export async function aktørAktørIdGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: (
@@ -6255,7 +6255,7 @@ export async function aktørAktørIdGet<FetcherData>(
  * Update entity in AktørAktør
  * Tags: AktørAktør
  */
-export async function aktørAktørIdPatch<FetcherData>(
+export async function aktørAktørIdPatch<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -6276,7 +6276,7 @@ export async function aktørAktørIdPatch<FetcherData>(
  * Delete entity from AktørAktør
  * Tags: AktørAktør
  */
-export async function aktørAktørIdDelete<FetcherData>(
+export async function aktørAktørIdDelete<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -6295,7 +6295,7 @@ export async function aktørAktørIdDelete<FetcherData>(
  * Get related FraAktør
  * Tags: AktørAktør, Aktør
  */
-export async function aktørAktørIdFraAktørGet<FetcherData>(
+export async function aktørAktørIdFraAktørGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: (
@@ -6342,7 +6342,7 @@ export async function aktørAktørIdFraAktørGet<FetcherData>(
  * Get related TilAktør
  * Tags: AktørAktør, Aktør
  */
-export async function aktørAktørIdTilAktørGet<FetcherData>(
+export async function aktørAktørIdTilAktørGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: (
@@ -6389,7 +6389,7 @@ export async function aktørAktørIdTilAktørGet<FetcherData>(
  * Get related AktørAktørRolle
  * Tags: AktørAktør, AktørAktørRolle
  */
-export async function aktørAktørIdAktørAktørRolleGet<FetcherData>(
+export async function aktørAktørIdAktørAktørRolleGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: ('id' | 'rolle' | 'opdateringsdato')[]
@@ -6415,7 +6415,7 @@ export async function aktørAktørIdAktørAktørRolleGet<FetcherData>(
  * Get entities from AktørAktørRolle
  * Tags: AktørAktørRolle
  */
-export async function aktørAktørRolleGet<FetcherData>(
+export async function aktørAktørRolleGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -6471,7 +6471,7 @@ export async function aktørAktørRolleGet<FetcherData>(
  * Add new entity to AktørAktørRolle
  * Tags: AktørAktørRolle
  */
-export async function aktørAktørRollePost<FetcherData>(
+export async function aktørAktørRollePost<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {},
   body: FtDomainModelsAktørAktørRolleCreate,
@@ -6494,7 +6494,7 @@ export async function aktørAktørRollePost<FetcherData>(
  * Get entity from AktørAktørRolle by key
  * Tags: AktørAktørRolle
  */
-export async function aktørAktørRolleIdGet<FetcherData>(
+export async function aktørAktørRolleIdGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: ('id' | 'rolle' | 'opdateringsdato')[]
@@ -6520,7 +6520,7 @@ export async function aktørAktørRolleIdGet<FetcherData>(
  * Update entity in AktørAktørRolle
  * Tags: AktørAktørRolle
  */
-export async function aktørAktørRolleIdPatch<FetcherData>(
+export async function aktørAktørRolleIdPatch<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -6541,7 +6541,7 @@ export async function aktørAktørRolleIdPatch<FetcherData>(
  * Delete entity from AktørAktørRolle
  * Tags: AktørAktørRolle
  */
-export async function aktørAktørRolleIdDelete<FetcherData>(
+export async function aktørAktørRolleIdDelete<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -6560,7 +6560,7 @@ export async function aktørAktørRolleIdDelete<FetcherData>(
  * Get entities from related AktørAktør
  * Tags: AktørAktørRolle, AktørAktør
  */
-export async function aktørAktørRolleIdAktørAktørGet<FetcherData>(
+export async function aktørAktørRolleIdAktørAktørGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -6638,7 +6638,7 @@ export async function aktørAktørRolleIdAktørAktørGet<FetcherData>(
  * Add new entity to related AktørAktør
  * Tags: AktørAktørRolle, AktørAktør
  */
-export async function aktørAktørRolleIdAktørAktørPost<FetcherData>(
+export async function aktørAktørRolleIdAktørAktørPost<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -6663,7 +6663,7 @@ export async function aktørAktørRolleIdAktørAktørPost<FetcherData>(
  * Get entities from Aktørtype
  * Tags: Aktørtype
  */
-export async function aktørtypeGet<FetcherData>(
+export async function aktørtypeGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -6719,7 +6719,7 @@ export async function aktørtypeGet<FetcherData>(
  * Add new entity to Aktørtype
  * Tags: Aktørtype
  */
-export async function aktørtypePost<FetcherData>(
+export async function aktørtypePost<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {},
   body: FtDomainModelsAktørtypeCreate,
@@ -6740,7 +6740,7 @@ export async function aktørtypePost<FetcherData>(
  * Get entity from Aktørtype by key
  * Tags: Aktørtype
  */
-export async function aktørtypeIdGet<FetcherData>(
+export async function aktørtypeIdGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: ('id' | 'type' | 'opdateringsdato')[]
@@ -6764,7 +6764,7 @@ export async function aktørtypeIdGet<FetcherData>(
  * Update entity in Aktørtype
  * Tags: Aktørtype
  */
-export async function aktørtypeIdPatch<FetcherData>(
+export async function aktørtypeIdPatch<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -6785,7 +6785,7 @@ export async function aktørtypeIdPatch<FetcherData>(
  * Delete entity from Aktørtype
  * Tags: Aktørtype
  */
-export async function aktørtypeIdDelete<FetcherData>(
+export async function aktørtypeIdDelete<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -6804,7 +6804,7 @@ export async function aktørtypeIdDelete<FetcherData>(
  * Get entities from related Aktør
  * Tags: Aktørtype, Aktør
  */
-export async function aktørtypeIdAktørGet<FetcherData>(
+export async function aktørtypeIdAktørGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -6896,7 +6896,7 @@ export async function aktørtypeIdAktørGet<FetcherData>(
  * Add new entity to related Aktør
  * Tags: Aktørtype, Aktør
  */
-export async function aktørtypeIdAktørPost<FetcherData>(
+export async function aktørtypeIdAktørPost<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -6919,7 +6919,7 @@ export async function aktørtypeIdAktørPost<FetcherData>(
  * Get entities from Almdel
  * Tags: Almdel
  */
-export async function almdelGet<FetcherData>(
+export async function almdelGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -7044,7 +7044,7 @@ export async function almdelGet<FetcherData>(
  * Add new entity to Almdel
  * Tags: Almdel
  */
-export async function almdelPost<FetcherData>(
+export async function almdelPost<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {},
   body: FtDomainModelsAlmdelCreate,
@@ -7065,7 +7065,7 @@ export async function almdelPost<FetcherData>(
  * Get entity from Almdel by key
  * Tags: Almdel
  */
-export async function almdelIdGet<FetcherData>(
+export async function almdelIdGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: (
@@ -7118,7 +7118,7 @@ export async function almdelIdGet<FetcherData>(
  * Update entity in Almdel
  * Tags: Almdel
  */
-export async function almdelIdPatch<FetcherData>(
+export async function almdelIdPatch<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -7139,7 +7139,7 @@ export async function almdelIdPatch<FetcherData>(
  * Delete entity from Almdel
  * Tags: Almdel
  */
-export async function almdelIdDelete<FetcherData>(
+export async function almdelIdDelete<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -7158,7 +7158,7 @@ export async function almdelIdDelete<FetcherData>(
  * Get entities from Dagsordenspunkt
  * Tags: Dagsordenspunkt
  */
-export async function dagsordenspunktGet<FetcherData>(
+export async function dagsordenspunktGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -7253,7 +7253,7 @@ export async function dagsordenspunktGet<FetcherData>(
  * Add new entity to Dagsordenspunkt
  * Tags: Dagsordenspunkt
  */
-export async function dagsordenspunktPost<FetcherData>(
+export async function dagsordenspunktPost<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {},
   body: FtDomainModelsDagsordenspunktCreate,
@@ -7276,7 +7276,7 @@ export async function dagsordenspunktPost<FetcherData>(
  * Get entity from Dagsordenspunkt by key
  * Tags: Dagsordenspunkt
  */
-export async function dagsordenspunktIdGet<FetcherData>(
+export async function dagsordenspunktIdGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: (
@@ -7323,7 +7323,7 @@ export async function dagsordenspunktIdGet<FetcherData>(
  * Update entity in Dagsordenspunkt
  * Tags: Dagsordenspunkt
  */
-export async function dagsordenspunktIdPatch<FetcherData>(
+export async function dagsordenspunktIdPatch<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -7344,7 +7344,7 @@ export async function dagsordenspunktIdPatch<FetcherData>(
  * Delete entity from Dagsordenspunkt
  * Tags: Dagsordenspunkt
  */
-export async function dagsordenspunktIdDelete<FetcherData>(
+export async function dagsordenspunktIdDelete<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -7363,7 +7363,7 @@ export async function dagsordenspunktIdDelete<FetcherData>(
  * Get entities from related Dagsordenspunktdelti
  * Tags: Dagsordenspunkt
  */
-export async function dagsordenspunktIdDagsordenspunktdeltiGet<FetcherData>(
+export async function dagsordenspunktIdDagsordenspunktdeltiGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -7459,7 +7459,7 @@ export async function dagsordenspunktIdDagsordenspunktdeltiGet<FetcherData>(
  * Add new entity to related Dagsordenspunktdelti
  * Tags: Dagsordenspunkt
  */
-export async function dagsordenspunktIdDagsordenspunktdeltiPost<FetcherData>(
+export async function dagsordenspunktIdDagsordenspunktdeltiPost<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -7484,7 +7484,7 @@ export async function dagsordenspunktIdDagsordenspunktdeltiPost<FetcherData>(
  * Get entities from related DagsordenspunktDokument
  * Tags: Dagsordenspunkt, DagsordenspunktDokument
  */
-export async function dagsordenspunktIdDagsordenspunktDokumentGet<FetcherData>(
+export async function dagsordenspunktIdDagsordenspunktDokumentGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -7551,7 +7551,7 @@ export async function dagsordenspunktIdDagsordenspunktDokumentGet<FetcherData>(
  * Add new entity to related DagsordenspunktDokument
  * Tags: Dagsordenspunkt, DagsordenspunktDokument
  */
-export async function dagsordenspunktIdDagsordenspunktDokumentPost<FetcherData>(
+export async function dagsordenspunktIdDagsordenspunktDokumentPost<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -7578,7 +7578,7 @@ export async function dagsordenspunktIdDagsordenspunktDokumentPost<FetcherData>(
  * Get entities from related DagsordenspunktSag
  * Tags: Dagsordenspunkt, DagsordenspunktSag
  */
-export async function dagsordenspunktIdDagsordenspunktSagGet<FetcherData>(
+export async function dagsordenspunktIdDagsordenspunktSagGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -7637,7 +7637,7 @@ export async function dagsordenspunktIdDagsordenspunktSagGet<FetcherData>(
  * Add new entity to related DagsordenspunktSag
  * Tags: Dagsordenspunkt, DagsordenspunktSag
  */
-export async function dagsordenspunktIdDagsordenspunktSagPost<FetcherData>(
+export async function dagsordenspunktIdDagsordenspunktSagPost<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -7662,7 +7662,7 @@ export async function dagsordenspunktIdDagsordenspunktSagPost<FetcherData>(
  * Get related DeltfraDagsordenspunkt
  * Tags: Dagsordenspunkt
  */
-export async function dagsordenspunktIdDeltfraDagsordenspunktGet<FetcherData>(
+export async function dagsordenspunktIdDeltfraDagsordenspunktGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: (
@@ -7709,7 +7709,7 @@ export async function dagsordenspunktIdDeltfraDagsordenspunktGet<FetcherData>(
  * Get related Møde
  * Tags: Dagsordenspunkt, Møde
  */
-export async function dagsordenspunktIdModeGet<FetcherData>(
+export async function dagsordenspunktIdModeGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: (
@@ -7754,7 +7754,7 @@ export async function dagsordenspunktIdModeGet<FetcherData>(
  * Get related Sagstrin
  * Tags: Dagsordenspunkt, Sagstrin
  */
-export async function dagsordenspunktIdSagstrinGet<FetcherData>(
+export async function dagsordenspunktIdSagstrinGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: (
@@ -7800,7 +7800,7 @@ export async function dagsordenspunktIdSagstrinGet<FetcherData>(
  * Get entities from DagsordenspunktDokument
  * Tags: DagsordenspunktDokument
  */
-export async function dagsordenspunktDokumentGet<FetcherData>(
+export async function dagsordenspunktDokumentGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -7866,7 +7866,7 @@ export async function dagsordenspunktDokumentGet<FetcherData>(
  * Add new entity to DagsordenspunktDokument
  * Tags: DagsordenspunktDokument
  */
-export async function dagsordenspunktDokumentPost<FetcherData>(
+export async function dagsordenspunktDokumentPost<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {},
   body: FtDomainModelsDagsordenspunktDokumentCreate,
@@ -7891,7 +7891,7 @@ export async function dagsordenspunktDokumentPost<FetcherData>(
  * Get entity from DagsordenspunktDokument by key
  * Tags: DagsordenspunktDokument
  */
-export async function dagsordenspunktDokumentIdGet<FetcherData>(
+export async function dagsordenspunktDokumentIdGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: (
@@ -7925,7 +7925,7 @@ export async function dagsordenspunktDokumentIdGet<FetcherData>(
  * Update entity in DagsordenspunktDokument
  * Tags: DagsordenspunktDokument
  */
-export async function dagsordenspunktDokumentIdPatch<FetcherData>(
+export async function dagsordenspunktDokumentIdPatch<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -7946,7 +7946,7 @@ export async function dagsordenspunktDokumentIdPatch<FetcherData>(
  * Delete entity from DagsordenspunktDokument
  * Tags: DagsordenspunktDokument
  */
-export async function dagsordenspunktDokumentIdDelete<FetcherData>(
+export async function dagsordenspunktDokumentIdDelete<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -7965,7 +7965,7 @@ export async function dagsordenspunktDokumentIdDelete<FetcherData>(
  * Get related Dagsordenspunkt
  * Tags: DagsordenspunktDokument, Dagsordenspunkt
  */
-export async function dagsordenspunktDokumentIdDagsordenspunktGet<FetcherData>(
+export async function dagsordenspunktDokumentIdDagsordenspunktGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: (
@@ -8012,7 +8012,7 @@ export async function dagsordenspunktDokumentIdDagsordenspunktGet<FetcherData>(
  * Get related Dokument
  * Tags: DagsordenspunktDokument, Dokument
  */
-export async function dagsordenspunktDokumentIdDokumentGet<FetcherData>(
+export async function dagsordenspunktDokumentIdDokumentGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: (
@@ -8069,7 +8069,7 @@ export async function dagsordenspunktDokumentIdDokumentGet<FetcherData>(
  * Get entities from DagsordenspunktSag
  * Tags: DagsordenspunktSag
  */
-export async function dagsordenspunktSagGet<FetcherData>(
+export async function dagsordenspunktSagGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -8127,7 +8127,7 @@ export async function dagsordenspunktSagGet<FetcherData>(
  * Add new entity to DagsordenspunktSag
  * Tags: DagsordenspunktSag
  */
-export async function dagsordenspunktSagPost<FetcherData>(
+export async function dagsordenspunktSagPost<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {},
   body: FtDomainModelsDagsordenspunktSagCreate,
@@ -8150,7 +8150,7 @@ export async function dagsordenspunktSagPost<FetcherData>(
  * Get entity from DagsordenspunktSag by key
  * Tags: DagsordenspunktSag
  */
-export async function dagsordenspunktSagIdGet<FetcherData>(
+export async function dagsordenspunktSagIdGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: ('id' | 'dagsordenspunktid' | 'sagid' | 'opdateringsdato')[]
@@ -8176,7 +8176,7 @@ export async function dagsordenspunktSagIdGet<FetcherData>(
  * Update entity in DagsordenspunktSag
  * Tags: DagsordenspunktSag
  */
-export async function dagsordenspunktSagIdPatch<FetcherData>(
+export async function dagsordenspunktSagIdPatch<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -8197,7 +8197,7 @@ export async function dagsordenspunktSagIdPatch<FetcherData>(
  * Delete entity from DagsordenspunktSag
  * Tags: DagsordenspunktSag
  */
-export async function dagsordenspunktSagIdDelete<FetcherData>(
+export async function dagsordenspunktSagIdDelete<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -8216,7 +8216,7 @@ export async function dagsordenspunktSagIdDelete<FetcherData>(
  * Get related Dagsordenspunkt
  * Tags: DagsordenspunktSag, Dagsordenspunkt
  */
-export async function dagsordenspunktSagIdDagsordenspunktGet<FetcherData>(
+export async function dagsordenspunktSagIdDagsordenspunktGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: (
@@ -8263,7 +8263,7 @@ export async function dagsordenspunktSagIdDagsordenspunktGet<FetcherData>(
  * Get related Sag
  * Tags: DagsordenspunktSag, Sag
  */
-export async function dagsordenspunktSagIdSagGet<FetcherData>(
+export async function dagsordenspunktSagIdSagGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: (
@@ -8332,7 +8332,7 @@ export async function dagsordenspunktSagIdSagGet<FetcherData>(
  * Get entities from Debat
  * Tags: Debat
  */
-export async function debatGet<FetcherData>(
+export async function debatGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -8457,7 +8457,7 @@ export async function debatGet<FetcherData>(
  * Add new entity to Debat
  * Tags: Debat
  */
-export async function debatPost<FetcherData>(
+export async function debatPost<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {},
   body: FtDomainModelsDebatCreate,
@@ -8478,7 +8478,7 @@ export async function debatPost<FetcherData>(
  * Get entity from Debat by key
  * Tags: Debat
  */
-export async function debatIdGet<FetcherData>(
+export async function debatIdGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: (
@@ -8531,7 +8531,7 @@ export async function debatIdGet<FetcherData>(
  * Update entity in Debat
  * Tags: Debat
  */
-export async function debatIdPatch<FetcherData>(
+export async function debatIdPatch<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -8552,7 +8552,7 @@ export async function debatIdPatch<FetcherData>(
  * Delete entity from Debat
  * Tags: Debat
  */
-export async function debatIdDelete<FetcherData>(
+export async function debatIdDelete<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -8571,7 +8571,7 @@ export async function debatIdDelete<FetcherData>(
  * Get entities from Dokument
  * Tags: Dokument
  */
-export async function dokumentGet<FetcherData>(
+export async function dokumentGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -8690,7 +8690,7 @@ export async function dokumentGet<FetcherData>(
  * Add new entity to Dokument
  * Tags: Dokument
  */
-export async function dokumentPost<FetcherData>(
+export async function dokumentPost<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {},
   body: FtDomainModelsDokumentCreate,
@@ -8711,7 +8711,7 @@ export async function dokumentPost<FetcherData>(
  * Get entity from Dokument by key
  * Tags: Dokument
  */
-export async function dokumentIdGet<FetcherData>(
+export async function dokumentIdGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: (
@@ -8768,7 +8768,7 @@ export async function dokumentIdGet<FetcherData>(
  * Update entity in Dokument
  * Tags: Dokument
  */
-export async function dokumentIdPatch<FetcherData>(
+export async function dokumentIdPatch<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -8789,7 +8789,7 @@ export async function dokumentIdPatch<FetcherData>(
  * Delete entity from Dokument
  * Tags: Dokument
  */
-export async function dokumentIdDelete<FetcherData>(
+export async function dokumentIdDelete<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -8808,7 +8808,7 @@ export async function dokumentIdDelete<FetcherData>(
  * Get entities from related DagsordenspunktDokument
  * Tags: Dokument, DagsordenspunktDokument
  */
-export async function dokumentIdDagsordenspunktDokumentGet<FetcherData>(
+export async function dokumentIdDagsordenspunktDokumentGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -8875,7 +8875,7 @@ export async function dokumentIdDagsordenspunktDokumentGet<FetcherData>(
  * Add new entity to related DagsordenspunktDokument
  * Tags: Dokument, DagsordenspunktDokument
  */
-export async function dokumentIdDagsordenspunktDokumentPost<FetcherData>(
+export async function dokumentIdDagsordenspunktDokumentPost<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -8902,7 +8902,7 @@ export async function dokumentIdDagsordenspunktDokumentPost<FetcherData>(
  * Get entities from related SvarDokumenter
  * Tags: Dokument
  */
-export async function dokumentIdSvarDokumenterGet<FetcherData>(
+export async function dokumentIdSvarDokumenterGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -9022,7 +9022,7 @@ export async function dokumentIdSvarDokumenterGet<FetcherData>(
  * Add new entity to related SvarDokumenter
  * Tags: Dokument
  */
-export async function dokumentIdSvarDokumenterPost<FetcherData>(
+export async function dokumentIdSvarDokumenterPost<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -9045,7 +9045,7 @@ export async function dokumentIdSvarDokumenterPost<FetcherData>(
  * Get entities from related DokumentAktør
  * Tags: Dokument, DokumentAktør
  */
-export async function dokumentIdDokumentAktørGet<FetcherData>(
+export async function dokumentIdDokumentAktørGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -9112,7 +9112,7 @@ export async function dokumentIdDokumentAktørGet<FetcherData>(
  * Add new entity to related DokumentAktør
  * Tags: Dokument, DokumentAktør
  */
-export async function dokumentIdDokumentAktørPost<FetcherData>(
+export async function dokumentIdDokumentAktørPost<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -9137,7 +9137,7 @@ export async function dokumentIdDokumentAktørPost<FetcherData>(
  * Get entities from related EmneordDokument
  * Tags: Dokument, EmneordDokument
  */
-export async function dokumentIdEmneordDokumentGet<FetcherData>(
+export async function dokumentIdEmneordDokumentGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -9196,7 +9196,7 @@ export async function dokumentIdEmneordDokumentGet<FetcherData>(
  * Add new entity to related EmneordDokument
  * Tags: Dokument, EmneordDokument
  */
-export async function dokumentIdEmneordDokumentPost<FetcherData>(
+export async function dokumentIdEmneordDokumentPost<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -9221,7 +9221,7 @@ export async function dokumentIdEmneordDokumentPost<FetcherData>(
  * Get entities from related Fil
  * Tags: Dokument, Fil
  */
-export async function dokumentIdFilGet<FetcherData>(
+export async function dokumentIdFilGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -9293,7 +9293,7 @@ export async function dokumentIdFilGet<FetcherData>(
  * Add new entity to related Fil
  * Tags: Dokument, Fil
  */
-export async function dokumentIdFilPost<FetcherData>(
+export async function dokumentIdFilPost<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -9316,7 +9316,7 @@ export async function dokumentIdFilPost<FetcherData>(
  * Get entities from related Omtryk
  * Tags: Dokument, Omtryk
  */
-export async function dokumentIdOmtrykGet<FetcherData>(
+export async function dokumentIdOmtrykGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -9379,7 +9379,7 @@ export async function dokumentIdOmtrykGet<FetcherData>(
  * Add new entity to related Omtryk
  * Tags: Dokument, Omtryk
  */
-export async function dokumentIdOmtrykPost<FetcherData>(
+export async function dokumentIdOmtrykPost<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -9402,7 +9402,7 @@ export async function dokumentIdOmtrykPost<FetcherData>(
  * Get entities from related SagDokument
  * Tags: Dokument, SagDokument
  */
-export async function dokumentIdSagDokumentGet<FetcherData>(
+export async function dokumentIdSagDokumentGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -9475,7 +9475,7 @@ export async function dokumentIdSagDokumentGet<FetcherData>(
  * Add new entity to related SagDokument
  * Tags: Dokument, SagDokument
  */
-export async function dokumentIdSagDokumentPost<FetcherData>(
+export async function dokumentIdSagDokumentPost<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -9500,7 +9500,7 @@ export async function dokumentIdSagDokumentPost<FetcherData>(
  * Get entities from related SagstrinDokument
  * Tags: Dokument, SagstrinDokument
  */
-export async function dokumentIdSagstrinDokumentGet<FetcherData>(
+export async function dokumentIdSagstrinDokumentGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -9559,7 +9559,7 @@ export async function dokumentIdSagstrinDokumentGet<FetcherData>(
  * Add new entity to related SagstrinDokument
  * Tags: Dokument, SagstrinDokument
  */
-export async function dokumentIdSagstrinDokumentPost<FetcherData>(
+export async function dokumentIdSagstrinDokumentPost<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -9584,7 +9584,7 @@ export async function dokumentIdSagstrinDokumentPost<FetcherData>(
  * Get related SpørgsmålsDokument
  * Tags: Dokument
  */
-export async function dokumentIdSporgsmalsDokumentGet<FetcherData>(
+export async function dokumentIdSporgsmalsDokumentGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: (
@@ -9641,7 +9641,7 @@ export async function dokumentIdSporgsmalsDokumentGet<FetcherData>(
  * Get related Dokumentkategori
  * Tags: Dokument, Dokumentkategori
  */
-export async function dokumentIdDokumentkategoriGet<FetcherData>(
+export async function dokumentIdDokumentkategoriGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: ('id' | 'kategori' | 'opdateringsdato')[]
@@ -9667,7 +9667,7 @@ export async function dokumentIdDokumentkategoriGet<FetcherData>(
  * Get related Dokumentstatus
  * Tags: Dokument, Dokumentstatus
  */
-export async function dokumentIdDokumentstatusGet<FetcherData>(
+export async function dokumentIdDokumentstatusGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: ('id' | 'status' | 'opdateringsdato')[]
@@ -9693,7 +9693,7 @@ export async function dokumentIdDokumentstatusGet<FetcherData>(
  * Get related Dokumenttype
  * Tags: Dokument, Dokumenttype
  */
-export async function dokumentIdDokumenttypeGet<FetcherData>(
+export async function dokumentIdDokumenttypeGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: ('id' | 'type' | 'opdateringsdato')[]
@@ -9719,7 +9719,7 @@ export async function dokumentIdDokumenttypeGet<FetcherData>(
  * Get entities from DokumentAktør
  * Tags: DokumentAktør
  */
-export async function dokumentAktørGet<FetcherData>(
+export async function dokumentAktørGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -9785,7 +9785,7 @@ export async function dokumentAktørGet<FetcherData>(
  * Add new entity to DokumentAktør
  * Tags: DokumentAktør
  */
-export async function dokumentAktørPost<FetcherData>(
+export async function dokumentAktørPost<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {},
   body: FtDomainModelsDokumentAktørCreate,
@@ -9808,7 +9808,7 @@ export async function dokumentAktørPost<FetcherData>(
  * Get entity from DokumentAktør by key
  * Tags: DokumentAktør
  */
-export async function dokumentAktørIdGet<FetcherData>(
+export async function dokumentAktørIdGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: (
@@ -9840,7 +9840,7 @@ export async function dokumentAktørIdGet<FetcherData>(
  * Update entity in DokumentAktør
  * Tags: DokumentAktør
  */
-export async function dokumentAktørIdPatch<FetcherData>(
+export async function dokumentAktørIdPatch<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -9861,7 +9861,7 @@ export async function dokumentAktørIdPatch<FetcherData>(
  * Delete entity from DokumentAktør
  * Tags: DokumentAktør
  */
-export async function dokumentAktørIdDelete<FetcherData>(
+export async function dokumentAktørIdDelete<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -9880,7 +9880,7 @@ export async function dokumentAktørIdDelete<FetcherData>(
  * Get related Aktør
  * Tags: DokumentAktør, Aktør
  */
-export async function dokumentAktørIdAktørGet<FetcherData>(
+export async function dokumentAktørIdAktørGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: (
@@ -9927,7 +9927,7 @@ export async function dokumentAktørIdAktørGet<FetcherData>(
  * Get related Dokument
  * Tags: DokumentAktør, Dokument
  */
-export async function dokumentAktørIdDokumentGet<FetcherData>(
+export async function dokumentAktørIdDokumentGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: (
@@ -9984,7 +9984,7 @@ export async function dokumentAktørIdDokumentGet<FetcherData>(
  * Get related DokumentAktørRolle
  * Tags: DokumentAktør, DokumentAktørRolle
  */
-export async function dokumentAktørIdDokumentAktørRolleGet<FetcherData>(
+export async function dokumentAktørIdDokumentAktørRolleGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: ('id' | 'rolle' | 'opdateringsdato')[]
@@ -10010,7 +10010,7 @@ export async function dokumentAktørIdDokumentAktørRolleGet<FetcherData>(
  * Get entities from DokumentAktørRolle
  * Tags: DokumentAktørRolle
  */
-export async function dokumentAktørRolleGet<FetcherData>(
+export async function dokumentAktørRolleGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -10066,7 +10066,7 @@ export async function dokumentAktørRolleGet<FetcherData>(
  * Add new entity to DokumentAktørRolle
  * Tags: DokumentAktørRolle
  */
-export async function dokumentAktørRollePost<FetcherData>(
+export async function dokumentAktørRollePost<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {},
   body: FtDomainModelsDokumentAktørRolleCreate,
@@ -10089,7 +10089,7 @@ export async function dokumentAktørRollePost<FetcherData>(
  * Get entity from DokumentAktørRolle by key
  * Tags: DokumentAktørRolle
  */
-export async function dokumentAktørRolleIdGet<FetcherData>(
+export async function dokumentAktørRolleIdGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: ('id' | 'rolle' | 'opdateringsdato')[]
@@ -10115,7 +10115,7 @@ export async function dokumentAktørRolleIdGet<FetcherData>(
  * Update entity in DokumentAktørRolle
  * Tags: DokumentAktørRolle
  */
-export async function dokumentAktørRolleIdPatch<FetcherData>(
+export async function dokumentAktørRolleIdPatch<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -10136,7 +10136,7 @@ export async function dokumentAktørRolleIdPatch<FetcherData>(
  * Delete entity from DokumentAktørRolle
  * Tags: DokumentAktørRolle
  */
-export async function dokumentAktørRolleIdDelete<FetcherData>(
+export async function dokumentAktørRolleIdDelete<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -10155,7 +10155,7 @@ export async function dokumentAktørRolleIdDelete<FetcherData>(
  * Get entities from related DokumentAktør
  * Tags: DokumentAktørRolle, DokumentAktør
  */
-export async function dokumentAktørRolleIdDokumentAktørGet<FetcherData>(
+export async function dokumentAktørRolleIdDokumentAktørGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -10222,7 +10222,7 @@ export async function dokumentAktørRolleIdDokumentAktørGet<FetcherData>(
  * Add new entity to related DokumentAktør
  * Tags: DokumentAktørRolle, DokumentAktør
  */
-export async function dokumentAktørRolleIdDokumentAktørPost<FetcherData>(
+export async function dokumentAktørRolleIdDokumentAktørPost<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -10247,7 +10247,7 @@ export async function dokumentAktørRolleIdDokumentAktørPost<FetcherData>(
  * Get entities from Dokumentkategori
  * Tags: Dokumentkategori
  */
-export async function dokumentkategoriGet<FetcherData>(
+export async function dokumentkategoriGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -10303,7 +10303,7 @@ export async function dokumentkategoriGet<FetcherData>(
  * Add new entity to Dokumentkategori
  * Tags: Dokumentkategori
  */
-export async function dokumentkategoriPost<FetcherData>(
+export async function dokumentkategoriPost<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {},
   body: FtDomainModelsDokumentkategoriCreate,
@@ -10326,7 +10326,7 @@ export async function dokumentkategoriPost<FetcherData>(
  * Get entity from Dokumentkategori by key
  * Tags: Dokumentkategori
  */
-export async function dokumentkategoriIdGet<FetcherData>(
+export async function dokumentkategoriIdGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: ('id' | 'kategori' | 'opdateringsdato')[]
@@ -10352,7 +10352,7 @@ export async function dokumentkategoriIdGet<FetcherData>(
  * Update entity in Dokumentkategori
  * Tags: Dokumentkategori
  */
-export async function dokumentkategoriIdPatch<FetcherData>(
+export async function dokumentkategoriIdPatch<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -10373,7 +10373,7 @@ export async function dokumentkategoriIdPatch<FetcherData>(
  * Delete entity from Dokumentkategori
  * Tags: Dokumentkategori
  */
-export async function dokumentkategoriIdDelete<FetcherData>(
+export async function dokumentkategoriIdDelete<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -10392,7 +10392,7 @@ export async function dokumentkategoriIdDelete<FetcherData>(
  * Get entities from related Dokument
  * Tags: Dokumentkategori, Dokument
  */
-export async function dokumentkategoriIdDokumentGet<FetcherData>(
+export async function dokumentkategoriIdDokumentGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -10512,7 +10512,7 @@ export async function dokumentkategoriIdDokumentGet<FetcherData>(
  * Add new entity to related Dokument
  * Tags: Dokumentkategori, Dokument
  */
-export async function dokumentkategoriIdDokumentPost<FetcherData>(
+export async function dokumentkategoriIdDokumentPost<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -10535,7 +10535,7 @@ export async function dokumentkategoriIdDokumentPost<FetcherData>(
  * Get entities from Dokumenttype
  * Tags: Dokumenttype
  */
-export async function dokumenttypeGet<FetcherData>(
+export async function dokumenttypeGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -10591,7 +10591,7 @@ export async function dokumenttypeGet<FetcherData>(
  * Add new entity to Dokumenttype
  * Tags: Dokumenttype
  */
-export async function dokumenttypePost<FetcherData>(
+export async function dokumenttypePost<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {},
   body: FtDomainModelsDokumenttypeCreate,
@@ -10614,7 +10614,7 @@ export async function dokumenttypePost<FetcherData>(
  * Get entity from Dokumenttype by key
  * Tags: Dokumenttype
  */
-export async function dokumenttypeIdGet<FetcherData>(
+export async function dokumenttypeIdGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: ('id' | 'type' | 'opdateringsdato')[]
@@ -10640,7 +10640,7 @@ export async function dokumenttypeIdGet<FetcherData>(
  * Update entity in Dokumenttype
  * Tags: Dokumenttype
  */
-export async function dokumenttypeIdPatch<FetcherData>(
+export async function dokumenttypeIdPatch<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -10661,7 +10661,7 @@ export async function dokumenttypeIdPatch<FetcherData>(
  * Delete entity from Dokumenttype
  * Tags: Dokumenttype
  */
-export async function dokumenttypeIdDelete<FetcherData>(
+export async function dokumenttypeIdDelete<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -10680,7 +10680,7 @@ export async function dokumenttypeIdDelete<FetcherData>(
  * Get entities from related Dokument
  * Tags: Dokumenttype, Dokument
  */
-export async function dokumenttypeIdDokumentGet<FetcherData>(
+export async function dokumenttypeIdDokumentGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -10800,7 +10800,7 @@ export async function dokumenttypeIdDokumentGet<FetcherData>(
  * Add new entity to related Dokument
  * Tags: Dokumenttype, Dokument
  */
-export async function dokumenttypeIdDokumentPost<FetcherData>(
+export async function dokumenttypeIdDokumentPost<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -10823,7 +10823,7 @@ export async function dokumenttypeIdDokumentPost<FetcherData>(
  * Get entities from Dokumentstatus
  * Tags: Dokumentstatus
  */
-export async function dokumentstatusGet<FetcherData>(
+export async function dokumentstatusGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -10879,7 +10879,7 @@ export async function dokumentstatusGet<FetcherData>(
  * Add new entity to Dokumentstatus
  * Tags: Dokumentstatus
  */
-export async function dokumentstatusPost<FetcherData>(
+export async function dokumentstatusPost<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {},
   body: FtDomainModelsDokumentstatusCreate,
@@ -10902,7 +10902,7 @@ export async function dokumentstatusPost<FetcherData>(
  * Get entity from Dokumentstatus by key
  * Tags: Dokumentstatus
  */
-export async function dokumentstatusIdGet<FetcherData>(
+export async function dokumentstatusIdGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: ('id' | 'status' | 'opdateringsdato')[]
@@ -10928,7 +10928,7 @@ export async function dokumentstatusIdGet<FetcherData>(
  * Update entity in Dokumentstatus
  * Tags: Dokumentstatus
  */
-export async function dokumentstatusIdPatch<FetcherData>(
+export async function dokumentstatusIdPatch<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -10949,7 +10949,7 @@ export async function dokumentstatusIdPatch<FetcherData>(
  * Delete entity from Dokumentstatus
  * Tags: Dokumentstatus
  */
-export async function dokumentstatusIdDelete<FetcherData>(
+export async function dokumentstatusIdDelete<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -10968,7 +10968,7 @@ export async function dokumentstatusIdDelete<FetcherData>(
  * Get entities from related Dokument
  * Tags: Dokumentstatus, Dokument
  */
-export async function dokumentstatusIdDokumentGet<FetcherData>(
+export async function dokumentstatusIdDokumentGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -11088,7 +11088,7 @@ export async function dokumentstatusIdDokumentGet<FetcherData>(
  * Add new entity to related Dokument
  * Tags: Dokumentstatus, Dokument
  */
-export async function dokumentstatusIdDokumentPost<FetcherData>(
+export async function dokumentstatusIdDokumentPost<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -11111,7 +11111,7 @@ export async function dokumentstatusIdDokumentPost<FetcherData>(
  * Get entities from Emneord
  * Tags: Emneord
  */
-export async function emneordGet<FetcherData>(
+export async function emneordGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -11165,7 +11165,7 @@ export async function emneordGet<FetcherData>(
  * Add new entity to Emneord
  * Tags: Emneord
  */
-export async function emneordPost<FetcherData>(
+export async function emneordPost<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {},
   body: FtDomainModelsEmneordCreate,
@@ -11186,7 +11186,7 @@ export async function emneordPost<FetcherData>(
  * Get entity from Emneord by key
  * Tags: Emneord
  */
-export async function emneordIdGet<FetcherData>(
+export async function emneordIdGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: ('id' | 'typeid' | 'emneord' | 'opdateringsdato')[]
@@ -11210,7 +11210,7 @@ export async function emneordIdGet<FetcherData>(
  * Update entity in Emneord
  * Tags: Emneord
  */
-export async function emneordIdPatch<FetcherData>(
+export async function emneordIdPatch<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -11231,7 +11231,7 @@ export async function emneordIdPatch<FetcherData>(
  * Delete entity from Emneord
  * Tags: Emneord
  */
-export async function emneordIdDelete<FetcherData>(
+export async function emneordIdDelete<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -11250,7 +11250,7 @@ export async function emneordIdDelete<FetcherData>(
  * Get entities from related EmneordDokument
  * Tags: Emneord, EmneordDokument
  */
-export async function emneordIdEmneordDokumentGet<FetcherData>(
+export async function emneordIdEmneordDokumentGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -11309,7 +11309,7 @@ export async function emneordIdEmneordDokumentGet<FetcherData>(
  * Add new entity to related EmneordDokument
  * Tags: Emneord, EmneordDokument
  */
-export async function emneordIdEmneordDokumentPost<FetcherData>(
+export async function emneordIdEmneordDokumentPost<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -11334,7 +11334,7 @@ export async function emneordIdEmneordDokumentPost<FetcherData>(
  * Get entities from related EmneordSag
  * Tags: Emneord, EmneordSag
  */
-export async function emneordIdEmneordSagGet<FetcherData>(
+export async function emneordIdEmneordSagGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -11393,7 +11393,7 @@ export async function emneordIdEmneordSagGet<FetcherData>(
  * Add new entity to related EmneordSag
  * Tags: Emneord, EmneordSag
  */
-export async function emneordIdEmneordSagPost<FetcherData>(
+export async function emneordIdEmneordSagPost<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -11418,7 +11418,7 @@ export async function emneordIdEmneordSagPost<FetcherData>(
  * Get related Emneordstype
  * Tags: Emneord, Emneordstype
  */
-export async function emneordIdEmneordstypeGet<FetcherData>(
+export async function emneordIdEmneordstypeGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: ('id' | 'type' | 'opdateringsdato')[]
@@ -11444,7 +11444,7 @@ export async function emneordIdEmneordstypeGet<FetcherData>(
  * Get entities from EmneordDokument
  * Tags: EmneordDokument
  */
-export async function emneordDokumentGet<FetcherData>(
+export async function emneordDokumentGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -11502,7 +11502,7 @@ export async function emneordDokumentGet<FetcherData>(
  * Add new entity to EmneordDokument
  * Tags: EmneordDokument
  */
-export async function emneordDokumentPost<FetcherData>(
+export async function emneordDokumentPost<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {},
   body: FtDomainModelsEmneordDokumentCreate,
@@ -11525,7 +11525,7 @@ export async function emneordDokumentPost<FetcherData>(
  * Get entity from EmneordDokument by key
  * Tags: EmneordDokument
  */
-export async function emneordDokumentIdGet<FetcherData>(
+export async function emneordDokumentIdGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: ('id' | 'emneordid' | 'dokumentid' | 'opdateringsdato')[]
@@ -11551,7 +11551,7 @@ export async function emneordDokumentIdGet<FetcherData>(
  * Update entity in EmneordDokument
  * Tags: EmneordDokument
  */
-export async function emneordDokumentIdPatch<FetcherData>(
+export async function emneordDokumentIdPatch<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -11572,7 +11572,7 @@ export async function emneordDokumentIdPatch<FetcherData>(
  * Delete entity from EmneordDokument
  * Tags: EmneordDokument
  */
-export async function emneordDokumentIdDelete<FetcherData>(
+export async function emneordDokumentIdDelete<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -11591,7 +11591,7 @@ export async function emneordDokumentIdDelete<FetcherData>(
  * Get related Dokument
  * Tags: EmneordDokument, Dokument
  */
-export async function emneordDokumentIdDokumentGet<FetcherData>(
+export async function emneordDokumentIdDokumentGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: (
@@ -11648,7 +11648,7 @@ export async function emneordDokumentIdDokumentGet<FetcherData>(
  * Get related Emneord
  * Tags: EmneordDokument, Emneord
  */
-export async function emneordDokumentIdEmneordGet<FetcherData>(
+export async function emneordDokumentIdEmneordGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: ('id' | 'typeid' | 'emneord' | 'opdateringsdato')[]
@@ -11672,7 +11672,7 @@ export async function emneordDokumentIdEmneordGet<FetcherData>(
  * Get entities from EmneordSag
  * Tags: EmneordSag
  */
-export async function emneordSagGet<FetcherData>(
+export async function emneordSagGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -11730,7 +11730,7 @@ export async function emneordSagGet<FetcherData>(
  * Add new entity to EmneordSag
  * Tags: EmneordSag
  */
-export async function emneordSagPost<FetcherData>(
+export async function emneordSagPost<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {},
   body: FtDomainModelsEmneordSagCreate,
@@ -11753,7 +11753,7 @@ export async function emneordSagPost<FetcherData>(
  * Get entity from EmneordSag by key
  * Tags: EmneordSag
  */
-export async function emneordSagIdGet<FetcherData>(
+export async function emneordSagIdGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: ('id' | 'emneordid' | 'sagid' | 'opdateringsdato')[]
@@ -11779,7 +11779,7 @@ export async function emneordSagIdGet<FetcherData>(
  * Update entity in EmneordSag
  * Tags: EmneordSag
  */
-export async function emneordSagIdPatch<FetcherData>(
+export async function emneordSagIdPatch<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -11800,7 +11800,7 @@ export async function emneordSagIdPatch<FetcherData>(
  * Delete entity from EmneordSag
  * Tags: EmneordSag
  */
-export async function emneordSagIdDelete<FetcherData>(
+export async function emneordSagIdDelete<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -11819,7 +11819,7 @@ export async function emneordSagIdDelete<FetcherData>(
  * Get related Emneord
  * Tags: EmneordSag, Emneord
  */
-export async function emneordSagIdEmneordGet<FetcherData>(
+export async function emneordSagIdEmneordGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: ('id' | 'typeid' | 'emneord' | 'opdateringsdato')[]
@@ -11843,7 +11843,7 @@ export async function emneordSagIdEmneordGet<FetcherData>(
  * Get related Sag
  * Tags: EmneordSag, Sag
  */
-export async function emneordSagIdSagGet<FetcherData>(
+export async function emneordSagIdSagGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: (
@@ -11912,7 +11912,7 @@ export async function emneordSagIdSagGet<FetcherData>(
  * Get entities from Emneordstype
  * Tags: Emneordstype
  */
-export async function emneordstypeGet<FetcherData>(
+export async function emneordstypeGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -11968,7 +11968,7 @@ export async function emneordstypeGet<FetcherData>(
  * Add new entity to Emneordstype
  * Tags: Emneordstype
  */
-export async function emneordstypePost<FetcherData>(
+export async function emneordstypePost<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {},
   body: FtDomainModelsEmneordstypeCreate,
@@ -11991,7 +11991,7 @@ export async function emneordstypePost<FetcherData>(
  * Get entity from Emneordstype by key
  * Tags: Emneordstype
  */
-export async function emneordstypeIdGet<FetcherData>(
+export async function emneordstypeIdGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: ('id' | 'type' | 'opdateringsdato')[]
@@ -12017,7 +12017,7 @@ export async function emneordstypeIdGet<FetcherData>(
  * Update entity in Emneordstype
  * Tags: Emneordstype
  */
-export async function emneordstypeIdPatch<FetcherData>(
+export async function emneordstypeIdPatch<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -12038,7 +12038,7 @@ export async function emneordstypeIdPatch<FetcherData>(
  * Delete entity from Emneordstype
  * Tags: Emneordstype
  */
-export async function emneordstypeIdDelete<FetcherData>(
+export async function emneordstypeIdDelete<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -12057,7 +12057,7 @@ export async function emneordstypeIdDelete<FetcherData>(
  * Get entities from related Emneord
  * Tags: Emneordstype, Emneord
  */
-export async function emneordstypeIdEmneordGet<FetcherData>(
+export async function emneordstypeIdEmneordGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -12112,7 +12112,7 @@ export async function emneordstypeIdEmneordGet<FetcherData>(
  * Add new entity to related Emneord
  * Tags: Emneordstype, Emneord
  */
-export async function emneordstypeIdEmneordPost<FetcherData>(
+export async function emneordstypeIdEmneordPost<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -12135,7 +12135,7 @@ export async function emneordstypeIdEmneordPost<FetcherData>(
  * Get entities from EUsag
  * Tags: EUsag
  */
-export async function eUsagGet<FetcherData>(
+export async function eUsagGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -12260,7 +12260,7 @@ export async function eUsagGet<FetcherData>(
  * Add new entity to EUsag
  * Tags: EUsag
  */
-export async function eUsagPost<FetcherData>(
+export async function eUsagPost<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {},
   body: FtDomainModelsEUsagCreate,
@@ -12281,7 +12281,7 @@ export async function eUsagPost<FetcherData>(
  * Get entity from EUsag by key
  * Tags: EUsag
  */
-export async function eUsagIdGet<FetcherData>(
+export async function eUsagIdGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: (
@@ -12334,7 +12334,7 @@ export async function eUsagIdGet<FetcherData>(
  * Update entity in EUsag
  * Tags: EUsag
  */
-export async function eUsagIdPatch<FetcherData>(
+export async function eUsagIdPatch<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -12355,7 +12355,7 @@ export async function eUsagIdPatch<FetcherData>(
  * Delete entity from EUsag
  * Tags: EUsag
  */
-export async function eUsagIdDelete<FetcherData>(
+export async function eUsagIdDelete<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -12374,7 +12374,7 @@ export async function eUsagIdDelete<FetcherData>(
  * Get entities from Forslag
  * Tags: Forslag
  */
-export async function forslagGet<FetcherData>(
+export async function forslagGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -12499,7 +12499,7 @@ export async function forslagGet<FetcherData>(
  * Add new entity to Forslag
  * Tags: Forslag
  */
-export async function forslagPost<FetcherData>(
+export async function forslagPost<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {},
   body: FtDomainModelsForslagCreate,
@@ -12520,7 +12520,7 @@ export async function forslagPost<FetcherData>(
  * Get entity from Forslag by key
  * Tags: Forslag
  */
-export async function forslagIdGet<FetcherData>(
+export async function forslagIdGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: (
@@ -12573,7 +12573,7 @@ export async function forslagIdGet<FetcherData>(
  * Update entity in Forslag
  * Tags: Forslag
  */
-export async function forslagIdPatch<FetcherData>(
+export async function forslagIdPatch<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -12594,7 +12594,7 @@ export async function forslagIdPatch<FetcherData>(
  * Delete entity from Forslag
  * Tags: Forslag
  */
-export async function forslagIdDelete<FetcherData>(
+export async function forslagIdDelete<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -12613,7 +12613,7 @@ export async function forslagIdDelete<FetcherData>(
  * Get entities from Fil
  * Tags: Fil
  */
-export async function filGet<FetcherData>(
+export async function filGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -12684,7 +12684,7 @@ export async function filGet<FetcherData>(
  * Add new entity to Fil
  * Tags: Fil
  */
-export async function filPost<FetcherData>(
+export async function filPost<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {},
   body: FtDomainModelsFilCreate,
@@ -12705,7 +12705,7 @@ export async function filPost<FetcherData>(
  * Get entity from Fil by key
  * Tags: Fil
  */
-export async function filIdGet<FetcherData>(
+export async function filIdGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: (
@@ -12738,7 +12738,7 @@ export async function filIdGet<FetcherData>(
  * Update entity in Fil
  * Tags: Fil
  */
-export async function filIdPatch<FetcherData>(
+export async function filIdPatch<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -12759,7 +12759,7 @@ export async function filIdPatch<FetcherData>(
  * Delete entity from Fil
  * Tags: Fil
  */
-export async function filIdDelete<FetcherData>(
+export async function filIdDelete<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -12778,7 +12778,7 @@ export async function filIdDelete<FetcherData>(
  * Get related Dokument
  * Tags: Fil, Dokument
  */
-export async function filIdDokumentGet<FetcherData>(
+export async function filIdDokumentGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: (
@@ -12835,7 +12835,7 @@ export async function filIdDokumentGet<FetcherData>(
  * Get entities from KolloneBeskrivelse
  * Tags: KolloneBeskrivelse
  */
-export async function kolloneBeskrivelseGet<FetcherData>(
+export async function kolloneBeskrivelseGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -12892,7 +12892,7 @@ export async function kolloneBeskrivelseGet<FetcherData>(
  * Add new entity to KolloneBeskrivelse
  * Tags: KolloneBeskrivelse
  */
-export async function kolloneBeskrivelsePost<FetcherData>(
+export async function kolloneBeskrivelsePost<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {},
   body: FtDomainModelsKolloneBeskrivelseCreate,
@@ -12915,7 +12915,7 @@ export async function kolloneBeskrivelsePost<FetcherData>(
  * Get entity from KolloneBeskrivelse by key
  * Tags: KolloneBeskrivelse
  */
-export async function kolloneBeskrivelseIdGet<FetcherData>(
+export async function kolloneBeskrivelseIdGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: (
@@ -12946,7 +12946,7 @@ export async function kolloneBeskrivelseIdGet<FetcherData>(
  * Update entity in KolloneBeskrivelse
  * Tags: KolloneBeskrivelse
  */
-export async function kolloneBeskrivelseIdPatch<FetcherData>(
+export async function kolloneBeskrivelseIdPatch<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -12967,7 +12967,7 @@ export async function kolloneBeskrivelseIdPatch<FetcherData>(
  * Delete entity from KolloneBeskrivelse
  * Tags: KolloneBeskrivelse
  */
-export async function kolloneBeskrivelseIdDelete<FetcherData>(
+export async function kolloneBeskrivelseIdDelete<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -12986,7 +12986,7 @@ export async function kolloneBeskrivelseIdDelete<FetcherData>(
  * Get entities from EntitetBeskrivelse
  * Tags: EntitetBeskrivelse
  */
-export async function entitetBeskrivelseGet<FetcherData>(
+export async function entitetBeskrivelseGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -13035,7 +13035,7 @@ export async function entitetBeskrivelseGet<FetcherData>(
  * Add new entity to EntitetBeskrivelse
  * Tags: EntitetBeskrivelse
  */
-export async function entitetBeskrivelsePost<FetcherData>(
+export async function entitetBeskrivelsePost<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {},
   body: FtDomainModelsEntitetBeskrivelseCreate,
@@ -13058,7 +13058,7 @@ export async function entitetBeskrivelsePost<FetcherData>(
  * Get entity from EntitetBeskrivelse by key
  * Tags: EntitetBeskrivelse
  */
-export async function entitetBeskrivelseIdGet<FetcherData>(
+export async function entitetBeskrivelseIdGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: ('id' | 'entitetnavn' | 'beskrivelse' | 'opdateringsdato')[]
@@ -13083,7 +13083,7 @@ export async function entitetBeskrivelseIdGet<FetcherData>(
  * Update entity in EntitetBeskrivelse
  * Tags: EntitetBeskrivelse
  */
-export async function entitetBeskrivelseIdPatch<FetcherData>(
+export async function entitetBeskrivelseIdPatch<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -13104,7 +13104,7 @@ export async function entitetBeskrivelseIdPatch<FetcherData>(
  * Delete entity from EntitetBeskrivelse
  * Tags: EntitetBeskrivelse
  */
-export async function entitetBeskrivelseIdDelete<FetcherData>(
+export async function entitetBeskrivelseIdDelete<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -13123,7 +13123,7 @@ export async function entitetBeskrivelseIdDelete<FetcherData>(
  * Get entities from Møde
  * Tags: Møde
  */
-export async function mødeGet<FetcherData>(
+export async function mødeGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -13214,7 +13214,7 @@ export async function mødeGet<FetcherData>(
  * Add new entity to Møde
  * Tags: Møde
  */
-export async function mødePost<FetcherData>(
+export async function mødePost<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {},
   body: FtDomainModelsModeCreate,
@@ -13235,7 +13235,7 @@ export async function mødePost<FetcherData>(
  * Get entity from Møde by key
  * Tags: Møde
  */
-export async function mødeIdGet<FetcherData>(
+export async function mødeIdGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: (
@@ -13280,7 +13280,7 @@ export async function mødeIdGet<FetcherData>(
  * Update entity in Møde
  * Tags: Møde
  */
-export async function mødeIdPatch<FetcherData>(
+export async function mødeIdPatch<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -13301,7 +13301,7 @@ export async function mødeIdPatch<FetcherData>(
  * Delete entity from Møde
  * Tags: Møde
  */
-export async function mødeIdDelete<FetcherData>(
+export async function mødeIdDelete<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -13320,7 +13320,7 @@ export async function mødeIdDelete<FetcherData>(
  * Get entities from related Afstemning
  * Tags: Møde, Afstemning
  */
-export async function mødeIdAfstemningGet<FetcherData>(
+export async function mødeIdAfstemningGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -13399,7 +13399,7 @@ export async function mødeIdAfstemningGet<FetcherData>(
  * Add new entity to related Afstemning
  * Tags: Møde, Afstemning
  */
-export async function mødeIdAfstemningPost<FetcherData>(
+export async function mødeIdAfstemningPost<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -13424,7 +13424,7 @@ export async function mødeIdAfstemningPost<FetcherData>(
  * Get entities from related Dagsordenspunkt
  * Tags: Møde, Dagsordenspunkt
  */
-export async function mødeIdDagsordenspunktGet<FetcherData>(
+export async function mødeIdDagsordenspunktGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -13520,7 +13520,7 @@ export async function mødeIdDagsordenspunktGet<FetcherData>(
  * Add new entity to related Dagsordenspunkt
  * Tags: Møde, Dagsordenspunkt
  */
-export async function mødeIdDagsordenspunktPost<FetcherData>(
+export async function mødeIdDagsordenspunktPost<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -13545,7 +13545,7 @@ export async function mødeIdDagsordenspunktPost<FetcherData>(
  * Get entities from related MødeAktør
  * Tags: Møde, MødeAktør
  */
-export async function mødeIdMødeAktørGet<FetcherData>(
+export async function mødeIdMødeAktørGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -13604,7 +13604,7 @@ export async function mødeIdMødeAktørGet<FetcherData>(
  * Add new entity to related MødeAktør
  * Tags: Møde, MødeAktør
  */
-export async function mødeIdMødeAktørPost<FetcherData>(
+export async function mødeIdMødeAktørPost<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -13627,7 +13627,7 @@ export async function mødeIdMødeAktørPost<FetcherData>(
  * Get related Mødestatus
  * Tags: Møde, Mødestatus
  */
-export async function mødeIdModestatusGet<FetcherData>(
+export async function mødeIdModestatusGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: ('id' | 'status' | 'opdateringsdato')[]
@@ -13653,7 +13653,7 @@ export async function mødeIdModestatusGet<FetcherData>(
  * Get related Mødetype
  * Tags: Møde, Mødetype
  */
-export async function mødeIdModetypeGet<FetcherData>(
+export async function mødeIdModetypeGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: ('id' | 'type' | 'opdateringsdato')[]
@@ -13677,7 +13677,7 @@ export async function mødeIdModetypeGet<FetcherData>(
  * Get related Periode
  * Tags: Møde, Periode
  */
-export async function mødeIdPeriodeGet<FetcherData>(
+export async function mødeIdPeriodeGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: (
@@ -13709,7 +13709,7 @@ export async function mødeIdPeriodeGet<FetcherData>(
  * Get entities from MødeAktør
  * Tags: MødeAktør
  */
-export async function mødeaktørGet<FetcherData>(
+export async function mødeaktørGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -13767,7 +13767,7 @@ export async function mødeaktørGet<FetcherData>(
  * Add new entity to MødeAktør
  * Tags: MødeAktør
  */
-export async function mødeaktørPost<FetcherData>(
+export async function mødeaktørPost<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {},
   body: FtDomainModelsMødeAktørCreate,
@@ -13788,7 +13788,7 @@ export async function mødeaktørPost<FetcherData>(
  * Get entity from MødeAktør by key
  * Tags: MødeAktør
  */
-export async function mødeaktørIdGet<FetcherData>(
+export async function mødeaktørIdGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: ('id' | 'm\u00F8deid' | 'akt\u00F8rid' | 'opdateringsdato')[]
@@ -13812,7 +13812,7 @@ export async function mødeaktørIdGet<FetcherData>(
  * Update entity in MødeAktør
  * Tags: MødeAktør
  */
-export async function mødeaktørIdPatch<FetcherData>(
+export async function mødeaktørIdPatch<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -13833,7 +13833,7 @@ export async function mødeaktørIdPatch<FetcherData>(
  * Delete entity from MødeAktør
  * Tags: MødeAktør
  */
-export async function mødeaktørIdDelete<FetcherData>(
+export async function mødeaktørIdDelete<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -13852,7 +13852,7 @@ export async function mødeaktørIdDelete<FetcherData>(
  * Get related Aktør
  * Tags: MødeAktør, Aktør
  */
-export async function mødeaktørIdAktørGet<FetcherData>(
+export async function mødeaktørIdAktørGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: (
@@ -13899,7 +13899,7 @@ export async function mødeaktørIdAktørGet<FetcherData>(
  * Get related Møde
  * Tags: MødeAktør, Møde
  */
-export async function mødeaktørIdModeGet<FetcherData>(
+export async function mødeaktørIdModeGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: (
@@ -13944,7 +13944,7 @@ export async function mødeaktørIdModeGet<FetcherData>(
  * Get entities from Mødestatus
  * Tags: Mødestatus
  */
-export async function mødestatusGet<FetcherData>(
+export async function mødestatusGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -14000,7 +14000,7 @@ export async function mødestatusGet<FetcherData>(
  * Add new entity to Mødestatus
  * Tags: Mødestatus
  */
-export async function mødestatusPost<FetcherData>(
+export async function mødestatusPost<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {},
   body: FtDomainModelsModestatusCreate,
@@ -14023,7 +14023,7 @@ export async function mødestatusPost<FetcherData>(
  * Get entity from Mødestatus by key
  * Tags: Mødestatus
  */
-export async function mødestatusIdGet<FetcherData>(
+export async function mødestatusIdGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: ('id' | 'status' | 'opdateringsdato')[]
@@ -14049,7 +14049,7 @@ export async function mødestatusIdGet<FetcherData>(
  * Update entity in Mødestatus
  * Tags: Mødestatus
  */
-export async function mødestatusIdPatch<FetcherData>(
+export async function mødestatusIdPatch<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -14070,7 +14070,7 @@ export async function mødestatusIdPatch<FetcherData>(
  * Delete entity from Mødestatus
  * Tags: Mødestatus
  */
-export async function mødestatusIdDelete<FetcherData>(
+export async function mødestatusIdDelete<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -14089,7 +14089,7 @@ export async function mødestatusIdDelete<FetcherData>(
  * Get entities from related Møde
  * Tags: Mødestatus, Møde
  */
-export async function mødestatusIdModeGet<FetcherData>(
+export async function mødestatusIdModeGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -14181,7 +14181,7 @@ export async function mødestatusIdModeGet<FetcherData>(
  * Add new entity to related Møde
  * Tags: Mødestatus, Møde
  */
-export async function mødestatusIdModePost<FetcherData>(
+export async function mødestatusIdModePost<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -14204,7 +14204,7 @@ export async function mødestatusIdModePost<FetcherData>(
  * Get entities from Mødetype
  * Tags: Mødetype
  */
-export async function mødetypeGet<FetcherData>(
+export async function mødetypeGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -14260,7 +14260,7 @@ export async function mødetypeGet<FetcherData>(
  * Add new entity to Mødetype
  * Tags: Mødetype
  */
-export async function mødetypePost<FetcherData>(
+export async function mødetypePost<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {},
   body: FtDomainModelsModetypeCreate,
@@ -14281,7 +14281,7 @@ export async function mødetypePost<FetcherData>(
  * Get entity from Mødetype by key
  * Tags: Mødetype
  */
-export async function mødetypeIdGet<FetcherData>(
+export async function mødetypeIdGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: ('id' | 'type' | 'opdateringsdato')[]
@@ -14305,7 +14305,7 @@ export async function mødetypeIdGet<FetcherData>(
  * Update entity in Mødetype
  * Tags: Mødetype
  */
-export async function mødetypeIdPatch<FetcherData>(
+export async function mødetypeIdPatch<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -14326,7 +14326,7 @@ export async function mødetypeIdPatch<FetcherData>(
  * Delete entity from Mødetype
  * Tags: Mødetype
  */
-export async function mødetypeIdDelete<FetcherData>(
+export async function mødetypeIdDelete<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -14345,7 +14345,7 @@ export async function mødetypeIdDelete<FetcherData>(
  * Get entities from related Møde
  * Tags: Mødetype, Møde
  */
-export async function mødetypeIdModeGet<FetcherData>(
+export async function mødetypeIdModeGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -14437,7 +14437,7 @@ export async function mødetypeIdModeGet<FetcherData>(
  * Add new entity to related Møde
  * Tags: Mødetype, Møde
  */
-export async function mødetypeIdModePost<FetcherData>(
+export async function mødetypeIdModePost<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -14460,7 +14460,7 @@ export async function mødetypeIdModePost<FetcherData>(
  * Get entities from Omtryk
  * Tags: Omtryk
  */
-export async function omtrykGet<FetcherData>(
+export async function omtrykGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -14522,7 +14522,7 @@ export async function omtrykGet<FetcherData>(
  * Add new entity to Omtryk
  * Tags: Omtryk
  */
-export async function omtrykPost<FetcherData>(
+export async function omtrykPost<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {},
   body: FtDomainModelsOmtrykCreate,
@@ -14543,7 +14543,7 @@ export async function omtrykPost<FetcherData>(
  * Get entity from Omtryk by key
  * Tags: Omtryk
  */
-export async function omtrykIdGet<FetcherData>(
+export async function omtrykIdGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: (
@@ -14573,7 +14573,7 @@ export async function omtrykIdGet<FetcherData>(
  * Update entity in Omtryk
  * Tags: Omtryk
  */
-export async function omtrykIdPatch<FetcherData>(
+export async function omtrykIdPatch<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -14594,7 +14594,7 @@ export async function omtrykIdPatch<FetcherData>(
  * Delete entity from Omtryk
  * Tags: Omtryk
  */
-export async function omtrykIdDelete<FetcherData>(
+export async function omtrykIdDelete<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -14613,7 +14613,7 @@ export async function omtrykIdDelete<FetcherData>(
  * Get related Dokument
  * Tags: Omtryk, Dokument
  */
-export async function omtrykIdDokumentGet<FetcherData>(
+export async function omtrykIdDokumentGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: (
@@ -14670,7 +14670,7 @@ export async function omtrykIdDokumentGet<FetcherData>(
  * Get entities from Periode
  * Tags: Periode
  */
-export async function periodeGet<FetcherData>(
+export async function periodeGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -14738,7 +14738,7 @@ export async function periodeGet<FetcherData>(
  * Add new entity to Periode
  * Tags: Periode
  */
-export async function periodePost<FetcherData>(
+export async function periodePost<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {},
   body: FtDomainModelsPeriodeCreate,
@@ -14759,7 +14759,7 @@ export async function periodePost<FetcherData>(
  * Get entity from Periode by key
  * Tags: Periode
  */
-export async function periodeIdGet<FetcherData>(
+export async function periodeIdGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: (
@@ -14791,7 +14791,7 @@ export async function periodeIdGet<FetcherData>(
  * Update entity in Periode
  * Tags: Periode
  */
-export async function periodeIdPatch<FetcherData>(
+export async function periodeIdPatch<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -14812,7 +14812,7 @@ export async function periodeIdPatch<FetcherData>(
  * Delete entity from Periode
  * Tags: Periode
  */
-export async function periodeIdDelete<FetcherData>(
+export async function periodeIdDelete<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -14831,7 +14831,7 @@ export async function periodeIdDelete<FetcherData>(
  * Get entities from related Aktør
  * Tags: Periode, Aktør
  */
-export async function periodeIdAktørGet<FetcherData>(
+export async function periodeIdAktørGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -14923,7 +14923,7 @@ export async function periodeIdAktørGet<FetcherData>(
  * Add new entity to related Aktør
  * Tags: Periode, Aktør
  */
-export async function periodeIdAktørPost<FetcherData>(
+export async function periodeIdAktørPost<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -14946,7 +14946,7 @@ export async function periodeIdAktørPost<FetcherData>(
  * Get entities from related Møde
  * Tags: Periode, Møde
  */
-export async function periodeIdModeGet<FetcherData>(
+export async function periodeIdModeGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -15038,7 +15038,7 @@ export async function periodeIdModeGet<FetcherData>(
  * Add new entity to related Møde
  * Tags: Periode, Møde
  */
-export async function periodeIdModePost<FetcherData>(
+export async function periodeIdModePost<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -15061,7 +15061,7 @@ export async function periodeIdModePost<FetcherData>(
  * Get entities from related Sag
  * Tags: Periode, Sag
  */
-export async function periodeIdSagGet<FetcherData>(
+export async function periodeIdSagGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -15211,7 +15211,7 @@ export async function periodeIdSagGet<FetcherData>(
  * Add new entity to related Sag
  * Tags: Periode, Sag
  */
-export async function periodeIdSagPost<FetcherData>(
+export async function periodeIdSagPost<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -15234,7 +15234,7 @@ export async function periodeIdSagPost<FetcherData>(
  * Get entities from Sag
  * Tags: Sag
  */
-export async function sagGet<FetcherData>(
+export async function sagGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -15383,7 +15383,7 @@ export async function sagGet<FetcherData>(
  * Add new entity to Sag
  * Tags: Sag
  */
-export async function sagPost<FetcherData>(
+export async function sagPost<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {},
   body: FtDomainModelsSagCreate,
@@ -15404,7 +15404,7 @@ export async function sagPost<FetcherData>(
  * Get entity from Sag by key
  * Tags: Sag
  */
-export async function sagIdGet<FetcherData>(
+export async function sagIdGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: (
@@ -15473,7 +15473,7 @@ export async function sagIdGet<FetcherData>(
  * Update entity in Sag
  * Tags: Sag
  */
-export async function sagIdPatch<FetcherData>(
+export async function sagIdPatch<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -15494,7 +15494,7 @@ export async function sagIdPatch<FetcherData>(
  * Delete entity from Sag
  * Tags: Sag
  */
-export async function sagIdDelete<FetcherData>(
+export async function sagIdDelete<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -15513,7 +15513,7 @@ export async function sagIdDelete<FetcherData>(
  * Get entities from related DagsordenspunktSag
  * Tags: Sag, DagsordenspunktSag
  */
-export async function sagIdDagsordenspunktSagGet<FetcherData>(
+export async function sagIdDagsordenspunktSagGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -15572,7 +15572,7 @@ export async function sagIdDagsordenspunktSagGet<FetcherData>(
  * Add new entity to related DagsordenspunktSag
  * Tags: Sag, DagsordenspunktSag
  */
-export async function sagIdDagsordenspunktSagPost<FetcherData>(
+export async function sagIdDagsordenspunktSagPost<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -15597,7 +15597,7 @@ export async function sagIdDagsordenspunktSagPost<FetcherData>(
  * Get entities from related EmneordSag
  * Tags: Sag, EmneordSag
  */
-export async function sagIdEmneordSagGet<FetcherData>(
+export async function sagIdEmneordSagGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -15656,7 +15656,7 @@ export async function sagIdEmneordSagGet<FetcherData>(
  * Add new entity to related EmneordSag
  * Tags: Sag, EmneordSag
  */
-export async function sagIdEmneordSagPost<FetcherData>(
+export async function sagIdEmneordSagPost<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -15681,7 +15681,7 @@ export async function sagIdEmneordSagPost<FetcherData>(
  * Get entities from related Sagerdelti
  * Tags: Sag
  */
-export async function sagIdSagerdeltiGet<FetcherData>(
+export async function sagIdSagerdeltiGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -15831,7 +15831,7 @@ export async function sagIdSagerdeltiGet<FetcherData>(
  * Add new entity to related Sagerdelti
  * Tags: Sag
  */
-export async function sagIdSagerdeltiPost<FetcherData>(
+export async function sagIdSagerdeltiPost<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -15854,7 +15854,7 @@ export async function sagIdSagerdeltiPost<FetcherData>(
  * Get entities from related Sagerfremsatunder
  * Tags: Sag
  */
-export async function sagIdSagerfremsatunderGet<FetcherData>(
+export async function sagIdSagerfremsatunderGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -16004,7 +16004,7 @@ export async function sagIdSagerfremsatunderGet<FetcherData>(
  * Add new entity to related Sagerfremsatunder
  * Tags: Sag
  */
-export async function sagIdSagerfremsatunderPost<FetcherData>(
+export async function sagIdSagerfremsatunderPost<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -16027,7 +16027,7 @@ export async function sagIdSagerfremsatunderPost<FetcherData>(
  * Get entities from related SagAktør
  * Tags: Sag, SagAktør
  */
-export async function sagIdSagAktørGet<FetcherData>(
+export async function sagIdSagAktørGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -16094,7 +16094,7 @@ export async function sagIdSagAktørGet<FetcherData>(
  * Add new entity to related SagAktør
  * Tags: Sag, SagAktør
  */
-export async function sagIdSagAktørPost<FetcherData>(
+export async function sagIdSagAktørPost<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -16117,7 +16117,7 @@ export async function sagIdSagAktørPost<FetcherData>(
  * Get entities from related SagDokument
  * Tags: Sag, SagDokument
  */
-export async function sagIdSagDokumentGet<FetcherData>(
+export async function sagIdSagDokumentGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -16190,7 +16190,7 @@ export async function sagIdSagDokumentGet<FetcherData>(
  * Add new entity to related SagDokument
  * Tags: Sag, SagDokument
  */
-export async function sagIdSagDokumentPost<FetcherData>(
+export async function sagIdSagDokumentPost<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -16215,7 +16215,7 @@ export async function sagIdSagDokumentPost<FetcherData>(
  * Get entities from related Sagstrin
  * Tags: Sag, Sagstrin
  */
-export async function sagIdSagstrinGet<FetcherData>(
+export async function sagIdSagstrinGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -16308,7 +16308,7 @@ export async function sagIdSagstrinGet<FetcherData>(
  * Add new entity to related Sagstrin
  * Tags: Sag, Sagstrin
  */
-export async function sagIdSagstrinPost<FetcherData>(
+export async function sagIdSagstrinPost<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -16331,7 +16331,7 @@ export async function sagIdSagstrinPost<FetcherData>(
  * Get related Periode
  * Tags: Sag, Periode
  */
-export async function sagIdPeriodeGet<FetcherData>(
+export async function sagIdPeriodeGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: (
@@ -16363,7 +16363,7 @@ export async function sagIdPeriodeGet<FetcherData>(
  * Get related DeltfraSag
  * Tags: Sag
  */
-export async function sagIdDeltfraSagGet<FetcherData>(
+export async function sagIdDeltfraSagGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: (
@@ -16432,7 +16432,7 @@ export async function sagIdDeltfraSagGet<FetcherData>(
  * Get related FremsatunderSag
  * Tags: Sag
  */
-export async function sagIdFremsatunderSagGet<FetcherData>(
+export async function sagIdFremsatunderSagGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: (
@@ -16501,7 +16501,7 @@ export async function sagIdFremsatunderSagGet<FetcherData>(
  * Get related Sagskategori
  * Tags: Sag, Sagskategori
  */
-export async function sagIdSagskategoriGet<FetcherData>(
+export async function sagIdSagskategoriGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: ('id' | 'kategori' | 'opdateringsdato')[]
@@ -16527,7 +16527,7 @@ export async function sagIdSagskategoriGet<FetcherData>(
  * Get related Sagsstatus
  * Tags: Sag, Sagsstatus
  */
-export async function sagIdSagsstatusGet<FetcherData>(
+export async function sagIdSagsstatusGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: ('id' | 'status' | 'opdateringsdato')[]
@@ -16553,7 +16553,7 @@ export async function sagIdSagsstatusGet<FetcherData>(
  * Get related Sagstype
  * Tags: Sag, Sagstype
  */
-export async function sagIdSagstypeGet<FetcherData>(
+export async function sagIdSagstypeGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: ('id' | 'type' | 'opdateringsdato')[]
@@ -16577,7 +16577,7 @@ export async function sagIdSagstypeGet<FetcherData>(
  * Get entities from SagAktør
  * Tags: SagAktør
  */
-export async function sagAktørGet<FetcherData>(
+export async function sagAktørGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -16643,7 +16643,7 @@ export async function sagAktørGet<FetcherData>(
  * Add new entity to SagAktør
  * Tags: SagAktør
  */
-export async function sagAktørPost<FetcherData>(
+export async function sagAktørPost<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {},
   body: FtDomainModelsSagAktørCreate,
@@ -16664,7 +16664,7 @@ export async function sagAktørPost<FetcherData>(
  * Get entity from SagAktør by key
  * Tags: SagAktør
  */
-export async function sagAktørIdGet<FetcherData>(
+export async function sagAktørIdGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: (
@@ -16694,7 +16694,7 @@ export async function sagAktørIdGet<FetcherData>(
  * Update entity in SagAktør
  * Tags: SagAktør
  */
-export async function sagAktørIdPatch<FetcherData>(
+export async function sagAktørIdPatch<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -16715,7 +16715,7 @@ export async function sagAktørIdPatch<FetcherData>(
  * Delete entity from SagAktør
  * Tags: SagAktør
  */
-export async function sagAktørIdDelete<FetcherData>(
+export async function sagAktørIdDelete<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -16734,7 +16734,7 @@ export async function sagAktørIdDelete<FetcherData>(
  * Get related Aktør
  * Tags: SagAktør, Aktør
  */
-export async function sagAktørIdAktørGet<FetcherData>(
+export async function sagAktørIdAktørGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: (
@@ -16781,7 +16781,7 @@ export async function sagAktørIdAktørGet<FetcherData>(
  * Get related Sag
  * Tags: SagAktør, Sag
  */
-export async function sagAktørIdSagGet<FetcherData>(
+export async function sagAktørIdSagGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: (
@@ -16850,7 +16850,7 @@ export async function sagAktørIdSagGet<FetcherData>(
  * Get related SagAktørRolle
  * Tags: SagAktør, SagAktørRolle
  */
-export async function sagAktørIdSagAktørRolleGet<FetcherData>(
+export async function sagAktørIdSagAktørRolleGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: ('id' | 'rolle' | 'opdateringsdato')[]
@@ -16876,7 +16876,7 @@ export async function sagAktørIdSagAktørRolleGet<FetcherData>(
  * Get entities from SagAktørRolle
  * Tags: SagAktørRolle
  */
-export async function sagAktørRolleGet<FetcherData>(
+export async function sagAktørRolleGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -16932,7 +16932,7 @@ export async function sagAktørRolleGet<FetcherData>(
  * Add new entity to SagAktørRolle
  * Tags: SagAktørRolle
  */
-export async function sagAktørRollePost<FetcherData>(
+export async function sagAktørRollePost<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {},
   body: FtDomainModelsSagAktørRolleCreate,
@@ -16955,7 +16955,7 @@ export async function sagAktørRollePost<FetcherData>(
  * Get entity from SagAktørRolle by key
  * Tags: SagAktørRolle
  */
-export async function sagAktørRolleIdGet<FetcherData>(
+export async function sagAktørRolleIdGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: ('id' | 'rolle' | 'opdateringsdato')[]
@@ -16981,7 +16981,7 @@ export async function sagAktørRolleIdGet<FetcherData>(
  * Update entity in SagAktørRolle
  * Tags: SagAktørRolle
  */
-export async function sagAktørRolleIdPatch<FetcherData>(
+export async function sagAktørRolleIdPatch<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -17002,7 +17002,7 @@ export async function sagAktørRolleIdPatch<FetcherData>(
  * Delete entity from SagAktørRolle
  * Tags: SagAktørRolle
  */
-export async function sagAktørRolleIdDelete<FetcherData>(
+export async function sagAktørRolleIdDelete<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -17021,7 +17021,7 @@ export async function sagAktørRolleIdDelete<FetcherData>(
  * Get entities from related SagAktør
  * Tags: SagAktørRolle, SagAktør
  */
-export async function sagAktørRolleIdSagAktørGet<FetcherData>(
+export async function sagAktørRolleIdSagAktørGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -17088,7 +17088,7 @@ export async function sagAktørRolleIdSagAktørGet<FetcherData>(
  * Add new entity to related SagAktør
  * Tags: SagAktørRolle, SagAktør
  */
-export async function sagAktørRolleIdSagAktørPost<FetcherData>(
+export async function sagAktørRolleIdSagAktørPost<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -17111,7 +17111,7 @@ export async function sagAktørRolleIdSagAktørPost<FetcherData>(
  * Get entities from SagDokument
  * Tags: SagDokument
  */
-export async function sagDokumentGet<FetcherData>(
+export async function sagDokumentGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -17183,7 +17183,7 @@ export async function sagDokumentGet<FetcherData>(
  * Add new entity to SagDokument
  * Tags: SagDokument
  */
-export async function sagDokumentPost<FetcherData>(
+export async function sagDokumentPost<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {},
   body: FtDomainModelsSagDokumentCreate,
@@ -17206,7 +17206,7 @@ export async function sagDokumentPost<FetcherData>(
  * Get entity from SagDokument by key
  * Tags: SagDokument
  */
-export async function sagDokumentIdGet<FetcherData>(
+export async function sagDokumentIdGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: (
@@ -17240,7 +17240,7 @@ export async function sagDokumentIdGet<FetcherData>(
  * Update entity in SagDokument
  * Tags: SagDokument
  */
-export async function sagDokumentIdPatch<FetcherData>(
+export async function sagDokumentIdPatch<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -17261,7 +17261,7 @@ export async function sagDokumentIdPatch<FetcherData>(
  * Delete entity from SagDokument
  * Tags: SagDokument
  */
-export async function sagDokumentIdDelete<FetcherData>(
+export async function sagDokumentIdDelete<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -17280,7 +17280,7 @@ export async function sagDokumentIdDelete<FetcherData>(
  * Get related Dokument
  * Tags: SagDokument, Dokument
  */
-export async function sagDokumentIdDokumentGet<FetcherData>(
+export async function sagDokumentIdDokumentGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: (
@@ -17337,7 +17337,7 @@ export async function sagDokumentIdDokumentGet<FetcherData>(
  * Get related Sag
  * Tags: SagDokument, Sag
  */
-export async function sagDokumentIdSagGet<FetcherData>(
+export async function sagDokumentIdSagGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: (
@@ -17406,7 +17406,7 @@ export async function sagDokumentIdSagGet<FetcherData>(
  * Get related SagDokumentRolle
  * Tags: SagDokument, SagDokumentRolle
  */
-export async function sagDokumentIdSagDokumentRolleGet<FetcherData>(
+export async function sagDokumentIdSagDokumentRolleGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: ('id' | 'rolle' | 'opdateringsdato')[]
@@ -17432,7 +17432,7 @@ export async function sagDokumentIdSagDokumentRolleGet<FetcherData>(
  * Get entities from SagDokumentRolle
  * Tags: SagDokumentRolle
  */
-export async function sagDokumentRolleGet<FetcherData>(
+export async function sagDokumentRolleGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -17488,7 +17488,7 @@ export async function sagDokumentRolleGet<FetcherData>(
  * Add new entity to SagDokumentRolle
  * Tags: SagDokumentRolle
  */
-export async function sagDokumentRollePost<FetcherData>(
+export async function sagDokumentRollePost<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {},
   body: FtDomainModelsSagDokumentRolleCreate,
@@ -17511,7 +17511,7 @@ export async function sagDokumentRollePost<FetcherData>(
  * Get entity from SagDokumentRolle by key
  * Tags: SagDokumentRolle
  */
-export async function sagDokumentRolleIdGet<FetcherData>(
+export async function sagDokumentRolleIdGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: ('id' | 'rolle' | 'opdateringsdato')[]
@@ -17537,7 +17537,7 @@ export async function sagDokumentRolleIdGet<FetcherData>(
  * Update entity in SagDokumentRolle
  * Tags: SagDokumentRolle
  */
-export async function sagDokumentRolleIdPatch<FetcherData>(
+export async function sagDokumentRolleIdPatch<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -17558,7 +17558,7 @@ export async function sagDokumentRolleIdPatch<FetcherData>(
  * Delete entity from SagDokumentRolle
  * Tags: SagDokumentRolle
  */
-export async function sagDokumentRolleIdDelete<FetcherData>(
+export async function sagDokumentRolleIdDelete<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -17577,7 +17577,7 @@ export async function sagDokumentRolleIdDelete<FetcherData>(
  * Get entities from related SagDokument
  * Tags: SagDokumentRolle, SagDokument
  */
-export async function sagDokumentRolleIdSagDokumentGet<FetcherData>(
+export async function sagDokumentRolleIdSagDokumentGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -17650,7 +17650,7 @@ export async function sagDokumentRolleIdSagDokumentGet<FetcherData>(
  * Add new entity to related SagDokument
  * Tags: SagDokumentRolle, SagDokument
  */
-export async function sagDokumentRolleIdSagDokumentPost<FetcherData>(
+export async function sagDokumentRolleIdSagDokumentPost<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -17675,7 +17675,7 @@ export async function sagDokumentRolleIdSagDokumentPost<FetcherData>(
  * Get entities from Sagskategori
  * Tags: Sagskategori
  */
-export async function sagskategoriGet<FetcherData>(
+export async function sagskategoriGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -17731,7 +17731,7 @@ export async function sagskategoriGet<FetcherData>(
  * Add new entity to Sagskategori
  * Tags: Sagskategori
  */
-export async function sagskategoriPost<FetcherData>(
+export async function sagskategoriPost<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {},
   body: FtDomainModelsSagskategoriCreate,
@@ -17754,7 +17754,7 @@ export async function sagskategoriPost<FetcherData>(
  * Get entity from Sagskategori by key
  * Tags: Sagskategori
  */
-export async function sagskategoriIdGet<FetcherData>(
+export async function sagskategoriIdGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: ('id' | 'kategori' | 'opdateringsdato')[]
@@ -17780,7 +17780,7 @@ export async function sagskategoriIdGet<FetcherData>(
  * Update entity in Sagskategori
  * Tags: Sagskategori
  */
-export async function sagskategoriIdPatch<FetcherData>(
+export async function sagskategoriIdPatch<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -17801,7 +17801,7 @@ export async function sagskategoriIdPatch<FetcherData>(
  * Delete entity from Sagskategori
  * Tags: Sagskategori
  */
-export async function sagskategoriIdDelete<FetcherData>(
+export async function sagskategoriIdDelete<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -17820,7 +17820,7 @@ export async function sagskategoriIdDelete<FetcherData>(
  * Get entities from related Sag
  * Tags: Sagskategori, Sag
  */
-export async function sagskategoriIdSagGet<FetcherData>(
+export async function sagskategoriIdSagGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -17970,7 +17970,7 @@ export async function sagskategoriIdSagGet<FetcherData>(
  * Add new entity to related Sag
  * Tags: Sagskategori, Sag
  */
-export async function sagskategoriIdSagPost<FetcherData>(
+export async function sagskategoriIdSagPost<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -17993,7 +17993,7 @@ export async function sagskategoriIdSagPost<FetcherData>(
  * Get entities from Sagsstatus
  * Tags: Sagsstatus
  */
-export async function sagsstatusGet<FetcherData>(
+export async function sagsstatusGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -18049,7 +18049,7 @@ export async function sagsstatusGet<FetcherData>(
  * Add new entity to Sagsstatus
  * Tags: Sagsstatus
  */
-export async function sagsstatusPost<FetcherData>(
+export async function sagsstatusPost<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {},
   body: FtDomainModelsSagsstatusCreate,
@@ -18072,7 +18072,7 @@ export async function sagsstatusPost<FetcherData>(
  * Get entity from Sagsstatus by key
  * Tags: Sagsstatus
  */
-export async function sagsstatusIdGet<FetcherData>(
+export async function sagsstatusIdGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: ('id' | 'status' | 'opdateringsdato')[]
@@ -18098,7 +18098,7 @@ export async function sagsstatusIdGet<FetcherData>(
  * Update entity in Sagsstatus
  * Tags: Sagsstatus
  */
-export async function sagsstatusIdPatch<FetcherData>(
+export async function sagsstatusIdPatch<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -18119,7 +18119,7 @@ export async function sagsstatusIdPatch<FetcherData>(
  * Delete entity from Sagsstatus
  * Tags: Sagsstatus
  */
-export async function sagsstatusIdDelete<FetcherData>(
+export async function sagsstatusIdDelete<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -18138,7 +18138,7 @@ export async function sagsstatusIdDelete<FetcherData>(
  * Get entities from related Sag
  * Tags: Sagsstatus, Sag
  */
-export async function sagsstatusIdSagGet<FetcherData>(
+export async function sagsstatusIdSagGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -18288,7 +18288,7 @@ export async function sagsstatusIdSagGet<FetcherData>(
  * Add new entity to related Sag
  * Tags: Sagsstatus, Sag
  */
-export async function sagsstatusIdSagPost<FetcherData>(
+export async function sagsstatusIdSagPost<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -18311,7 +18311,7 @@ export async function sagsstatusIdSagPost<FetcherData>(
  * Get entities from Sagstrin
  * Tags: Sagstrin
  */
-export async function sagstrinGet<FetcherData>(
+export async function sagstrinGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -18403,7 +18403,7 @@ export async function sagstrinGet<FetcherData>(
  * Add new entity to Sagstrin
  * Tags: Sagstrin
  */
-export async function sagstrinPost<FetcherData>(
+export async function sagstrinPost<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {},
   body: FtDomainModelsSagstrinCreate,
@@ -18424,7 +18424,7 @@ export async function sagstrinPost<FetcherData>(
  * Get entity from Sagstrin by key
  * Tags: Sagstrin
  */
-export async function sagstrinIdGet<FetcherData>(
+export async function sagstrinIdGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: (
@@ -18470,7 +18470,7 @@ export async function sagstrinIdGet<FetcherData>(
  * Update entity in Sagstrin
  * Tags: Sagstrin
  */
-export async function sagstrinIdPatch<FetcherData>(
+export async function sagstrinIdPatch<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -18491,7 +18491,7 @@ export async function sagstrinIdPatch<FetcherData>(
  * Delete entity from Sagstrin
  * Tags: Sagstrin
  */
-export async function sagstrinIdDelete<FetcherData>(
+export async function sagstrinIdDelete<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -18510,7 +18510,7 @@ export async function sagstrinIdDelete<FetcherData>(
  * Get entities from related Afstemning
  * Tags: Sagstrin, Afstemning
  */
-export async function sagstrinIdAfstemningGet<FetcherData>(
+export async function sagstrinIdAfstemningGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -18589,7 +18589,7 @@ export async function sagstrinIdAfstemningGet<FetcherData>(
  * Add new entity to related Afstemning
  * Tags: Sagstrin, Afstemning
  */
-export async function sagstrinIdAfstemningPost<FetcherData>(
+export async function sagstrinIdAfstemningPost<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -18614,7 +18614,7 @@ export async function sagstrinIdAfstemningPost<FetcherData>(
  * Get entities from related Dagsordenspunkt
  * Tags: Sagstrin, Dagsordenspunkt
  */
-export async function sagstrinIdDagsordenspunktGet<FetcherData>(
+export async function sagstrinIdDagsordenspunktGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -18710,7 +18710,7 @@ export async function sagstrinIdDagsordenspunktGet<FetcherData>(
  * Add new entity to related Dagsordenspunkt
  * Tags: Sagstrin, Dagsordenspunkt
  */
-export async function sagstrinIdDagsordenspunktPost<FetcherData>(
+export async function sagstrinIdDagsordenspunktPost<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -18735,7 +18735,7 @@ export async function sagstrinIdDagsordenspunktPost<FetcherData>(
  * Get entities from related SagstrinAktør
  * Tags: Sagstrin, SagstrinAktør
  */
-export async function sagstrinIdSagstrinAktørGet<FetcherData>(
+export async function sagstrinIdSagstrinAktørGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -18802,7 +18802,7 @@ export async function sagstrinIdSagstrinAktørGet<FetcherData>(
  * Add new entity to related SagstrinAktør
  * Tags: Sagstrin, SagstrinAktør
  */
-export async function sagstrinIdSagstrinAktørPost<FetcherData>(
+export async function sagstrinIdSagstrinAktørPost<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -18827,7 +18827,7 @@ export async function sagstrinIdSagstrinAktørPost<FetcherData>(
  * Get entities from related SagstrinDokument
  * Tags: Sagstrin, SagstrinDokument
  */
-export async function sagstrinIdSagstrinDokumentGet<FetcherData>(
+export async function sagstrinIdSagstrinDokumentGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -18886,7 +18886,7 @@ export async function sagstrinIdSagstrinDokumentGet<FetcherData>(
  * Add new entity to related SagstrinDokument
  * Tags: Sagstrin, SagstrinDokument
  */
-export async function sagstrinIdSagstrinDokumentPost<FetcherData>(
+export async function sagstrinIdSagstrinDokumentPost<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -18911,7 +18911,7 @@ export async function sagstrinIdSagstrinDokumentPost<FetcherData>(
  * Get entities from related Sambehandlinger_andetsagstrinid
  * Tags: Sagstrin, Sambehandlinger
  */
-export async function sagstrinIdSambehandlingerAndetsagstrinidGet<FetcherData>(
+export async function sagstrinIdSambehandlingerAndetsagstrinidGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -18975,7 +18975,7 @@ export async function sagstrinIdSambehandlingerAndetsagstrinidGet<FetcherData>(
  * Add new entity to related Sambehandlinger_andetsagstrinid
  * Tags: Sagstrin, Sambehandlinger
  */
-export async function sagstrinIdSambehandlingerAndetsagstrinidPost<FetcherData>(
+export async function sagstrinIdSambehandlingerAndetsagstrinidPost<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -19000,7 +19000,7 @@ export async function sagstrinIdSambehandlingerAndetsagstrinidPost<FetcherData>(
  * Get entities from related Sambehandlinger_førstesagstrinid
  * Tags: Sagstrin, Sambehandlinger
  */
-export async function sagstrinIdSambehandlingerForstesagstrinidGet<FetcherData>(
+export async function sagstrinIdSambehandlingerForstesagstrinidGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -19065,7 +19065,7 @@ export async function sagstrinIdSambehandlingerForstesagstrinidGet<FetcherData>(
  * Tags: Sagstrin, Sambehandlinger
  */
 export async function sagstrinIdSambehandlingerForstesagstrinidPost<
-  FetcherData
+  FetcherData extends r.BaseFetcherData = r.BaseFetcherData
 >(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
@@ -19091,7 +19091,7 @@ export async function sagstrinIdSambehandlingerForstesagstrinidPost<
  * Get related Sag
  * Tags: Sagstrin, Sag
  */
-export async function sagstrinIdSagGet<FetcherData>(
+export async function sagstrinIdSagGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: (
@@ -19160,7 +19160,7 @@ export async function sagstrinIdSagGet<FetcherData>(
  * Get related Sagstrinsstatus
  * Tags: Sagstrin, Sagstrinsstatus
  */
-export async function sagstrinIdSagstrinsstatusGet<FetcherData>(
+export async function sagstrinIdSagstrinsstatusGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: ('id' | 'status' | 'opdateringsdato')[]
@@ -19186,7 +19186,7 @@ export async function sagstrinIdSagstrinsstatusGet<FetcherData>(
  * Get related Sagstrinstype
  * Tags: Sagstrin, Sagstrinstype
  */
-export async function sagstrinIdSagstrinstypeGet<FetcherData>(
+export async function sagstrinIdSagstrinstypeGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: ('id' | 'type' | 'opdateringsdato')[]
@@ -19212,7 +19212,7 @@ export async function sagstrinIdSagstrinstypeGet<FetcherData>(
  * Get entities from SagstrinAktør
  * Tags: SagstrinAktør
  */
-export async function sagstrinAktørGet<FetcherData>(
+export async function sagstrinAktørGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -19278,7 +19278,7 @@ export async function sagstrinAktørGet<FetcherData>(
  * Add new entity to SagstrinAktør
  * Tags: SagstrinAktør
  */
-export async function sagstrinAktørPost<FetcherData>(
+export async function sagstrinAktørPost<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {},
   body: FtDomainModelsSagstrinAktørCreate,
@@ -19301,7 +19301,7 @@ export async function sagstrinAktørPost<FetcherData>(
  * Get entity from SagstrinAktør by key
  * Tags: SagstrinAktør
  */
-export async function sagstrinAktørIdGet<FetcherData>(
+export async function sagstrinAktørIdGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: (
@@ -19333,7 +19333,7 @@ export async function sagstrinAktørIdGet<FetcherData>(
  * Update entity in SagstrinAktør
  * Tags: SagstrinAktør
  */
-export async function sagstrinAktørIdPatch<FetcherData>(
+export async function sagstrinAktørIdPatch<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -19354,7 +19354,7 @@ export async function sagstrinAktørIdPatch<FetcherData>(
  * Delete entity from SagstrinAktør
  * Tags: SagstrinAktør
  */
-export async function sagstrinAktørIdDelete<FetcherData>(
+export async function sagstrinAktørIdDelete<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -19373,7 +19373,7 @@ export async function sagstrinAktørIdDelete<FetcherData>(
  * Get related Aktør
  * Tags: SagstrinAktør, Aktør
  */
-export async function sagstrinAktørIdAktørGet<FetcherData>(
+export async function sagstrinAktørIdAktørGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: (
@@ -19420,7 +19420,7 @@ export async function sagstrinAktørIdAktørGet<FetcherData>(
  * Get related Sagstrin
  * Tags: SagstrinAktør, Sagstrin
  */
-export async function sagstrinAktørIdSagstrinGet<FetcherData>(
+export async function sagstrinAktørIdSagstrinGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: (
@@ -19466,7 +19466,7 @@ export async function sagstrinAktørIdSagstrinGet<FetcherData>(
  * Get related SagstrinAktørRolle
  * Tags: SagstrinAktør, SagstrinAktørRolle
  */
-export async function sagstrinAktørIdSagstrinAktørRolleGet<FetcherData>(
+export async function sagstrinAktørIdSagstrinAktørRolleGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: ('id' | 'rolle' | 'opdateringsdato')[]
@@ -19492,7 +19492,7 @@ export async function sagstrinAktørIdSagstrinAktørRolleGet<FetcherData>(
  * Get entities from SagstrinAktørRolle
  * Tags: SagstrinAktørRolle
  */
-export async function sagstrinAktørRolleGet<FetcherData>(
+export async function sagstrinAktørRolleGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -19548,7 +19548,7 @@ export async function sagstrinAktørRolleGet<FetcherData>(
  * Add new entity to SagstrinAktørRolle
  * Tags: SagstrinAktørRolle
  */
-export async function sagstrinAktørRollePost<FetcherData>(
+export async function sagstrinAktørRollePost<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {},
   body: FtDomainModelsSagstrinAktørRolleCreate,
@@ -19571,7 +19571,7 @@ export async function sagstrinAktørRollePost<FetcherData>(
  * Get entity from SagstrinAktørRolle by key
  * Tags: SagstrinAktørRolle
  */
-export async function sagstrinAktørRolleIdGet<FetcherData>(
+export async function sagstrinAktørRolleIdGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: ('id' | 'rolle' | 'opdateringsdato')[]
@@ -19597,7 +19597,7 @@ export async function sagstrinAktørRolleIdGet<FetcherData>(
  * Update entity in SagstrinAktørRolle
  * Tags: SagstrinAktørRolle
  */
-export async function sagstrinAktørRolleIdPatch<FetcherData>(
+export async function sagstrinAktørRolleIdPatch<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -19618,7 +19618,7 @@ export async function sagstrinAktørRolleIdPatch<FetcherData>(
  * Delete entity from SagstrinAktørRolle
  * Tags: SagstrinAktørRolle
  */
-export async function sagstrinAktørRolleIdDelete<FetcherData>(
+export async function sagstrinAktørRolleIdDelete<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -19637,7 +19637,7 @@ export async function sagstrinAktørRolleIdDelete<FetcherData>(
  * Get entities from related SagstrinAktør
  * Tags: SagstrinAktørRolle, SagstrinAktør
  */
-export async function sagstrinAktørRolleIdSagstrinAktørGet<FetcherData>(
+export async function sagstrinAktørRolleIdSagstrinAktørGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -19704,7 +19704,7 @@ export async function sagstrinAktørRolleIdSagstrinAktørGet<FetcherData>(
  * Add new entity to related SagstrinAktør
  * Tags: SagstrinAktørRolle, SagstrinAktør
  */
-export async function sagstrinAktørRolleIdSagstrinAktørPost<FetcherData>(
+export async function sagstrinAktørRolleIdSagstrinAktørPost<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -19729,7 +19729,7 @@ export async function sagstrinAktørRolleIdSagstrinAktørPost<FetcherData>(
  * Get entities from Sambehandlinger
  * Tags: Sambehandlinger
  */
-export async function sambehandlingerGet<FetcherData>(
+export async function sambehandlingerGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -19792,7 +19792,7 @@ export async function sambehandlingerGet<FetcherData>(
  * Add new entity to Sambehandlinger
  * Tags: Sambehandlinger
  */
-export async function sambehandlingerPost<FetcherData>(
+export async function sambehandlingerPost<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {},
   body: FtDomainModelsSambehandlingerCreate,
@@ -19815,7 +19815,7 @@ export async function sambehandlingerPost<FetcherData>(
  * Get entity from Sambehandlinger by key
  * Tags: Sambehandlinger
  */
-export async function sambehandlingerIdGet<FetcherData>(
+export async function sambehandlingerIdGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: (
@@ -19846,7 +19846,7 @@ export async function sambehandlingerIdGet<FetcherData>(
  * Update entity in Sambehandlinger
  * Tags: Sambehandlinger
  */
-export async function sambehandlingerIdPatch<FetcherData>(
+export async function sambehandlingerIdPatch<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -19867,7 +19867,7 @@ export async function sambehandlingerIdPatch<FetcherData>(
  * Delete entity from Sambehandlinger
  * Tags: Sambehandlinger
  */
-export async function sambehandlingerIdDelete<FetcherData>(
+export async function sambehandlingerIdDelete<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -19886,7 +19886,7 @@ export async function sambehandlingerIdDelete<FetcherData>(
  * Get related AndetSagstrin
  * Tags: Sambehandlinger, Sagstrin
  */
-export async function sambehandlingerIdAndetSagstrinGet<FetcherData>(
+export async function sambehandlingerIdAndetSagstrinGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: (
@@ -19932,7 +19932,7 @@ export async function sambehandlingerIdAndetSagstrinGet<FetcherData>(
  * Get related FørsteSagstrin
  * Tags: Sambehandlinger, Sagstrin
  */
-export async function sambehandlingerIdForsteSagstrinGet<FetcherData>(
+export async function sambehandlingerIdForsteSagstrinGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: (
@@ -19978,7 +19978,7 @@ export async function sambehandlingerIdForsteSagstrinGet<FetcherData>(
  * Get entities from SagstrinDokument
  * Tags: SagstrinDokument
  */
-export async function sagstrinDokumentGet<FetcherData>(
+export async function sagstrinDokumentGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -20036,7 +20036,7 @@ export async function sagstrinDokumentGet<FetcherData>(
  * Add new entity to SagstrinDokument
  * Tags: SagstrinDokument
  */
-export async function sagstrinDokumentPost<FetcherData>(
+export async function sagstrinDokumentPost<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {},
   body: FtDomainModelsSagstrinDokumentCreate,
@@ -20059,7 +20059,7 @@ export async function sagstrinDokumentPost<FetcherData>(
  * Get entity from SagstrinDokument by key
  * Tags: SagstrinDokument
  */
-export async function sagstrinDokumentIdGet<FetcherData>(
+export async function sagstrinDokumentIdGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: ('id' | 'sagstrinid' | 'dokumentid' | 'opdateringsdato')[]
@@ -20085,7 +20085,7 @@ export async function sagstrinDokumentIdGet<FetcherData>(
  * Update entity in SagstrinDokument
  * Tags: SagstrinDokument
  */
-export async function sagstrinDokumentIdPatch<FetcherData>(
+export async function sagstrinDokumentIdPatch<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -20106,7 +20106,7 @@ export async function sagstrinDokumentIdPatch<FetcherData>(
  * Delete entity from SagstrinDokument
  * Tags: SagstrinDokument
  */
-export async function sagstrinDokumentIdDelete<FetcherData>(
+export async function sagstrinDokumentIdDelete<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -20125,7 +20125,7 @@ export async function sagstrinDokumentIdDelete<FetcherData>(
  * Get related Dokument
  * Tags: SagstrinDokument, Dokument
  */
-export async function sagstrinDokumentIdDokumentGet<FetcherData>(
+export async function sagstrinDokumentIdDokumentGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: (
@@ -20182,7 +20182,7 @@ export async function sagstrinDokumentIdDokumentGet<FetcherData>(
  * Get related Sagstrin
  * Tags: SagstrinDokument, Sagstrin
  */
-export async function sagstrinDokumentIdSagstrinGet<FetcherData>(
+export async function sagstrinDokumentIdSagstrinGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: (
@@ -20228,7 +20228,7 @@ export async function sagstrinDokumentIdSagstrinGet<FetcherData>(
  * Get entities from Sagstrinsstatus
  * Tags: Sagstrinsstatus
  */
-export async function sagstrinsstatusGet<FetcherData>(
+export async function sagstrinsstatusGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -20284,7 +20284,7 @@ export async function sagstrinsstatusGet<FetcherData>(
  * Add new entity to Sagstrinsstatus
  * Tags: Sagstrinsstatus
  */
-export async function sagstrinsstatusPost<FetcherData>(
+export async function sagstrinsstatusPost<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {},
   body: FtDomainModelsSagstrinsstatusCreate,
@@ -20307,7 +20307,7 @@ export async function sagstrinsstatusPost<FetcherData>(
  * Get entity from Sagstrinsstatus by key
  * Tags: Sagstrinsstatus
  */
-export async function sagstrinsstatusIdGet<FetcherData>(
+export async function sagstrinsstatusIdGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: ('id' | 'status' | 'opdateringsdato')[]
@@ -20333,7 +20333,7 @@ export async function sagstrinsstatusIdGet<FetcherData>(
  * Update entity in Sagstrinsstatus
  * Tags: Sagstrinsstatus
  */
-export async function sagstrinsstatusIdPatch<FetcherData>(
+export async function sagstrinsstatusIdPatch<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -20354,7 +20354,7 @@ export async function sagstrinsstatusIdPatch<FetcherData>(
  * Delete entity from Sagstrinsstatus
  * Tags: Sagstrinsstatus
  */
-export async function sagstrinsstatusIdDelete<FetcherData>(
+export async function sagstrinsstatusIdDelete<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -20373,7 +20373,7 @@ export async function sagstrinsstatusIdDelete<FetcherData>(
  * Get entities from related Sagstrin
  * Tags: Sagstrinsstatus, Sagstrin
  */
-export async function sagstrinsstatusIdSagstrinGet<FetcherData>(
+export async function sagstrinsstatusIdSagstrinGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -20466,7 +20466,7 @@ export async function sagstrinsstatusIdSagstrinGet<FetcherData>(
  * Add new entity to related Sagstrin
  * Tags: Sagstrinsstatus, Sagstrin
  */
-export async function sagstrinsstatusIdSagstrinPost<FetcherData>(
+export async function sagstrinsstatusIdSagstrinPost<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -20489,7 +20489,7 @@ export async function sagstrinsstatusIdSagstrinPost<FetcherData>(
  * Get entities from Sagstrinstype
  * Tags: Sagstrinstype
  */
-export async function sagstrinstypeGet<FetcherData>(
+export async function sagstrinstypeGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -20545,7 +20545,7 @@ export async function sagstrinstypeGet<FetcherData>(
  * Add new entity to Sagstrinstype
  * Tags: Sagstrinstype
  */
-export async function sagstrinstypePost<FetcherData>(
+export async function sagstrinstypePost<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {},
   body: FtDomainModelsSagstrinstypeCreate,
@@ -20568,7 +20568,7 @@ export async function sagstrinstypePost<FetcherData>(
  * Get entity from Sagstrinstype by key
  * Tags: Sagstrinstype
  */
-export async function sagstrinstypeIdGet<FetcherData>(
+export async function sagstrinstypeIdGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: ('id' | 'type' | 'opdateringsdato')[]
@@ -20594,7 +20594,7 @@ export async function sagstrinstypeIdGet<FetcherData>(
  * Update entity in Sagstrinstype
  * Tags: Sagstrinstype
  */
-export async function sagstrinstypeIdPatch<FetcherData>(
+export async function sagstrinstypeIdPatch<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -20615,7 +20615,7 @@ export async function sagstrinstypeIdPatch<FetcherData>(
  * Delete entity from Sagstrinstype
  * Tags: Sagstrinstype
  */
-export async function sagstrinstypeIdDelete<FetcherData>(
+export async function sagstrinstypeIdDelete<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -20634,7 +20634,7 @@ export async function sagstrinstypeIdDelete<FetcherData>(
  * Get entities from related Sagstrin
  * Tags: Sagstrinstype, Sagstrin
  */
-export async function sagstrinstypeIdSagstrinGet<FetcherData>(
+export async function sagstrinstypeIdSagstrinGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -20727,7 +20727,7 @@ export async function sagstrinstypeIdSagstrinGet<FetcherData>(
  * Add new entity to related Sagstrin
  * Tags: Sagstrinstype, Sagstrin
  */
-export async function sagstrinstypeIdSagstrinPost<FetcherData>(
+export async function sagstrinstypeIdSagstrinPost<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -20750,7 +20750,7 @@ export async function sagstrinstypeIdSagstrinPost<FetcherData>(
  * Get entities from Sagstype
  * Tags: Sagstype
  */
-export async function sagstypeGet<FetcherData>(
+export async function sagstypeGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -20806,7 +20806,7 @@ export async function sagstypeGet<FetcherData>(
  * Add new entity to Sagstype
  * Tags: Sagstype
  */
-export async function sagstypePost<FetcherData>(
+export async function sagstypePost<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {},
   body: FtDomainModelsSagstypeCreate,
@@ -20827,7 +20827,7 @@ export async function sagstypePost<FetcherData>(
  * Get entity from Sagstype by key
  * Tags: Sagstype
  */
-export async function sagstypeIdGet<FetcherData>(
+export async function sagstypeIdGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: ('id' | 'type' | 'opdateringsdato')[]
@@ -20851,7 +20851,7 @@ export async function sagstypeIdGet<FetcherData>(
  * Update entity in Sagstype
  * Tags: Sagstype
  */
-export async function sagstypeIdPatch<FetcherData>(
+export async function sagstypeIdPatch<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -20872,7 +20872,7 @@ export async function sagstypeIdPatch<FetcherData>(
  * Delete entity from Sagstype
  * Tags: Sagstype
  */
-export async function sagstypeIdDelete<FetcherData>(
+export async function sagstypeIdDelete<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -20891,7 +20891,7 @@ export async function sagstypeIdDelete<FetcherData>(
  * Get entities from related Sag
  * Tags: Sagstype, Sag
  */
-export async function sagstypeIdSagGet<FetcherData>(
+export async function sagstypeIdSagGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -21041,7 +21041,7 @@ export async function sagstypeIdSagGet<FetcherData>(
  * Add new entity to related Sag
  * Tags: Sagstype, Sag
  */
-export async function sagstypeIdSagPost<FetcherData>(
+export async function sagstypeIdSagPost<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -21064,7 +21064,7 @@ export async function sagstypeIdSagPost<FetcherData>(
  * Get entities from Stemme
  * Tags: Stemme
  */
-export async function stemmeGet<FetcherData>(
+export async function stemmeGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -21126,7 +21126,7 @@ export async function stemmeGet<FetcherData>(
  * Add new entity to Stemme
  * Tags: Stemme
  */
-export async function stemmePost<FetcherData>(
+export async function stemmePost<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {},
   body: FtDomainModelsStemmeCreate,
@@ -21147,7 +21147,7 @@ export async function stemmePost<FetcherData>(
  * Get entity from Stemme by key
  * Tags: Stemme
  */
-export async function stemmeIdGet<FetcherData>(
+export async function stemmeIdGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: (
@@ -21177,7 +21177,7 @@ export async function stemmeIdGet<FetcherData>(
  * Update entity in Stemme
  * Tags: Stemme
  */
-export async function stemmeIdPatch<FetcherData>(
+export async function stemmeIdPatch<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -21198,7 +21198,7 @@ export async function stemmeIdPatch<FetcherData>(
  * Delete entity from Stemme
  * Tags: Stemme
  */
-export async function stemmeIdDelete<FetcherData>(
+export async function stemmeIdDelete<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -21217,7 +21217,7 @@ export async function stemmeIdDelete<FetcherData>(
  * Get related Afstemning
  * Tags: Stemme, Afstemning
  */
-export async function stemmeIdAfstemningGet<FetcherData>(
+export async function stemmeIdAfstemningGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: (
@@ -21253,7 +21253,7 @@ export async function stemmeIdAfstemningGet<FetcherData>(
  * Get related Aktør
  * Tags: Stemme, Aktør
  */
-export async function stemmeIdAktørGet<FetcherData>(
+export async function stemmeIdAktørGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: (
@@ -21300,7 +21300,7 @@ export async function stemmeIdAktørGet<FetcherData>(
  * Get related Stemmetype
  * Tags: Stemme, Stemmetype
  */
-export async function stemmeIdStemmetypeGet<FetcherData>(
+export async function stemmeIdStemmetypeGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: ('id' | 'type' | 'opdateringsdato')[]
@@ -21326,7 +21326,7 @@ export async function stemmeIdStemmetypeGet<FetcherData>(
  * Get entities from Stemmetype
  * Tags: Stemmetype
  */
-export async function stemmetypeGet<FetcherData>(
+export async function stemmetypeGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -21382,7 +21382,7 @@ export async function stemmetypeGet<FetcherData>(
  * Add new entity to Stemmetype
  * Tags: Stemmetype
  */
-export async function stemmetypePost<FetcherData>(
+export async function stemmetypePost<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {},
   body: FtDomainModelsStemmetypeCreate,
@@ -21405,7 +21405,7 @@ export async function stemmetypePost<FetcherData>(
  * Get entity from Stemmetype by key
  * Tags: Stemmetype
  */
-export async function stemmetypeIdGet<FetcherData>(
+export async function stemmetypeIdGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $select?: ('id' | 'type' | 'opdateringsdato')[]
@@ -21431,7 +21431,7 @@ export async function stemmetypeIdGet<FetcherData>(
  * Update entity in Stemmetype
  * Tags: Stemmetype
  */
-export async function stemmetypeIdPatch<FetcherData>(
+export async function stemmetypeIdPatch<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -21452,7 +21452,7 @@ export async function stemmetypeIdPatch<FetcherData>(
  * Delete entity from Stemmetype
  * Tags: Stemmetype
  */
-export async function stemmetypeIdDelete<FetcherData>(
+export async function stemmetypeIdDelete<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -21471,7 +21471,7 @@ export async function stemmetypeIdDelete<FetcherData>(
  * Get entities from related Stemme
  * Tags: Stemmetype, Stemme
  */
-export async function stemmetypeIdStemmeGet<FetcherData>(
+export async function stemmetypeIdStemmeGet<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     $top?: number
@@ -21534,7 +21534,7 @@ export async function stemmetypeIdStemmeGet<FetcherData>(
  * Add new entity to related Stemme
  * Tags: Stemmetype, Stemme
  */
-export async function stemmetypeIdStemmePost<FetcherData>(
+export async function stemmetypeIdStemmePost<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {
     id: number
@@ -21562,7 +21562,7 @@ export async function stemmetypeIdStemmePost<FetcherData>(
  * that "Try it out" is not supported for this request.*
  * Tags: Batch Requests
  */
-export async function batchPost<FetcherData>(
+export async function batchPost<FetcherData extends r.BaseFetcherData = r.BaseFetcherData>(
   ctx: r.Context<AuthMethods, FetcherData>,
   params: {},
   body: any,

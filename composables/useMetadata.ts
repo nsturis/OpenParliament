@@ -1,6 +1,6 @@
 import { useMetaStore } from '~/stores/meta'
 import { storeToRefs } from 'pinia'
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import type { Periode, Actor, ActorType } from '~/types/actors'
 import type { Sagstype } from '~/types/sag'
 
@@ -63,10 +63,31 @@ export function useMetadata() {
     metaStore.setActors(periodeId, fetchedActors)
   }
 
+  const committees = computed<Actor[]>(() => {
+    const periodeId = currentPeriode.value?.id
+    if (!periodeId || !actors.value[periodeId]) return []
+    return actors.value[periodeId]['Udvalg'] || []
+  })
+
+  const politicians = computed<Actor[]>(() => {
+    const periodeId = currentPeriode.value?.id
+    if (!periodeId || !actors.value[periodeId]) return []
+    return actors.value[periodeId]['Person'] || []
+  })
+
+  const ministries = computed<Actor[]>(() => {
+    const periodeId = currentPeriode.value?.id
+    if (!periodeId || !actors.value[periodeId]) return []
+    return actors.value[periodeId]['Ministerområde'] || []
+  })
+
   return {
     perioder,
     currentPeriode,
     actors,
+    committees,
+    politicians,
+    ministries,
     sagstyper,
     currentSagstype,
     fetchMetadata,

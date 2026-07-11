@@ -4,7 +4,7 @@
     <div v-if="pending">Loading...</div>
     <div v-else-if="error">{{ error }}</div>
     <div v-else class="party-stances">
-      <div v-for="party in data" :key="party.name" class="party-stance">
+      <div v-for="party in data?.partyStances" :key="party.name" class="party-stance">
         <div class="party-name">{{ party.name }}</div>
         <div
           class="stance-bar"

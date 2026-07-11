@@ -7,13 +7,15 @@ import { useSagStore } from '@/stores/sag'
 const route = useRoute()
 const sagStore = useSagStore()
 
+type FileResponse = { id: number; title: string; }[]
+
 const {
   data: content,
   pending,
   error,
-} = useAsyncData(async () => {
+} = useAsyncData<FileResponse>(async () => {
   const id = route.params.id
-  const response = await $fetch(`/api/sag/files/${id}`)
+  const response = await $fetch<FileResponse>(`/api/sag/files/${id}`)
   return response
 })
 
@@ -26,7 +28,7 @@ if (error.value) {
   <div class="container mx-auto py-10">
     <div v-if="pending">Loading ...</div>
     <div v-else>
-      <FilContent :files="content" />
+      <FilContent :files="content || []" />
     </div>
   </div>
 </template>

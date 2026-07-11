@@ -2,7 +2,7 @@ import { sql } from 'drizzle-orm';
 import { db } from '../api/db';
 
 interface Table {
-  id: string;
+  id?: string | number;
 }
 
 export class BaseRepository<T extends Table> {
@@ -26,6 +26,6 @@ export class BaseRepository<T extends Table> {
     const result = await db
       .select({ max: sql`MAX(${this.table.opdateringsdato})` })
       .from(this.table);
-    return result[0]?.max || new Date(0);
+    return (result[0]?.max as Date) || new Date(0);
   }
 }

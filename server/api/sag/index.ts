@@ -65,7 +65,7 @@ export default defineEventHandler(async (event): Promise<SagApiResponse> => {
       })
     }
 
-    return { data: result as SagWithRelations }
+    return { data: result as unknown as SagWithRelations }
   } catch (error) {
     return {
       error:

@@ -2,6 +2,17 @@
 import { useMainStore } from '@/stores/main'
 import { useMetadata } from '~/composables/useMetadata'
 import type { SelectedMention } from '~/types/mentions'
+import type { Sag } from '~/types/sag'
+
+type SagListResponse = {
+  items: Sag[]
+  totalPages: number
+  currentPage: number
+  pageSize: number
+  totalCount: number
+} | {
+  error: string
+}
 
 const mainStore = useMainStore()
 const {
@@ -36,7 +47,7 @@ const asyncKey = computed(() => {
 const { data: sagData, pending: isSagLoading } = useAsyncData(
   asyncKey.value,
   () => {
-    return $fetch('/api/sag/list', {
+    return $fetch<SagListResponse>('/api/sag/list', {
       query: {
         page: pagination.currentPage,
         pageSize: pagination.pageSize,
@@ -55,8 +66,11 @@ const { data: sagData, pending: isSagLoading } = useAsyncData(
       () => pagination.currentPage,
     ],
     transform: (response) => {
-      pagination.totalPages = response.totalPages
-      return response.items
+      if (response && 'items' in response) {
+        pagination.totalPages = response.totalPages
+        return response.items
+      }
+      return []
     },
   },
 )
@@ -78,7 +92,7 @@ const changePage = (newPage: number) => {
 
 // Combine the watchers for both store values
 watch([() => currentSagstype.value, () => currentPeriode.value], ([newSagstype, newPeriode]) => {
-  filters.typeid = newSagstype?.id
+  if (newSagstype?.id) filters.typeid = newSagstype.id
   filters.periodeid = newPeriode?.id
   pagination.currentPage = 1
 })

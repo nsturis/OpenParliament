@@ -102,6 +102,10 @@ services:
 volumes:
   MSSQLDB:
   pgsqldb:
+    # Pinned so every checkout/worktree reuses the same seeded database.
+    # Without this, Compose prefixes the volume with the folder name and a
+    # checkout in a different directory would start from an empty volume.
+    name: podgorica_pgsqldb
 
 networks:
   migration_network:

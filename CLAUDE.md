@@ -205,7 +205,10 @@ bun new:component          # Scaffold new component (hygen)
 
 ## Important Notes
 
-- The `assets` directory is gitignored (contains large scraped PDFs/HTML)
+- The `assets` directory is gitignored (contains large scraped PDFs/HTML). Exception: `assets/data/*.json` (election quiz data) and `assets/css` are tracked.
+- The transcript corpus (`assets/data/meetings`, ~1.1 GB of XML) is untracked. Keep the canonical copy outside git worktrees and symlink it in per worktree (`ln -s <shared>/meetings assets/data/meetings`) so deleting a worktree never deletes the corpus. It is re-downloadable from `ftp://oda.ft.dk/ODAXML/Referat/`.
+- The Postgres volume name is pinned to `podgorica_pgsqldb` in docker-compose.yaml so every checkout/worktree reuses the same seeded database (Compose otherwise prefixes volumes with the folder name and would start empty).
+- `oda.bak` is disposable (`*.bak` is gitignored) — download a fresh nightly copy before re-migrating (`config/download_oda_bak.py`).
 - `.env` is gitignored — must be created manually
 - The PostgreSQL Docker image builds pgvector v0.5.0 from source
 - Embedding dimension is 768 (Danish BERT output size)

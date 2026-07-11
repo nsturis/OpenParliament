@@ -14,6 +14,7 @@ interface ParsingStats {
   totalMeetings: number
   successfulMeetings: number
   failedMeetings: number
+  skippedMeetings: number
   agendaItems: {
     total: number
     successful: number
@@ -39,6 +40,7 @@ async function main() {
     totalMeetings: 0,
     successfulMeetings: 0,
     failedMeetings: 0,
+    skippedMeetings: 0,
     agendaItems: { total: 0, successful: 0, failed: 0, failureExamples: [] },
     sagLookups: { total: 0, successful: 0, failed: 0, failureExamples: [] },
     aktørLookups: { total: 0, successful: 0, failed: 0, failureExamples: [] },

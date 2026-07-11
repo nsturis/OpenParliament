@@ -792,6 +792,12 @@ export const taleSegmentRaw = pgTable('taleSegmentRaw', {
   oratorFornavn: text('oratorFornavn'),
   oratorEfternavn: text('oratorEfternavn'),
   oratorRolle: text('oratorRolle'),
+  // Agenda-item context: ODA dagsordenspunkt (when resolvable), the item
+  // number from the transcript ("5" or "5.1" for sub-items), and the
+  // segment's document order within the meeting
+  dagsordenspunktid: integer('dagsordenspunktid').references(() => dagsordenspunkt.id),
+  itemNo: text('itemNo'),
+  sequence: integer('sequence'),
   opdateringsdato: timestamp('opdateringsdato', { withTimezone: true, mode: 'string' }).notNull(),
   status: text('status').notNull().default('final'),
   confidence: real('confidence'),

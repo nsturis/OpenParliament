@@ -1,13 +1,13 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import logger from '../../utils/logger'
-import { and, eq, isNull, sql } from 'drizzle-orm'
+import { and, eq, inArray, isNull, sql } from 'drizzle-orm'
 import type { X2jOptions } from 'fast-xml-parser'
 import { XMLParser, XMLValidator } from 'fast-xml-parser'
 import { glob } from 'glob'
 import { $fetch } from 'ofetch'
 import { db } from '../utils/db'
-import { aktør, idmap, møde, periode, sag, stemme, taleSegmentChunk, taleSegmentRaw } from '../database/schema'
+import { aktør, dagsordenspunkt, idmap, møde, periode, sag, stemme, taleSegmentChunk, taleSegmentRaw } from '../database/schema'
 import { extractTextContent, xmlAttr, xmlText } from './xmlContent'
 import { isPseudoSpeaker, SpeakerIndex } from './speakerMatching'
 
@@ -28,6 +28,7 @@ const periodeKodeCache = new Map<string, number>()     // kode (where type=samli
 const mødeCache = new Map<string, number>()            // "periodeId|nummer" → id (where typeid=1)
 const mødePeriodeCache = new Map<number, number>()     // møde id → periodeid
 const sagNummerCache = new Map<string, number | undefined>() // "periodeId|nummer" → sag id (memo)
+const dagsordenspunktCache = new Map<string, number>() // "mødeid|nummer" → id (-1 = ambiguous)
 let cachesInitialized = false
 
 // Distinct unmatched speaker names with occurrence counts — the source for
@@ -83,6 +84,16 @@ export async function initCaches(): Promise<void> {
       mødeCache.set(`${m.periodeid}|${m.nummer}`, m.id)
     }
     if (m.periodeid) mødePeriodeCache.set(m.id, m.periodeid)
+  }
+
+  // Agenda items keyed by (mødeid, nummer); duplicate keys resolve to no link
+  const allDagsordenspunkter = await db
+    .select({ id: dagsordenspunkt.id, mødeid: dagsordenspunkt.mødeid, nummer: dagsordenspunkt.nummer })
+    .from(dagsordenspunkt)
+  for (const dp of allDagsordenspunkter) {
+    if (dp.mødeid == null || !dp.nummer) continue
+    const key = `${dp.mødeid}|${dp.nummer}`
+    dagsordenspunktCache.set(key, dagsordenspunktCache.has(key) ? -1 : dp.id)
   }
 
   // Load idmap (tingdokID → aktør id / sag id)
@@ -494,7 +505,15 @@ interface SegmentInsertValue {
   oratorFornavn: string | null
   oratorEfternavn: string | null
   oratorRolle: string | null
+  dagsordenspunktid: number | null
+  itemNo: string | null
+  sequence: number | null
   opdateringsdato: string
+}
+
+interface AgendaContext {
+  itemNo: string | null
+  dagsordenspunktid: number | null
 }
 
 // ── Main parsing functions ──────────────────────────────────────────────
@@ -512,6 +531,7 @@ async function processTaleSegments(
   sagId: number | undefined,
   stats: ParsingStats,
   meetingBuffer?: SegmentInsertValue[],
+  agendaCtx?: AgendaContext,
 ): Promise<Tale[]> {
   const parsedTaler: Tale[] = []
 
@@ -550,6 +570,9 @@ async function processTaleSegments(
             oratorFornavn: fornavn || null,
             oratorEfternavn: efternavn || null,
             oratorRolle: xmlText(speaker.OratorRole ?? '') || null,
+            dagsordenspunktid: agendaCtx?.dagsordenspunktid ?? null,
+            itemNo: agendaCtx?.itemNo ?? null,
+            sequence: null, // assigned in document order after the whole meeting is parsed
             opdateringsdato: new Date().toISOString(),
           })
 
@@ -604,6 +627,8 @@ async function processTaleSegments(
                 oratorFornavn: fornavn || null,
                 oratorEfternavn: efternavn || null,
                 oratorRolle: xmlText(speaker.OratorRole ?? '') || null,
+                dagsordenspunktid: agendaCtx?.dagsordenspunktid ?? null,
+                itemNo: agendaCtx?.itemNo ?? null,
                 opdateringsdato: new Date().toISOString(),
               })
               .returning()
@@ -611,24 +636,34 @@ async function processTaleSegments(
           }
 
           if (!skipEmbeddings) {
+            // Complete = count matches totalChunks; partial sets self-heal
             const existingChunks = await db
-              .select({ id: taleSegmentChunk.id })
+              .select({ id: taleSegmentChunk.id, totalChunks: taleSegmentChunk.totalChunks })
               .from(taleSegmentChunk)
               .where(eq(taleSegmentChunk.taleSegmentId, rawSegmentId))
-              .limit(1)
+            const complete = existingChunks.length > 0 && existingChunks.length === existingChunks[0].totalChunks
 
-            if (existingChunks.length === 0) {
+            if (!complete) {
               const embeddingResponse = await generateEmbedding(rawContent)
-              if (embeddingResponse?.status === 'success') {
-                for (let i = 0; i < embeddingResponse.chunks.length; i++) {
-                  await db.insert(taleSegmentChunk).values({
-                    taleSegmentId: rawSegmentId,
-                    content: embeddingResponse.chunks[i],
-                    embedding: embeddingResponse.embeddings[i],
-                    chunkIndex: i,
-                    totalChunks: embeddingResponse.chunks.length,
-                  })
-                }
+              if (
+                embeddingResponse?.status === 'success'
+                && embeddingResponse.chunks.length === embeddingResponse.embeddings.length
+                && embeddingResponse.chunks.length > 0
+              ) {
+                await db.transaction(async (tx) => {
+                  await tx.delete(taleSegmentChunk).where(eq(taleSegmentChunk.taleSegmentId, rawSegmentId))
+                  await tx.insert(taleSegmentChunk).values(
+                    embeddingResponse.chunks.map((chunk, i) => ({
+                      taleSegmentId: rawSegmentId,
+                      content: chunk,
+                      embedding: embeddingResponse.embeddings[i],
+                      chunkIndex: i,
+                      totalChunks: embeddingResponse.chunks.length,
+                    })),
+                  )
+                })
+              } else if (embeddingResponse) {
+                logger.warn(`Embedding response invalid for segment ${rawSegmentId}: status=${embeddingResponse.status}, chunks=${embeddingResponse.chunks?.length}, embeddings=${embeddingResponse.embeddings?.length}`)
               }
             }
           }
@@ -753,38 +788,45 @@ async function parseSubAgendaItems(
   parentSagId: number | undefined,
   stats: ParsingStats,
   meetingBuffer?: SegmentInsertValue[],
+  parentCtx?: AgendaContext,
 ): Promise<SubItem[]> {
   try {
-    return await Promise.all(
-      subItems.map(async (subItem: RawSubItem) => {
-        const metaSubItem = subItem.MetaFTAgendaSubItem || {}
+    // Sequential so buffered segments keep document order within the item
+    const parsed: SubItem[] = []
+    for (const subItem of subItems) {
+      const metaSubItem = subItem.MetaFTAgendaSubItem || {}
 
-        const newSubItem: SubItem = {
-          // Sub-items carry SubItemNo (ItemNo never occurs on them)
-          ItemNo: String(metaSubItem.SubItemNo ?? metaSubItem.ItemNo ?? ''),
-          FTCaseTingdokID: metaSubItem.FTCase?.['@_tingdokID'] || '',
-          FTCaseNumber: metaSubItem.FTCaseNumber || '',
-          FTCaseType: metaSubItem.FTCaseType || '',
-          ShortTitle: metaSubItem.ShortTitle || '',
-          taler: [],
+      const newSubItem: SubItem = {
+        // Sub-items carry SubItemNo (ItemNo never occurs on them)
+        ItemNo: String(metaSubItem.SubItemNo ?? metaSubItem.ItemNo ?? ''),
+        FTCaseTingdokID: metaSubItem.FTCase?.['@_tingdokID'] || '',
+        FTCaseNumber: metaSubItem.FTCaseNumber || '',
+        FTCaseType: metaSubItem.FTCaseType || '',
+        ShortTitle: metaSubItem.ShortTitle || '',
+        taler: [],
+      }
+
+      const sagId = (metaSubItem.FTCase ? await findSagId(metaSubItem, mødeid, stats) : parentSagId)
+
+      if (subItem.Tale) {
+        const taler = Array.isArray(subItem.Tale) ? subItem.Tale : [subItem.Tale]
+        const subCtx: AgendaContext = {
+          itemNo: [parentCtx?.itemNo, newSubItem.ItemNo].filter(Boolean).join('.') || null,
+          dagsordenspunktid: parentCtx?.dagsordenspunktid ?? null,
         }
+        newSubItem.taler = await processTaleSegments(
+          taler.map((t): RawTale => t as RawTale),
+          mødeid,
+          sagId,
+          stats,
+          meetingBuffer,
+          subCtx,
+        )
+      }
 
-        const sagId = (metaSubItem.FTCase ? await findSagId(metaSubItem, mødeid, stats) : parentSagId)
-
-        if (subItem.Tale) {
-          const taler = Array.isArray(subItem.Tale) ? subItem.Tale : [subItem.Tale]
-          newSubItem.taler = await processTaleSegments(
-            taler.map((t): RawTale => t as RawTale),
-            mødeid,
-            sagId,
-            stats,
-            meetingBuffer,
-          )
-        }
-
-        return newSubItem
-      }),
-    )
+      parsed.push(newSubItem)
+    }
+    return parsed
   } catch (error: unknown) {
     logger.error('Error parsing sub-items:', error)
     return []
@@ -802,6 +844,12 @@ async function parseAgendaItem(
     const metaFTAgendaItem = item.MetaFTAgendaItem || {}
 
     const sagId = await findSagId(metaFTAgendaItem, mødeid, stats)
+    const itemNo = metaFTAgendaItem.ItemNo != null ? String(metaFTAgendaItem.ItemNo) : null
+    const dpId = itemNo ? dagsordenspunktCache.get(`${mødeid}|${itemNo}`) : undefined
+    const agendaCtx: AgendaContext = {
+      itemNo,
+      dagsordenspunktid: dpId && dpId !== -1 ? dpId : null,
+    }
     const agendaItem: AgendaItem = {
       ItemNo: metaFTAgendaItem.ItemNo,
       FTCaseNumber: metaFTAgendaItem.FTCaseNumber,
@@ -827,6 +875,7 @@ async function parseAgendaItem(
             sagId,
             stats,
             meetingBuffer,
+            agendaCtx,
           ))
         }
 
@@ -838,6 +887,7 @@ async function parseAgendaItem(
             sagId,
             stats,
             meetingBuffer,
+            agendaCtx,
           ))
         }
       }
@@ -919,14 +969,17 @@ export async function parseMeetingXML(filePath: string, stats: ParsingStats): Pr
     agendaItems: [],
   }
 
-  // Fast path buffers the whole meeting and writes it in one transaction.
-  const meetingBuffer = cachesInitialized && skipEmbeddings ? [] as SegmentInsertValue[] : undefined
-
   const rawDp = result.Dokument.DagsordenPunkt || []
   const agendaItems = (Array.isArray(rawDp) ? rawDp : [rawDp]) as RawAgendaItem[]
 
+  // Fast path buffers the whole meeting (one buffer per agenda item, so
+  // concurrent parsing can't interleave document order) and writes it in
+  // one transaction.
+  const buffered = cachesInitialized && skipEmbeddings
+  const itemBuffers = buffered ? agendaItems.map(() => [] as SegmentInsertValue[]) : undefined
+
   const parsedAgendaItems = await Promise.allSettled(
-    agendaItems.map((item: RawAgendaItem) => parseAgendaItem(item, mødeid, stats, meetingBuffer)),
+    agendaItems.map((item: RawAgendaItem, i: number) => parseAgendaItem(item, mødeid, stats, itemBuffers?.[i])),
   )
 
   const successfulItems = parsedAgendaItems
@@ -935,11 +988,21 @@ export async function parseMeetingXML(filePath: string, stats: ParsingStats): Pr
 
   meetingData.agendaItems = successfulItems
 
-  if (meetingBuffer) {
+  if (itemBuffers) {
+    const meetingBuffer = itemBuffers.flat()
+    meetingBuffer.forEach((value, i) => { value.sequence = i })
+
     // Delete + insert in one transaction: re-imports (Foreløbig re-releases,
     // parser fixes) are idempotent, and a failure leaves the previous state.
+    // Chunks must go first — they reference the raw segments.
     const BATCH_SIZE = 500
     await db.transaction(async (tx) => {
+      await tx.delete(taleSegmentChunk).where(
+        inArray(
+          taleSegmentChunk.taleSegmentId,
+          tx.select({ id: taleSegmentRaw.id }).from(taleSegmentRaw).where(eq(taleSegmentRaw.mødeid, mødeid)),
+        ),
+      )
       await tx.delete(taleSegmentRaw).where(eq(taleSegmentRaw.mødeid, mødeid))
       for (let i = 0; i < meetingBuffer.length; i += BATCH_SIZE) {
         await tx.insert(taleSegmentRaw).values(meetingBuffer.slice(i, i + BATCH_SIZE))

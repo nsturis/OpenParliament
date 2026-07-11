@@ -4,7 +4,13 @@ from transformers import AutoTokenizer, AutoModel
 import torch
 import uvicorn
 from fastapi.middleware.cors import CORSMiddleware
-from mlx_lm import load, generate
+
+# mlx_lm is only needed for the commented-out Ministral question generation
+# and is unavailable off Apple Silicon — keep it optional
+try:
+    from mlx_lm import load, generate  # noqa: F401
+except ImportError:
+    load = generate = None
 import os
 from typing import List
 import re
@@ -33,10 +39,11 @@ parliamentary_stopwords = {
 }
 danish_stopwords.update(parliamentary_stopwords)
 
-# Load the Danish BERT model
+# Load the Danish BERT model (on Apple-Silicon GPU when available)
 model_name = "Maltehb/danish-bert-botxo"
+device = torch.device("mps" if torch.backends.mps.is_available() else "cpu")
 tokenizer = AutoTokenizer.from_pretrained(model_name)
-model = AutoModel.from_pretrained(model_name)
+model = AutoModel.from_pretrained(model_name).to(device).eval()
 
 
 def preprocess_danish_text(text):
@@ -155,6 +162,7 @@ async def process_document(request: DocumentRequest):
                 max_length=512,
                 padding=True
             )
+            inputs = {k: v.to(device) for k, v in inputs.items()}
             with torch.no_grad():
                 outputs = model(**inputs)
             
@@ -188,6 +196,7 @@ async def get_embedding(request: TextEmbeddingRequest):
             max_length=512,
             padding=True
         )
+        inputs = {k: v.to(device) for k, v in inputs.items()}
         with torch.no_grad():
             outputs = model(**inputs)
 

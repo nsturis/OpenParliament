@@ -1,10 +1,9 @@
 import { db } from './db';
-import { sag } from '../database/schema';
-import { eq } from 'drizzle-orm';
+import { asc, eq } from 'drizzle-orm';
+import { sag, taleSegmentRaw } from '../database/schema';
 import type {
   SagWithRelations,
   SagDetails,
-  SagdokumentWithRelations,
 } from '../../types/sag';
 
 export async function getSagDetails(sagId: number): Promise<SagDetails> {
@@ -29,13 +28,27 @@ export async function getSagDetails(sagId: number): Promise<SagDetails> {
           },
         },
       },
-      taleSegment: true,
     },
   });
 
   if (!result) {
     throw new Error('Sag not found');
   }
+
+  // Speeches live in taleSegmentRaw (imported from the transcripts), not the
+  // legacy empty taleSegment table
+  const taler = await db
+    .select({
+      id: taleSegmentRaw.id,
+      content: taleSegmentRaw.content,
+      mødeid: taleSegmentRaw.mødeid,
+      aktørid: taleSegmentRaw.aktørid,
+      starttid: taleSegmentRaw.starttid,
+    })
+    .from(taleSegmentRaw)
+    .where(eq(taleSegmentRaw.sagid, sagId))
+    .orderBy(asc(taleSegmentRaw.starttid))
+    .limit(50)
 
   return {
     sag: result as unknown as SagWithRelations,
@@ -45,6 +58,6 @@ export async function getSagDetails(sagId: number): Promise<SagDetails> {
       fil: sd.dokument.fil[0]?.titel, // Assuming fil is an array
       content: sd.dokument.fil[0]?.filContent?.[0]?.content, // Assuming filContent is an array
     })) as any,
-    taler: result.taleSegment,
+    taler,
   } as SagDetails;
 }

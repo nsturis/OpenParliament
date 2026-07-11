@@ -24,11 +24,12 @@ export default defineEventHandler(async (event) => {
       oratorFornavn: taleSegmentRaw.oratorFornavn,
       oratorEfternavn: taleSegmentRaw.oratorEfternavn,
       oratorRolle: taleSegmentRaw.oratorRolle,
+      itemNo: taleSegmentRaw.itemNo,
     })
     .from(taleSegmentRaw)
     .leftJoin(aktør, eq(taleSegmentRaw.aktørid, aktør.id))
     .where(eq(taleSegmentRaw.mødeid, mødeid))
-    .orderBy(asc(taleSegmentRaw.starttid), asc(taleSegmentRaw.id))
+    .orderBy(asc(taleSegmentRaw.sequence), asc(taleSegmentRaw.id))
     .limit(pageSize)
     .offset((page - 1) * pageSize)
 

@@ -77,5 +77,21 @@ degraded /live, which needs the live transcription service):
 - **Hygiene**: `db.ts`/`sagDetails.ts` moved to `server/utils/` (no longer crashing public routes), `/api/randomSag` has a handler, `stores/sag.ts` fetch fixed, fil page wired to `/api/sag/documents` with `titel`, `/api/sag` rethrows 404s.
 - **Styling**: dark-mode canvas + content card, global `p{mt-5}` and global `.router-link-active` removed/scoped, `#47c691` anchors → primary scale, pagination buttons → UButton primary, contrast bumps (gray-400 → gray-600 + dark variants), Danish strings sweep, heading hierarchy (one h1 per page), `safelistColors` for dynamic badge colors, dead components deleted (Sidebar, AdvancedSearch, ActorTypeSelector, SagList, SagTimeline).
 
-Still open (needs external services/compute): embedding backfill for vector search + document
-content extraction (LLM service), live transcription service for /live, and the P2 parser items.
+## 7. Open-issues follow-up (2026-07-11, evening)
+
+- **LLM service runs natively** (`cd llm_service && uv run --project .. uvicorn main:app --port 8000`):
+  mlx import made optional, Danish BERT moved to Apple-Silicon MPS (~93 segments/s).
+- **Embedding backfill** (`bun scripts/backfillEmbeddings.ts`): resumable, newest meetings first,
+  validated + transactional chunk writes; HNSW indexes created on `taleSegmentChunk`/`FilContent`.
+  Vector search is live and merged with case-title matches; snippets show original text.
+- **Live transcription service runs natively** (`cd live_transcription_service && uv run uvicorn main:app --port 8001`):
+  faster-whisper falls back to int8 on CPU; /live now shows the clean "ingen live-udsendelse" state.
+- **P2 parser items**: segments now carry `dagsordenspunktid` (22.9% resolvable from ODA),
+  `itemNo` (100%) and `sequence` (document order, gap-free); meeting-replace transaction deletes
+  chunks first (FK-safe for re-imports after embedding); embedding path validates and self-heals;
+  `randomQuestion` speeches now come from `taleSegmentRaw`.
+
+Still open: `/api/randomQuestion` needs the commented-out Ministral-8B `/generate_question`
+endpoint (~5 GB model) — its `RandomQuestion` UI component is also disabled, so intentionally
+deferred. Document content extraction (`FilContent`) needs the scraped PDF/HTML sources, which
+are not present in this workspace.

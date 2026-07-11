@@ -187,6 +187,11 @@ The Nuxt config also proxies `/llm/**` → `http://127.0.0.1:8000/**`.
 
 ```bash
 bun dev                    # Dev server (port 3000)
+# LLM embedding service (port 8000; Danish BERT on MPS):
+#   cd llm_service && uv run --project .. uvicorn main:app --port 8000
+# Live transcription service (port 8001; Whisper + OCR):
+#   cd live_transcription_service && uv run uvicorn main:app --port 8001
+bun scripts/backfillEmbeddings.ts   # Embed taleSegmentRaw → taleSegmentChunk (resumable)
 bun build                  # Production build
 bun test                   # Run Vitest
 bun lint                   # ESLint

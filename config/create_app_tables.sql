@@ -183,6 +183,9 @@ CREATE TABLE public."taleSegmentRaw" (
     "oratorFornavn" text,
     "oratorEfternavn" text,
     "oratorRolle" text,
+    "dagsordenspunktid" integer,
+    "itemNo" text,
+    "sequence" integer,
     opdateringsdato timestamp with time zone NOT NULL,
     status text DEFAULT 'final'::text NOT NULL,
     confidence real
@@ -371,3 +374,7 @@ CREATE TABLE IF NOT EXISTS public."valgtestResult" (
     parties jsonb NOT NULL,
     oprettet timestamp with time zone DEFAULT now() NOT NULL
 );
+
+-- Vector indexes for /api/search's semantic path
+CREATE INDEX IF NOT EXISTS tale_segment_chunk_embedding_idx ON public."taleSegmentChunk" USING hnsw (embedding vector_cosine_ops);
+CREATE INDEX IF NOT EXISTS fil_content_embedding_idx ON public."FilContent" USING hnsw (embedding vector_cosine_ops);

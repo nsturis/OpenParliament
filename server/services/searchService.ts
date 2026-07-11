@@ -1,4 +1,4 @@
-import { sql, cosineDistance, desc, ilike, or } from 'drizzle-orm';
+import { sql, cosineDistance, desc, eq, gt, ilike, or, and } from 'drizzle-orm';
 import { db } from '../utils/db';
 import { filContent, sag, taleSegmentChunk, taleSegmentRaw, aktør } from '../database/schema';
 import { $fetch } from 'ofetch';
@@ -52,31 +52,44 @@ async function vectorSearch(embeddingVector: number[]): Promise<SearchResult[]> 
     .orderBy(desc(similarityfilContent))
     .limit(5);
 
+  // Join the raw segment so results can link to the case/meeting; skip the
+  // tiny procedural chunks ("Mødet er åbnet.") that dominate cosine ranking
   const taleSegmentResults = await db
     .select({
       id: taleSegmentChunk.id,
-      content: taleSegmentChunk.content,
+      // Chunks hold stopword-stripped text (embedding input) — show the
+      // readable original segment instead
+      content: sql<string>`left(${taleSegmentRaw.content}, 300)`,
       similarity: similaritytaleSegment,
-      source: sql<string>`'taleSegmentChunk'`,
+      source: sql<string>`'tale'`,
+      sagid: taleSegmentRaw.sagid,
+      mødeid: taleSegmentRaw.mødeid,
+      taler: aktør.navn,
     })
     .from(taleSegmentChunk)
+    .innerJoin(taleSegmentRaw, eq(taleSegmentChunk.taleSegmentId, taleSegmentRaw.id))
+    .leftJoin(aktør, eq(taleSegmentRaw.aktørid, aktør.id))
+    .where(gt(sql<number>`char_length(${taleSegmentChunk.content})`, 80))
     .orderBy(desc(similaritytaleSegment))
-    .limit(5);
+    .limit(10);
 
-  return [...filContentResults, ...taleSegmentResults]
+  // Dedupe identical passages (procedural phrases repeat across meetings)
+  const seen = new Set<string>();
+  const deduped = taleSegmentResults.filter((r) => {
+    const key = r.content.slice(0, 120);
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+
+  return [...filContentResults, ...deduped]
     .sort((a, b) => b.similarity - a.similarity)
     .slice(0, 10);
 }
 
-/**
- * Danish full-text search over case titles and the raw speech corpus.
- * Serves as the search backend until the embedding backfill has filled
- * taleSegmentChunk/filContent (and as fallback when the LLM service is down).
- * Uses the GIN index tale_segment_raw_fts_idx (see config/create_app_tables.sql).
- */
-async function textSearch(searchQuery: string): Promise<SearchResult[]> {
+/** Cheap, precise case-title matches — included in both search paths. */
+async function sagTitleSearch(searchQuery: string): Promise<SearchResult[]> {
   const pattern = `%${searchQuery}%`;
-
   const sagResults = await db
     .select({
       id: sag.id,
@@ -88,6 +101,17 @@ async function textSearch(searchQuery: string): Promise<SearchResult[]> {
     .where(or(ilike(sag.titel, pattern), ilike(sag.titelkort, pattern), ilike(sag.nummer, pattern)))
     .orderBy(desc(sag.opdateringsdato))
     .limit(5);
+  return sagResults.map((r) => ({ ...r, content: r.content ?? '', similarity: 1 }));
+}
+
+/**
+ * Danish full-text search over case titles and the raw speech corpus.
+ * Serves as the search backend until the embedding backfill has filled
+ * taleSegmentChunk/filContent (and as fallback when the LLM service is down).
+ * Uses the GIN index tale_segment_raw_fts_idx (see config/create_app_tables.sql).
+ */
+async function textSearch(searchQuery: string): Promise<SearchResult[]> {
+  const sagResults = await sagTitleSearch(searchQuery);
 
   const tsQuery = sql`websearch_to_tsquery('danish', ${searchQuery})`;
   const taleResults = await db
@@ -108,7 +132,7 @@ async function textSearch(searchQuery: string): Promise<SearchResult[]> {
     .limit(10);
 
   return [
-    ...sagResults.map((r) => ({ ...r, content: r.content ?? '', similarity: 1 })),
+    ...sagResults,
     ...taleResults.map(({ rank, ...r }) => ({ ...r, similarity: rank })),
   ];
 }
@@ -126,7 +150,13 @@ export async function performSearch(
 
   if (chunkExists) {
     const embedding = await getQueryEmbedding(searchQuery);
-    if (embedding) return vectorSearch(embedding);
+    if (embedding) {
+      const [sagResults, vectorResults] = await Promise.all([
+        sagTitleSearch(searchQuery),
+        vectorSearch(embedding),
+      ]);
+      return [...sagResults, ...vectorResults];
+    }
   }
 
   return textSearch(searchQuery);

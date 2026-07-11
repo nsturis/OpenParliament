@@ -36,11 +36,20 @@ class WhisperEngine:
         from faster_whisper import WhisperModel
 
         logger.info("Loading Whisper model: %s", self.model_size)
-        self._model = WhisperModel(
-            self.model_size,
-            device="auto",
-            compute_type="float16",
-        )
+        try:
+            self._model = WhisperModel(
+                self.model_size,
+                device="auto",
+                compute_type="float16",
+            )
+        except ValueError:
+            # CPU backends (e.g. macOS) don't support efficient float16
+            logger.info("float16 unsupported on this device, falling back to int8")
+            self._model = WhisperModel(
+                self.model_size,
+                device="auto",
+                compute_type="int8",
+            )
         logger.info("Whisper model loaded successfully")
 
     def transcribe(self, audio: np.ndarray, chunk_offset: float = 0.0) -> TranscriptionResult:

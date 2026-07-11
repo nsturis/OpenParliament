@@ -765,10 +765,16 @@ export const taleSegmentRaw = pgTable('taleSegmentRaw', {
   content: text('content').notNull(),
   mødeid: integer('mødeid').notNull().references(() => møde.id),
   starttid: timestamp('starttid', { withTimezone: true, mode: 'string' }).notNull(),
-  sluttid: timestamp('sluttid', { withTimezone: true, mode: 'string' }).notNull(),
+  // The final segment of every meeting transcript has no EndDateTime
+  sluttid: timestamp('sluttid', { withTimezone: true, mode: 'string' }),
   lastModified: timestamp('last_modified', { withTimezone: true, mode: 'string' }),
   sagid: integer('sagid').references(() => sag.id),
-  aktørid: integer('aktørid').notNull().references(() => aktør.id),
+  // NULL when the speaker could not be matched to an Aktør — the orator
+  // fields below preserve the transcript attribution for later healing
+  aktørid: integer('aktørid').references(() => aktør.id),
+  oratorFornavn: text('oratorFornavn'),
+  oratorEfternavn: text('oratorEfternavn'),
+  oratorRolle: text('oratorRolle'),
   opdateringsdato: timestamp('opdateringsdato', { withTimezone: true, mode: 'string' }).notNull(),
   status: text('status').notNull().default('final'),
   confidence: real('confidence'),

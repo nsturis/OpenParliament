@@ -7,44 +7,10 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import { glob } from 'glob'
-import { parseMeetingXML } from '../server/parser/meetingParser'
-import logger from '../utils/logger'
-
-interface ParsingStats {
-  totalMeetings: number
-  successfulMeetings: number
-  failedMeetings: number
-  skippedMeetings: number
-  agendaItems: {
-    total: number
-    successful: number
-    failed: number
-    failureExamples: Array<{ itemNo?: string; error: string }>
-  }
-  sagLookups: {
-    total: number
-    successful: number
-    failed: number
-    failureExamples: Array<{ caseNumber?: string; caseType?: string; error: string }>
-  }
-  aktørLookups: {
-    total: number
-    successful: number
-    failed: number
-    failureExamples: Array<{ name?: string; tingdokID?: string; error: string }>
-  }
-}
+import { newParsingStats, parseMeetingXML } from '../server/parser/meetingParser'
 
 async function main() {
-  const stats: ParsingStats = {
-    totalMeetings: 0,
-    successfulMeetings: 0,
-    failedMeetings: 0,
-    skippedMeetings: 0,
-    agendaItems: { total: 0, successful: 0, failed: 0, failureExamples: [] },
-    sagLookups: { total: 0, successful: 0, failed: 0, failureExamples: [] },
-    aktørLookups: { total: 0, successful: 0, failed: 0, failureExamples: [] },
-  }
+  const stats = newParsingStats()
 
   const directory = 'assets/data/meetings'
   const sessions = ['20221', '20222']

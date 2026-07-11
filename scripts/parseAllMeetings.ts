@@ -3,47 +3,27 @@
  * Optimized with: in-memory caches, batch inserts, concurrent processing,
  * skip-already-imported meetings.
  *
- * Usage: bun run scripts/parseAllMeetings.ts
+ * Usage: bun run scripts/parseAllMeetings.ts [--force]
+ *   --force  re-import meetings that already have segments (each meeting is
+ *            replaced atomically, so this is safe for Foreløbig re-releases)
  */
 
 import fs from 'node:fs'
 import path from 'node:path'
 import { glob } from 'glob'
-import { setDbLogging } from '../server/api/db'
+import { db, setDbLogging } from '../server/api/db'
 import {
+  getUnmatchedSpeakerCounts,
   initCaches,
   loadImportedMødeIds,
+  newParsingStats,
   parseMeetingXML,
   resolveFileToMødeId,
   setSkipEmbeddings,
 } from '../server/parser/meetingParser'
+import { taleSegmentRaw } from '../server/database/schema'
 
 const CONCURRENCY = 5
-
-interface ParsingStats {
-  totalMeetings: number
-  successfulMeetings: number
-  failedMeetings: number
-  skippedMeetings: number
-  agendaItems: {
-    total: number
-    successful: number
-    failed: number
-    failureExamples: Array<{ itemNo?: string; error: string }>
-  }
-  sagLookups: {
-    total: number
-    successful: number
-    failed: number
-    failureExamples: Array<{ caseNumber?: string; caseType?: string; error: string }>
-  }
-  aktørLookups: {
-    total: number
-    successful: number
-    failed: number
-    failureExamples: Array<{ name?: string; tingdokID?: string; error: string }>
-  }
-}
 
 async function pLimit(concurrency: number, tasks: (() => Promise<void>)[]): Promise<void> {
   let i = 0
@@ -57,28 +37,30 @@ async function pLimit(concurrency: number, tasks: (() => Promise<void>)[]): Prom
 }
 
 async function main() {
+  const force = process.argv.includes('--force')
+
   // Disable Drizzle query logging for batch import
   setDbLogging(false)
 
   // Skip embeddings — we just want the transcript data in the DB
   setSkipEmbeddings(true)
 
+  // Fail fast when the app tables are missing (pgloader re-seed drops them)
+  try {
+    await db.select({ id: taleSegmentRaw.id }).from(taleSegmentRaw).limit(1)
+  } catch {
+    console.error('Table "taleSegmentRaw" is missing — apply config/create_app_tables.sql after re-seeding the database.')
+    process.exit(1)
+  }
+
   // Load in-memory caches (aktør, periode, møde)
   await initCaches()
 
   // Load set of already-imported mødeids (one query)
-  const importedMødeIds = await loadImportedMødeIds()
-  console.log(`Already imported: ${importedMødeIds.size} meetings\n`)
+  const importedMødeIds = force ? new Set<number>() : await loadImportedMødeIds()
+  console.log(force ? 'Force mode: re-importing everything\n' : `Already imported: ${importedMødeIds.size} meetings\n`)
 
-  const stats: ParsingStats = {
-    totalMeetings: 0,
-    successfulMeetings: 0,
-    failedMeetings: 0,
-    skippedMeetings: 0,
-    agendaItems: { total: 0, successful: 0, failed: 0, failureExamples: [] },
-    sagLookups: { total: 0, successful: 0, failed: 0, failureExamples: [] },
-    aktørLookups: { total: 0, successful: 0, failed: 0, failureExamples: [] },
-  }
+  const stats = newParsingStats()
 
   const directory = 'assets/data/meetings'
 
@@ -141,13 +123,16 @@ async function main() {
   console.log(`Duration: ${duration}s`)
   console.log(`Meetings: ${stats.successfulMeetings} ok, ${stats.skippedMeetings} skipped, ${stats.failedMeetings} failed (${stats.totalMeetings} total)`)
   console.log(`Agenda items: ${stats.agendaItems.successful}/${stats.agendaItems.total} successful`)
-  console.log(`Sag lookups: ${stats.sagLookups.successful}/${stats.sagLookups.total} successful`)
-  console.log(`Aktør lookups: ${stats.aktørLookups.successful}/${stats.aktørLookups.total} successful`)
+  console.log(`Tale errors: ${stats.taleErrors.count}`)
+  console.log(`Meeting events (MødeSlut/Pause) skipped: ${stats.meetingEvents}`)
+  console.log(`Sag lookups: ${stats.sagLookups.successful}/${stats.sagLookups.total} successful, ${stats.sagLookups.ambiguous} ambiguous, ${stats.sagLookups.skipped} skipped (no case ref)`)
+  console.log(`Aktør lookups: ${stats.aktørLookups.successful}/${stats.aktørLookups.total} successful, ${stats.aktørLookups.ambiguous} ambiguous, ${stats.aktørLookups.failed} unmatched (persisted with NULL aktørid)`)
 
-  if (stats.aktørLookups.failureExamples.length > 0) {
-    console.log('\nSample Aktør lookup failures:')
-    for (const ex of stats.aktørLookups.failureExamples.slice(0, 10)) {
-      console.log(`  ${ex.name} (tingdokID: ${ex.tingdokID}): ${ex.error}`)
+  const unmatched = [...getUnmatchedSpeakerCounts().entries()].sort((a, b) => b[1] - a[1])
+  if (unmatched.length > 0) {
+    console.log(`\nUnmatched speakers (${unmatched.length} distinct — alias candidates for speakerMatching.ts):`)
+    for (const [name, count] of unmatched.slice(0, 20)) {
+      console.log(`  ${count}\t${name}`)
     }
   }
   if (stats.sagLookups.failureExamples.length > 0) {

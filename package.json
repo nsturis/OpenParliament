@@ -69,6 +69,7 @@
     "glob": "^11.0.0",
     "hygen": "^6.2.11",
     "jsdom": "^25.0.1",
+    "mssql": "^12.2.0",
     "multiprocessing": "^1.2.0",
     "node-fetch": "^3.3.2",
     "node-html-parser": "^6.1.13",

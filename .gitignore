@@ -11,6 +11,8 @@ prisma/db*
 .DS_Store
 oda.sql
 backup/
+.venv
+__pycache__
 
 *.bak
 assets

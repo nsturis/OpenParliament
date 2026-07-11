@@ -70,6 +70,7 @@ const mainStore = useMainStore()
 
 const navigation = [
   { name: 'Om Parlamentet.dk', href: '/' },
+  { name: 'Live', href: '/live' },
   { name: 'Valgtest', href: '/folketingsvalg-2022-valgtest' },
   { name: 'Ugeplan', href: '/agenda' },
   { name: 'Sager', href: '/sager' },

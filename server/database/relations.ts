@@ -45,6 +45,8 @@ import {
   stemmetype,
   taleSegment,
   filContent,
+  liveSession,
+  liveSpeakerDetection,
 } from './schema'
 
 export const afstemningRelations = relations(afstemning, ({ one }) => ({
@@ -197,6 +199,7 @@ export const mødeRelations = relations(møde, ({ one, many }) => ({
   dagsordenspunkt: many(dagsordenspunkt),
   mødeAktør: many(mødeAktør),
   taleSegment: many(taleSegment),
+  liveSession: many(liveSession),
 }))
 
 export const sagRelations = relations(sag, ({ one, many }) => ({
@@ -546,5 +549,24 @@ export const filContentRelations = relations(filContent, ({ one }) => ({
   fil: one(fil, {
     fields: [filContent.filId],
     references: [fil.id],
+  }),
+}))
+
+export const liveSessionRelations = relations(liveSession, ({ one, many }) => ({
+  møde: one(møde, {
+    fields: [liveSession.mødeid],
+    references: [møde.id],
+  }),
+  speakerDetections: many(liveSpeakerDetection),
+}))
+
+export const liveSpeakerDetectionRelations = relations(liveSpeakerDetection, ({ one }) => ({
+  liveSession: one(liveSession, {
+    fields: [liveSpeakerDetection.liveSessionId],
+    references: [liveSession.id],
+  }),
+  aktør: one(aktør, {
+    fields: [liveSpeakerDetection.aktørid],
+    references: [aktør.id],
   }),
 }))

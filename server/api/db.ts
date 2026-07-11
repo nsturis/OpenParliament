@@ -7,10 +7,18 @@ import * as relations from '../database/relations'
 import { sql } from 'drizzle-orm'
 const { Pool } = pkg
 
-// Custom Drizzle logger using consola
+// Custom Drizzle logger using consola (disable with DB_LOG=false)
+let dbLogging = process.env.DB_LOG !== 'false'
+
+export function setDbLogging(enabled: boolean) {
+  dbLogging = enabled
+}
+
 class CustomLogger implements Logger {
   logQuery(query: string, params: unknown[]): void {
-    consola.info(`Drizzle Query: ${query} - Params: ${JSON.stringify(params)}`)
+    if (dbLogging) {
+      consola.info(`Drizzle Query: ${query} - Params: ${JSON.stringify(params)}`)
+    }
   }
 }
 

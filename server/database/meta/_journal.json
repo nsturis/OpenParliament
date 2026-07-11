@@ -120,6 +120,13 @@
       "when": 1737973099878,
       "tag": "0016_icy_zodiak",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1770387315362,
+      "tag": "0017_goofy_yellowjacket",
+      "breakpoints": true
     }
   ]
 }

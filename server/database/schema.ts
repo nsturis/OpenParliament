@@ -6,6 +6,7 @@ import {
   uuid,
   boolean,
   smallint,
+  real,
   index,
   uniqueIndex,
   primaryKey,
@@ -769,6 +770,8 @@ export const taleSegmentRaw = pgTable('taleSegmentRaw', {
   sagid: integer('sagid').references(() => sag.id),
   aktørid: integer('aktørid').notNull().references(() => aktør.id),
   opdateringsdato: timestamp('opdateringsdato', { withTimezone: true, mode: 'string' }).notNull(),
+  status: text('status').notNull().default('final'),
+  confidence: real('confidence'),
 })
 
 export const taleSegmentChunk = pgTable(
@@ -828,8 +831,28 @@ export const documentContent = pgTable('DocumentContent', {
   documentId: integer('document_id').notNull(),
   rawContent: text('raw_content').notNull(),
   documentType: text('document_type').notNull(), // 'file' or 'speech'
-  extractedAt: timestamp('extracted_at', { 
+  extractedAt: timestamp('extracted_at', {
     withTimezone: true,
-    mode: 'string' 
+    mode: 'string'
   }).notNull().defaultNow(),
+})
+
+export const liveSession = pgTable('liveSession', {
+  id: bigserial('id', { mode: 'number' }).primaryKey().notNull(),
+  mødeid: integer('mødeid').references(() => møde.id),
+  startedAt: timestamp('started_at', { withTimezone: true, mode: 'string' }).notNull(),
+  endedAt: timestamp('ended_at', { withTimezone: true, mode: 'string' }),
+  status: text('status').notNull().default('active'),
+  streamUrl: text('stream_url').notNull(),
+  reconciliationStatus: text('reconciliation_status'),
+  opdateringsdato: timestamp('opdateringsdato', { withTimezone: true, mode: 'string' }).notNull(),
+})
+
+export const liveSpeakerDetection = pgTable('liveSpeakerDetection', {
+  id: bigserial('id', { mode: 'number' }).primaryKey().notNull(),
+  liveSessionId: integer('live_session_id').notNull().references(() => liveSession.id),
+  aktørid: integer('aktørid').references(() => aktør.id),
+  detectedName: text('detected_name').notNull(),
+  detectedAt: timestamp('detected_at', { withTimezone: true, mode: 'string' }).notNull(),
+  confidence: real('confidence'),
 })

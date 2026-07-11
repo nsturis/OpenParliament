@@ -47,8 +47,10 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     llmServiceUrl: process.env.LLM_SERVICE_URL || 'http://127.0.0.1:8000',
+    liveTranscriptionUrl: process.env.LIVE_TRANSCRIPTION_URL || 'http://127.0.0.1:8001',
     public: {
       llmServiceUrl: process.env.LLM_SERVICE_URL || 'http://127.0.0.1:8000',
+      liveWsUrl: process.env.LIVE_WS_URL || 'ws://127.0.0.1:8001/ws/live',
     },
   },
 
@@ -56,6 +58,11 @@ export default defineNuxtConfig({
     '/llm/**': {
       proxy: {
         to: 'http://127.0.0.1:8000/**',
+      },
+    },
+    '/live-api/**': {
+      proxy: {
+        to: 'http://127.0.0.1:8001/api/**',
       },
     },
   },

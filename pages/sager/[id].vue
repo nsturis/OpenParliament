@@ -1,144 +1,149 @@
 <script setup lang="ts">
 import type { SagWithRelations, SagApiResponse } from '~/types/sag'
+import { TERMINAL_STATUS_IDS } from '~/components/Sag/ProcessStepper.vue'
 
 const route = useRoute()
-const { id } = route.params
+const sagId = Number(route.params.id)
 
-const { data: sagData} = await useFetch<SagApiResponse>('/api/sag', {
-  params: { id: Number(id) },
-})
-
-// Type guard to check if the result is a successful response
-const isSuccessResponse = (data: SagApiResponse): data is { data: SagWithRelations } => {
-  return 'data' in data
-}
-
-// Computed property to handle the result
-const sag = computed<SagWithRelations | null>(() => {
-  if (sagData.value && isSuccessResponse(sagData.value)) {
-    return sagData.value.data
-  }
-  return null
-})
-
-const sagErrorMessage = computed(() => {
-  if (sagData.value && 'error' in sagData.value) {
-    return sagData.value.error
-  }
-  return null
-})
-
-const { documents, isLoading, error, fetchDocuments } = useSagDocuments(
-  Number(id)
+const { data: sagData, error: fetchError } = await useFetch<SagApiResponse>(
+  '/api/sag',
+  { params: { id: sagId } },
 )
 
-const { aktører, isLoading: isLoadingAktører, error: aktørError } = useAktorer({ sagId: Number(id) })
+const sag = computed<SagWithRelations | null>(() => {
+  if (sagData.value && 'data' in sagData.value) return sagData.value.data
+  return null
+})
 
-// Fetch documents when the component is mounted
+const sagFejl = computed(() => {
+  if (fetchError.value) return 'Sagen kunne ikke hentes.'
+  if (sagData.value && 'error' in sagData.value) return sagData.value.error
+  return null
+})
+
+// Header + document title
+const mainStore = useMainStore()
+watchEffect(() => {
+  if (sag.value) {
+    mainStore.updateHeaderTitle(sag.value.titelkort || sag.value.titel)
+  }
+})
+useHead({
+  title: computed(() =>
+    sag.value ? sag.value.titelkort || sag.value.titel : 'Sag',
+  ),
+})
+
+// Aktører for the widget: /api/sag already carries sagAktør with roles
+const aktører = computed(
+  () =>
+    sag.value?.sagAktør.map((sa) => ({
+      id: sa.aktør.id,
+      navn: sa.aktør.navn ?? 'Ukendt',
+      rolle: sa.sagAktørRolle?.rolle ?? null,
+    })) ?? [],
+)
+
+// Documents gate only their own widget; the widget renders titles/links only,
+// so the English placeholder content ('Content not available') never renders.
+const {
+  documents,
+  isLoading: isLoadingDokumenter,
+  error: dokumentFejl,
+  fetchDocuments,
+} = useSagDocuments(sagId)
+
 onMounted(() => {
   fetchDocuments()
 })
 
-// Fetch sagsstatus data
-const { data: sagsstatusData } = await useFetch('/api/sagsstatus')
-const statusMap = ref<Record<number, string>>({});
-
-// Create a map of status IDs to status text
-if (sagsstatusData.value) {
-  statusMap.value = sagsstatusData.value.reduce((acc: Record<number, string>, status: { id: number; status: string }) => {
-    acc[status.id] = status.status
-    return acc
-  }, {})
-}
-
-const getStatusText = (statusId: number) => {
-  return statusMap.value[statusId] || 'Ukendt'
-}
+const dokumenter = computed(() =>
+  documents.value.map((dok) => ({
+    id: dok.id,
+    titel: dok.titel,
+    filurl: dok.filurl ?? null,
+    format: dok.format ?? null,
+  })),
+)
 </script>
 
 <template>
   <div class="container mx-auto py-10">
-    <div v-if="isLoading">Indlæser …</div>
-    <div v-else-if="sagErrorMessage">Fejl: {{ sagErrorMessage }}</div>
-    <div v-else-if="sag">
-      <h2 class="mb-4 text-2xl font-bold">{{ sag.titel }}</h2>
-      <p class="mb-2"><strong>Kort titel:</strong> {{ sag.titelkort }}</p>
-      <p class="mb-2"><strong>Nummer:</strong> {{ sag.nummer }}</p>
-      <p class="mb-2">
-        <strong>Status:</strong> {{ getStatusText(sag.statusid) }}
-      </p>
-      <p class="mb-2">
-        <strong>Offentlighedskode:</strong> {{ sag.offentlighedskode }}
-      </p>
-      <p class="mb-2"><strong>Resume:</strong> {{ sag.resume }}</p>
-      <p class="mb-2">
-        <strong>Opdateringsdato:</strong>
-        {{ new Date(sag.opdateringsdato).toLocaleDateString() }}
-      </p>
+    <div v-if="sagFejl" class="text-red-600 dark:text-red-400">
+      {{ sagFejl }}
+    </div>
+    <div v-else-if="sag" class="space-y-6">
+      <SagHero :sag="sag" />
 
-      <h3 class="mb-4 mt-6 text-xl font-semibold">Sagstrin</h3>
-      <div v-if="sag.sagstrin && sag.sagstrin.length > 0">
-        <ul>
-          <li v-for="sagstrin in sag.sagstrin" :key="sagstrin.id" class="mb-4">
-            <strong>{{ sagstrin.titel }}</strong>
-            <p>Dato: {{ new Date(sagstrin.dato?.toString() ?? '').toLocaleDateString() }}</p>
-            <p>Type ID: {{ sagstrin.typeid }}</p>
-            <div
-              v-if="sagstrin.sagstrinAktør && sagstrin.sagstrinAktør.length > 0"
-            >
-              <p class="font-semibold">Aktører:</p>
-              <ul class="ml-4">
-                <li v-for="aktør in sagstrin.sagstrinAktør" :key="aktør.aktør.id">
-                  {{ aktør.aktør.navn }} ({{ aktør.sagstrinAktørRolle.rolle }})
-                </li>
-              </ul>
-            </div>
-          </li>
-        </ul>
+      <SagProcessStepper
+        v-if="sag.sagstrin.length"
+        :sagstrin="sag.sagstrin"
+        :terminal="TERMINAL_STATUS_IDS.has(sag.statusid)"
+      />
+
+      <nav
+        class="sticky top-0 z-10 flex gap-4 border-b border-gray-200 bg-white/90 py-2 text-sm font-medium backdrop-blur dark:border-gray-700 dark:bg-gray-900/90"
+        aria-label="Sektioner"
+      >
+        <a
+          href="#overblik"
+          class="text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white"
+        >
+          Overblik
+        </a>
+        <a
+          v-if="sag.resume"
+          href="#resume"
+          class="text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white"
+        >
+          Resumé
+        </a>
+        <a
+          href="#forhandling"
+          class="text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white"
+        >
+          Forhandling
+        </a>
+      </nav>
+
+      <!-- [&>*]:min-w-0: grid items default to min-width auto, so a widget's
+           min-content (e.g. a truncated preview line) would widen the track
+           beyond the viewport on mobile -->
+      <div
+        id="overblik"
+        class="grid scroll-mt-14 gap-4 sm:grid-cols-2 [&>*]:min-w-0"
+      >
+        <SagVotingWidget :sag-id="sagId" />
+        <SagKeyFactsWidget :sag="sag" />
+        <SagActorsWidget v-if="aktører.length" :aktører="aktører" />
+        <USkeleton
+          v-if="isLoadingDokumenter"
+          class="h-24 w-full rounded-lg"
+        />
+        <p
+          v-else-if="dokumentFejl"
+          class="text-sm text-gray-500 dark:text-gray-400"
+        >
+          Dokumenterne kunne ikke hentes.
+        </p>
+        <SagDocumentsWidget
+          v-else-if="dokumenter.length"
+          :documents="dokumenter"
+          :sag-id="sagId"
+        />
       </div>
-      <div v-else>Ingen sagstrin tilgængelige</div>
 
-      <SagTranscript :sag-id="Number(id)" />
+      <section v-if="sag.resume" id="resume" class="scroll-mt-14">
+        <h3 class="mb-2 text-xl font-semibold">Resumé</h3>
+        <p class="whitespace-pre-line text-gray-700 dark:text-gray-300">
+          {{ sag.resume }}
+        </p>
+      </section>
 
-      <h3 class="mb-4 mt-6 text-xl font-semibold">Dokumenter</h3>
-      <div v-if="isLoading">Indlæser dokumenter …</div>
-      <div v-else-if="error">{{ error }}</div>
-      <div v-else-if="documents.length > 0">
-        <ul>
-          <li v-for="doc in documents" :key="doc.id" class="mb-4">
-            <strong>{{ doc.titel }}</strong>
-            <p>Format: {{ doc.format }}</p>
-            <!-- <PdfViewer :pdf-url="doc.filurl" :button-text="doc.titel" /> -->
-            <div v-if="doc.content" class="mt-2">
-              <p class="font-semibold">Uddrag:</p>
-              <p class="whitespace-pre-wrap">
-                {{ doc.content.substring(0, 200) }}...
-              </p>
-            </div>
-            <p v-if="doc.error" class="text-red-500">{{ doc.error }}</p>
-          </li>
-        </ul>
-        <NuxtLink
-          :to="`/sager/fil/${sag.id}`"
-          class="text-primary-600 hover:text-primary-800 dark:text-primary-400">
-          Se alle dokumenter
-        </NuxtLink>
-      </div>
-      <div v-else>Ingen dokumenter tilgængelige</div>
-
-      <h3 class="mb-4 mt-6 text-xl font-semibold">Aktører</h3>
-      <div v-if="isLoadingAktører">Indlæser aktører …</div>
-      <div v-else-if="aktørError">{{ aktørError }}</div>
-      <div v-else-if="aktører.length > 0">
-        <ul>
-          <li v-for="aktør in aktører" :key="aktør.id" class="mb-4">
-            <strong>{{ aktør.navn }}</strong>
-          </li>
-        </ul>
-      </div>
-      <div v-else>Ingen aktører tilgængelige</div>
+      <section id="forhandling" class="scroll-mt-14">
+        <SagTranscript :sag-id="sagId" />
+      </section>
     </div>
     <div v-else>Ingen data tilgængelig</div>
-    <!-- <PartyStanceVisualization /> -->
   </div>
 </template>

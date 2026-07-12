@@ -10,10 +10,15 @@ interface Segment {
   rolle: string | null
 }
 
-const props = defineProps<{
-  segment: Segment
-  parti: string | null
-}>()
+const props = withDefaults(
+  defineProps<{
+    segment: Segment
+    parti: { navn: string; id: number | null } | null
+    dimmed?: boolean
+    aktørLink?: boolean
+  }>(),
+  { dimmed: false, aktørLink: true },
+)
 
 const time = computed(() => {
   const date = new Date(props.segment.starttid)
@@ -42,10 +47,23 @@ const contentHtml = computed(() => {
 </script>
 
 <template>
-  <article class="rounded-md border border-gray-200 bg-white p-3 dark:border-gray-700 dark:bg-gray-800">
+  <article
+    class="rounded-md border border-gray-200 bg-white p-3 dark:border-gray-700 dark:bg-gray-800"
+    :class="dimmed ? 'opacity-50' : ''"
+  >
     <header class="mb-1 flex flex-wrap items-baseline gap-x-2 gap-y-1">
-      <span class="font-semibold">{{ segment.navn }}</span>
-      <UBadge v-if="parti" color="primary" variant="soft" size="xs">{{ parti }}</UBadge>
+      <NuxtLink
+        v-if="aktørLink && segment.aktørid !== null"
+        :to="`/aktoerer/${segment.aktørid}`"
+        class="font-semibold text-primary-600 hover:text-primary-800 dark:text-primary-400"
+      >
+        {{ segment.navn }}
+      </NuxtLink>
+      <span v-else class="font-semibold">{{ segment.navn }}</span>
+      <NuxtLink v-if="parti && parti.id !== null" :to="`/aktoerer/${parti.id}`">
+        <UBadge color="primary" variant="soft" size="xs">{{ parti.navn }}</UBadge>
+      </NuxtLink>
+      <UBadge v-else-if="parti" color="primary" variant="soft" size="xs">{{ parti.navn }}</UBadge>
       <UBadge v-if="roleBadge" :color="roleBadge.color" variant="subtle" size="xs">
         {{ roleBadge.label }}
       </UBadge>

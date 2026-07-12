@@ -4,7 +4,15 @@ interface Speaker {
   navn: string
   rolle: string | null
   parti: string | null
+  partiid: number | null
   count: number
+}
+
+interface IndexEntry {
+  id: number
+  sequence: number
+  aktørid: number | null
+  match: boolean
 }
 
 interface Segment {
@@ -24,6 +32,7 @@ interface Meeting {
   label: string | null
   totalSegments: number
   matchingSegments: number
+  index: IndexEntry[]
   segments: Segment[]
 }
 
@@ -31,6 +40,19 @@ interface TranscriptResponse {
   speakers: Speaker[]
   meetings: Meeting[]
 }
+
+type GapEntry = {
+  kind: 'gap'
+  fra: number
+  til: number
+  count: number
+  harMatch: boolean
+  loading: boolean
+}
+
+type DisplayEntry =
+  | { kind: 'segment'; entry: IndexEntry; segment: Segment | null; dimmed: boolean }
+  | GapEntry
 
 const props = defineProps<{ sagId: number }>()
 
@@ -48,13 +70,19 @@ const debouncedSearch = refDebounced(searchText, 400)
 const data = ref<TranscriptResponse | null>(null)
 const pending = ref(true)
 const error = ref<string | null>(null)
-// Continuation segments appended per meeting via "Vis flere"
-const extraSegments = ref<Record<number, Segment[]>>({})
-const loadingMore = ref<Record<number, boolean>>({})
+// Content cache (segment id → segment): seeded from the base response, grown
+// by window fetches / continuations, replaced wholesale on filter change
+const loadedContent = ref(new Map<number, Segment>())
+// Sequence ranges currently being fetched, so re-formed gaps keep their
+// spinner while a chunked expansion is in flight
+const loadingRanges = ref<{ mødeid: number; fra: number; til: number }[]>([])
 const loadMoreError = ref<Record<number, boolean>>({})
+const flashId = ref<number | null>(null)
+const navPos = ref(0)
 // Latest-wins guard: responses from superseded requests are discarded, so a
 // slow unfiltered fetch can't overwrite a newer filtered one (and vice versa)
 let requestGen = 0
+let flashTimer: ReturnType<typeof setTimeout> | undefined
 
 const filterParams = computed(() => ({
   ...(selectedTaler.value ? { taler: selectedTaler.value } : {}),
@@ -65,20 +93,38 @@ const filterParams = computed(() => ({
 // would retrigger fetches even when the effective params are unchanged
 const filterKey = computed(() => JSON.stringify(filterParams.value))
 
+// pg bigint ids arrive as JSON strings — normalize once so Map keys, DOM ids
+// and comparisons stay number-typed like the rest of the contract
+const normalizeSegment = (segment: Segment): Segment => ({ ...segment, id: Number(segment.id) })
+const normalizeResponse = (response: TranscriptResponse): TranscriptResponse => ({
+  speakers: response.speakers,
+  meetings: response.meetings.map((meeting) => ({
+    ...meeting,
+    index: meeting.index.map((entry) => ({ ...entry, id: Number(entry.id) })),
+    segments: meeting.segments.map(normalizeSegment),
+  })),
+})
+
 watch(
   [() => props.sagId, filterKey],
   async () => {
     const gen = ++requestGen
     pending.value = true
     error.value = null
-    extraSegments.value = {}
     loadMoreError.value = {}
+    navPos.value = 0
     try {
       const response = await $fetch<TranscriptResponse>('/api/sag/transcript', {
         params: { id: props.sagId, ...filterParams.value },
       })
       if (gen !== requestGen) return
-      data.value = response
+      const normalized = normalizeResponse(response)
+      const content = new Map<number, Segment>()
+      for (const meeting of normalized.meetings) {
+        for (const segment of meeting.segments) content.set(segment.id, segment)
+      }
+      loadedContent.value = content
+      data.value = normalized
     } catch {
       if (gen === requestGen) error.value = 'Forhandlingen kunne ikke indlæses'
     } finally {
@@ -116,6 +162,18 @@ const partiByAktør = computed(() => {
   return map
 })
 
+// SpeechCard's party chip links to the party's aktør page when the id is known
+const partiInfoByAktør = computed(() => {
+  const map = new Map<number, { navn: string; id: number | null }>()
+  for (const s of data.value?.speakers ?? []) {
+    if (s.id !== null && s.parti) map.set(s.id, { navn: s.parti, id: s.partiid })
+  }
+  return map
+})
+
+const partiFor = (aktørid: number | null) =>
+  aktørid !== null ? (partiInfoByAktør.value.get(aktørid) ?? null) : null
+
 const harFiltre = computed(
   () => selectedTaler.value !== 0 || debouncedSearch.value.trim() !== '' || skjulFormand.value,
 )
@@ -123,54 +181,203 @@ const totalMatching = computed(
   () => (data.value?.meetings ?? []).reduce((sum, m) => sum + m.matchingSegments, 0),
 )
 
-const segmentsFor = (meeting: Meeting) => [
-  ...meeting.segments,
-  ...(extraSegments.value[meeting.mødeid] ?? []),
-]
+// Display list per meeting: loaded segments render as cards (blank chair
+// hand-off artifacts render nothing), consecutive unloaded entries collapse
+// into one gap. Gaps holding matching entries (always, when unfiltered)
+// continue via the offset-paged "Vis flere"; pure non-match runs expand as
+// dimmed context via window mode.
+const displayLists = computed(() => {
+  const lists = new Map<number, DisplayEntry[]>()
+  for (const meeting of data.value?.meetings ?? []) {
+    const list: DisplayEntry[] = []
+    let run: IndexEntry[] = []
+    const flushRun = () => {
+      const first = run[0]
+      const last = run[run.length - 1]
+      if (!first || !last) return
+      list.push({
+        kind: 'gap',
+        fra: first.sequence,
+        til: last.sequence,
+        count: run.length,
+        harMatch: run.some((e) => e.match),
+        loading: loadingRanges.value.some(
+          (r) => r.mødeid === meeting.mødeid && r.fra <= last.sequence && r.til >= first.sequence,
+        ),
+      })
+      run = []
+    }
+    for (const entry of meeting.index) {
+      const segment = loadedContent.value.get(entry.id) ?? null
+      if (segment) {
+        if (!segment.content.trim()) continue
+        flushRun()
+        list.push({ kind: 'segment', entry, segment, dimmed: harFiltre.value && !entry.match })
+      } else {
+        run.push(entry)
+      }
+    }
+    flushRun()
+    lists.set(meeting.mødeid, list)
+  }
+  return lists
+})
 
-const canLoadMore = (meeting: Meeting) => segmentsFor(meeting).length < meeting.matchingSegments
+const loadedMatchingFor = (meeting: Meeting) =>
+  meeting.index.filter((e) => e.match && loadedContent.value.has(e.id)).length
 
-const visFlere = async (meeting: Meeting) => {
+const startLoading = (mødeid: number, fra: number, til: number) => {
+  const range = { mødeid, fra, til }
+  loadingRanges.value = [...loadingRanges.value, range]
+  return range
+}
+const stopLoading = (range: { mødeid: number; fra: number; til: number }) => {
+  loadingRanges.value = loadingRanges.value.filter((r) => r !== range)
+}
+
+const fetchWindow = async (mødeid: number, fra: number, til: number) => {
+  const response = await $fetch<{ meetings: { mødeid: number; segments: Segment[] }[] }>(
+    '/api/sag/transcript',
+    { params: { id: props.sagId, ...filterParams.value, mødeid, fra, til } },
+  )
+  return (response.meetings[0]?.segments ?? []).map(normalizeSegment)
+}
+
+// Expand a pure non-match run: fetch the whole sequence range in ≤100-wide
+// window chunks and merge as (dimmed) context
+const visGap = async (meeting: Meeting, gap: GapEntry) => {
   const gen = requestGen
-  loadingMore.value = { ...loadingMore.value, [meeting.mødeid]: true }
+  const range = startLoading(meeting.mødeid, gap.fra, gap.til)
   loadMoreError.value = { ...loadMoreError.value, [meeting.mødeid]: false }
   try {
-    const response = await $fetch<{ meetings: { mødeid: number; segments: Segment[] }[] }>(
-      '/api/sag/transcript',
-      {
-        params: {
-          id: props.sagId,
-          ...filterParams.value,
-          mødeid: meeting.mødeid,
-          offset: segmentsFor(meeting).length,
-        },
-      },
-    )
-    // Filters changed while this page was in flight — its offsets no longer
-    // line up with the new result set, so drop it
-    if (gen !== requestGen) return
-    const more = response.meetings[0]?.segments ?? []
-    extraSegments.value = {
-      ...extraSegments.value,
-      [meeting.mødeid]: [...(extraSegments.value[meeting.mødeid] ?? []), ...more],
+    for (let fra = gap.fra; fra <= gap.til; fra += 100) {
+      const segments = await fetchWindow(meeting.mødeid, fra, Math.min(fra + 99, gap.til))
+      if (gen !== requestGen) return
+      for (const segment of segments) loadedContent.value.set(segment.id, segment)
     }
   } catch {
     if (gen === requestGen) {
       loadMoreError.value = { ...loadMoreError.value, [meeting.mødeid]: true }
     }
   } finally {
-    loadingMore.value = { ...loadingMore.value, [meeting.mødeid]: false }
+    stopLoading(range)
   }
 }
+
+// Continue a gap that still holds matching segments (the unfiltered tail, or
+// matches beyond the first loaded page): offset counts the matching entries
+// before the gap — index order equals the query's sequence order
+const visFlere = async (meeting: Meeting, gap: GapEntry) => {
+  const gen = requestGen
+  const range = startLoading(meeting.mødeid, gap.fra, gap.til)
+  loadMoreError.value = { ...loadMoreError.value, [meeting.mødeid]: false }
+  try {
+    const gapStart = meeting.index.findIndex((e) => e.sequence === gap.fra)
+    const offset = meeting.index.slice(0, gapStart).filter((e) => e.match).length
+    const response = await $fetch<{ meetings: { mødeid: number; segments: Segment[] }[] }>(
+      '/api/sag/transcript',
+      { params: { id: props.sagId, ...filterParams.value, mødeid: meeting.mødeid, offset } },
+    )
+    // Filters changed while this page was in flight — its offsets no longer
+    // line up with the new result set, so drop it
+    if (gen !== requestGen) return
+    for (const segment of response.meetings[0]?.segments ?? []) {
+      const normalized = normalizeSegment(segment)
+      loadedContent.value.set(normalized.id, normalized)
+    }
+  } catch {
+    if (gen === requestGen) {
+      loadMoreError.value = { ...loadMoreError.value, [meeting.mødeid]: true }
+    }
+  } finally {
+    stopLoading(range)
+  }
+}
+
+// Scroll a segment into view, fetching its surrounding window first if its
+// content isn't loaded yet; flash it on arrival
+const jumpTo = async (mødeid: number, entry: IndexEntry) => {
+  if (!loadedContent.value.has(entry.id)) {
+    const gen = requestGen
+    const fra = Math.max(0, entry.sequence - 5)
+    const til = entry.sequence + 5
+    const range = startLoading(mødeid, fra, til)
+    try {
+      const segments = await fetchWindow(mødeid, fra, til)
+      if (gen !== requestGen) return
+      for (const segment of segments) loadedContent.value.set(segment.id, segment)
+    } catch {
+      return
+    } finally {
+      stopLoading(range)
+    }
+  }
+  await nextTick()
+  document.getElementById(`seg-${entry.id}`)?.scrollIntoView({ block: 'center' })
+  flashId.value = entry.id
+  clearTimeout(flashTimer)
+  flashTimer = setTimeout(() => {
+    flashId.value = null
+  }, 2000)
+}
+
+const jumpToSequence = (meeting: Meeting, sequence: number) => {
+  const entry = meeting.index.find((e) => e.sequence === sequence)
+  if (entry) jumpTo(meeting.mødeid, entry)
+}
+
+// Match navigator: prev/next over the flattened matching index across meetings
+const allMatches = computed(() => {
+  if (!harFiltre.value) return []
+  return (data.value?.meetings ?? []).flatMap((m) =>
+    m.index.filter((e) => e.match).map((entry) => ({ mødeid: m.mødeid, entry })),
+  )
+})
+
+const gåTilMatch = async (delta: 1 | -1) => {
+  const total = allMatches.value.length
+  if (total === 0) return
+  navPos.value =
+    delta === 1 ? (navPos.value % total) + 1 : navPos.value <= 1 ? total : navPos.value - 1
+  const target = allMatches.value[navPos.value - 1]
+  if (target) await jumpTo(target.mødeid, target.entry)
+}
+
+// Viewport tracking for the minimaps: fraction of each meeting's card column
+// currently on screen
+const meetingEls = new Map<number, HTMLElement>()
+const viewports = ref<Record<number, { top: number; bottom: number }>>({})
+
+const setMeetingEl = (mødeid: number, el: unknown) => {
+  if (el instanceof HTMLElement) meetingEls.set(mødeid, el)
+  else meetingEls.delete(mødeid)
+}
+
+const clamp01 = (n: number) => Math.min(1, Math.max(0, n))
+
+const updateViewports = () => {
+  const next: Record<number, { top: number; bottom: number }> = {}
+  for (const [mødeid, el] of meetingEls) {
+    const rect = el.getBoundingClientRect()
+    if (rect.height <= 0) continue
+    next[mødeid] = {
+      top: clamp01(-rect.top / rect.height),
+      bottom: clamp01((window.innerHeight - rect.top) / rect.height),
+    }
+  }
+  viewports.value = next
+}
+
+useEventListener(window, 'scroll', updateViewports, { passive: true })
+useEventListener(window, 'resize', updateViewports, { passive: true })
+watch(displayLists, () => nextTick(updateViewports), { flush: 'post' })
+onMounted(updateViewports)
 
 const rydFiltre = () => {
   selectedTaler.value = 0
   searchText.value = ''
   skjulFormand.value = false
 }
-
-const formatDato = (dato: string) =>
-  new Date(dato).toLocaleDateString('da-DK', { day: 'numeric', month: 'long', year: 'numeric' })
 </script>
 
 <template>
@@ -198,6 +405,27 @@ const formatDato = (dato: string) =>
           <UInput v-model="searchText" placeholder="F.eks. økonomi" icon="i-heroicons-magnifying-glass" />
         </UFormGroup>
         <UCheckbox v-model="skjulFormand" label="Skjul formandens bemærkninger" class="pb-2" />
+        <div v-if="harFiltre && allMatches.length > 0" class="flex items-center gap-1 pb-2">
+          <UButton
+            icon="i-heroicons-chevron-left"
+            size="xs"
+            color="gray"
+            variant="soft"
+            aria-label="Forrige resultat"
+            @click="gåTilMatch(-1)"
+          />
+          <span class="text-sm tabular-nums text-gray-700 dark:text-gray-300">
+            {{ navPos || '–' }} af {{ allMatches.length }}
+          </span>
+          <UButton
+            icon="i-heroicons-chevron-right"
+            size="xs"
+            color="gray"
+            variant="soft"
+            aria-label="Næste resultat"
+            @click="gåTilMatch(1)"
+          />
+        </div>
       </div>
 
       <div
@@ -232,25 +460,67 @@ const formatDato = (dato: string) =>
             </NuxtLink>
           </header>
 
-          <div v-if="meeting.matchingSegments > 0" class="space-y-2">
-            <SagSpeechCard
-              v-for="segment in segmentsFor(meeting)"
-              :key="segment.id"
-              :segment="segment"
-              :parti="segment.aktørid !== null ? (partiByAktør.get(segment.aktørid) ?? null) : null"
-            />
-            <p v-if="loadMoreError[meeting.mødeid]" class="text-sm text-red-600 dark:text-red-400">
-              Kunne ikke indlæse flere indlæg. Prøv igen.
-            </p>
-            <UButton
-              v-if="canLoadMore(meeting)"
-              size="xs"
-              variant="soft"
-              :loading="loadingMore[meeting.mødeid]"
-              @click="visFlere(meeting)"
+          <div v-if="meeting.matchingSegments > 0" class="flex items-stretch gap-3">
+            <div
+              v-if="meeting.index.length > 1"
+              class="relative hidden w-6 shrink-0 sm:block"
+              aria-hidden="true"
             >
-              Vis flere indlæg ({{ segmentsFor(meeting).length }} af {{ meeting.matchingSegments }})
-            </UButton>
+              <div class="absolute inset-0">
+                <div class="sticky top-14 h-[min(60vh,100%)]">
+                  <SagTranscriptMinimap
+                    :index="meeting.index"
+                    :parti-by-aktør="partiByAktør"
+                    :viewport="viewports[meeting.mødeid] ?? { top: 0, bottom: 0 }"
+                    :har-filtre="harFiltre"
+                    @jump="(sequence) => jumpToSequence(meeting, sequence)"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div
+              :ref="(el) => { setMeetingEl(meeting.mødeid, el) }"
+              class="min-w-0 flex-1 space-y-2"
+            >
+              <template
+                v-for="item in displayLists.get(meeting.mødeid) ?? []"
+                :key="item.kind === 'segment' ? item.entry.id : `gap-${item.fra}`"
+              >
+                <SagSpeechCard
+                  v-if="item.kind === 'segment' && item.segment"
+                  :id="`seg-${item.entry.id}`"
+                  :segment="item.segment"
+                  :parti="partiFor(item.entry.aktørid)"
+                  :dimmed="item.dimmed"
+                  :class="flashId === item.entry.id ? 'ring-2 ring-primary-400' : ''"
+                />
+                <div v-else-if="item.kind === 'gap'" class="py-0.5">
+                  <UButton
+                    v-if="item.harMatch"
+                    size="xs"
+                    variant="soft"
+                    :loading="item.loading"
+                    @click="visFlere(meeting, item)"
+                  >
+                    Vis flere indlæg ({{ loadedMatchingFor(meeting) }} af {{ meeting.matchingSegments }})
+                  </UButton>
+                  <UButton
+                    v-else
+                    size="xs"
+                    color="gray"
+                    variant="ghost"
+                    :loading="item.loading"
+                    @click="visGap(meeting, item)"
+                  >
+                    ⋯ {{ item.count }} indlæg (klik for at vise)
+                  </UButton>
+                </div>
+              </template>
+              <p v-if="loadMoreError[meeting.mødeid]" class="text-sm text-red-600 dark:text-red-400">
+                Kunne ikke indlæse flere indlæg. Prøv igen.
+              </p>
+            </div>
           </div>
           <p v-else-if="harFiltre" class="text-sm text-gray-500 dark:text-gray-400">
             Ingen indlæg matcher filtrene i denne forhandling.

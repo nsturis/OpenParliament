@@ -57,8 +57,9 @@ microcopy conventions from the audit ("Indlæser …", "… kunne ikke hentes.",
 - `components/Sag/Transcript.vue` — evolved (interactive timeline, below) +
   `components/Sag/TranscriptMinimap.vue`.
 - `pages/aktoerer/[id].vue`, `server/api/actors/[id].ts`.
-- `PartyStanceVisualization.vue` is superseded by `VotingWidget` (leave the old
-  component untouched; it stays unused).
+- `PartyStanceVisualization.vue` is superseded by `VotingWidget`. (Deleted after
+  wave A: the partyStances contract rewrite broke its types under vue-tsc, and its
+  only consumer was already commented out.)
 
 ## Process stepper
 

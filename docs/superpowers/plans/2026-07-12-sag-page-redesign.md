@@ -11,7 +11,7 @@
 ## Global Constraints
 
 - Danish UI copy everywhere; dark-mode variant classes on every gray/color utility (`dark:border-gray-700` etc.).
-- Mixed-case Danish DB identifiers must be double-quoted in SQL: `"Aktør"`, `"AktørAktør"`, `"Møde"`, `"Afstemning"`, `"Stemme"`, `"Stemmetype"`, `"mødeid"`, `"aktørid"`.
+- Mixed-case Danish DB identifiers must be double-quoted in SQL: `"Aktør"`, `"AktørAktør"`, `"Møde"`, `"mødeid"`, `"aktørid"`. The voting tables are LOWERCASE in this DB (verified during wave A): `afstemning`, `stemme`, `stemmetype`, `afstemningstype` — no quoting needed.
 - Query params validated like `server/api/sag/transcript.ts`: `Number.isInteger` guards → 400 (`createError`), offsets clamped.
 - Row types for `db.execute<T>` must be **type aliases, not interfaces** (interfaces fail drizzle's `Record<string, unknown>` constraint under vue-tsc).
 - Inline entity links use the class string `text-primary-600 hover:text-primary-800 dark:text-primary-400`; optional targets use link-or-span (`v-if`/`v-else`).
@@ -100,7 +100,7 @@ In `db.query.sag.findFirst({ with: { ... } })` add top-level `sagsstatus: true, 
 - [ ] **Step 2: Verify contract**
 
 Run: `curl -s "http://localhost:3000/api/sag?id=105278" | python3 -c "import json,sys; d=json.load(sys.stdin)['data']; print(d['sagsstatus']['status'], '|', d['sagstype']['type'], '|', d['periode']['titel'], '|', d['sagstrin'][0]['sagstrinstype']['type'])"`
-Expected: four non-empty Danish strings (status e.g. "Stadfæstet", no KeyError).
+Expected: four non-empty Danish strings (status is "2. beh/Vedtaget" in the live DB — do not hardcode other values in verifiers; no KeyError).
 
 - [ ] **Step 3: Commit** — `git commit -am "Include sagsstatus/sagstype/periode/sagstrinstype in /api/sag"`
 
@@ -475,7 +475,7 @@ Gap expansion: `visGap(meeting, gap)` fetches `?id&mødeid&fra&til` in ≤100-se
 - Consumes Tasks 2/6/7/8/10 components + existing `useSagDocuments`. Drops `useAktorer` (redundant — `/api/sag` already returns `sagAktør` with roles; map `sag.sagAktør → { id: aktør.id, navn: aktør.navn, rolle: sagAktørRolle?.rolle }` for `SagActorsWidget`). Documents: keep `useSagDocuments`, filter out entries whose `content` starts with `'Content not available'` before passing (widget shows no excerpts anyway) and gate ONLY the documents widget on its loading.
 
 - [ ] **Step 1: Rebuild the template.** Structure: `SagHero` → `SagProcessStepper` (`:terminal="TERMINAL_STATUS_IDS.has(sag.statusid)"`, hidden when 0 sagstrin) → sticky nav (`sticky top-0 z-10` bar with anchor links Overblik/Resumé/Forhandling, `bg-white/90 dark:bg-gray-900/90 backdrop-blur`) → widget grid `grid gap-4 sm:grid-cols-2` (`#overblik`): `SagVotingWidget :sag-id`, `SagKeyFactsWidget :sag`, `SagActorsWidget`, `SagDocumentsWidget` → `#resume` section (`sag.resume`, hidden when empty) → `#forhandling` `SagTranscript`. Each widget/section gates only its own data (USkeleton per pending source; the sag fetch itself gates the whole page as today). `mainStore.updateHeaderTitle(sag.titelkort || sag.titel)` via watchEffect + `useHead({ title: ... })`. Remove the local statusMap/`/api/sagsstatus` fetch (Task 2 provides `sagsstatus.status`). Danish empty/error states per convention.
-- [ ] **Step 2: Verify in browser** — `/sager/105278`: hero badges (Vedtaget green, Beslutningsforslag, samling), stepper states, all four widgets with real content, voting bars match 93/18, sticky nav jumps, resumé + forhandling render; `/sager/105482` (no transcript/votes): sections hide gracefully; `/sager/102647` (spørgsmål): no voting widget, stepper still renders. 0 console errors, mobile 390px single-column.
+- [ ] **Step 2: Verify in browser** — `/sager/105278`: hero badges (status pill shows the live sagsstatus text "2. beh/Vedtaget", Beslutningsforslag, samling), stepper states, all four widgets with real content, voting bars match 93/18, sticky nav jumps, resumé + forhandling render; `/sager/105482` (no transcript/votes): sections hide gracefully; `/sager/102647` (spørgsmål): no voting widget, stepper still renders. 0 console errors, mobile 390px single-column.
 - [ ] **Step 3: Typecheck + commit** — `git commit -m "Rebuild sag page: hero, stepper, widgets, sticky nav"`
 
 ---

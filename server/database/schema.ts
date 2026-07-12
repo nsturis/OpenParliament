@@ -748,7 +748,7 @@ export const taleSegment = pgTable(
       withTimezone: true,
       mode: 'string',
     }).notNull(),
-    embedding: vector('embedding', { dimensions: 768 }).notNull(),
+    embedding: vector('embedding', { dimensions: 1024 }).notNull(),
     chunkIndex: integer('chunk_index').notNull(), // Add this line
   },
   (table) => {
@@ -811,7 +811,7 @@ export const taleSegmentChunk = pgTable(
       .notNull()
       .references(() => taleSegmentRaw.id),
     content: text('content').notNull(),
-    embedding: vector('embedding', { dimensions: 768 }).notNull(),
+    embedding: vector('embedding', { dimensions: 1024 }).notNull(),
     chunkIndex: integer('chunk_index').notNull(),
     totalChunks: integer('total_chunks').notNull(),
   },
@@ -833,7 +833,7 @@ export const filContent = pgTable(
       .notNull()
       .references(() => fil.id),
     content: text('content').notNull(),
-    embedding: vector('embedding', { dimensions: 768 }).notNull(),
+    embedding: vector('embedding', { dimensions: 1024 }).notNull(),
     chunkIndex: integer('chunkindex').notNull(),
     totalChunks: integer('totalchunks').notNull(), // Not needed I take it..
     version: integer('version').notNull().default(1),

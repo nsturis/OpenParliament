@@ -1,118 +1,108 @@
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
-from transformers import AutoTokenizer, AutoModel
-import torch
-import uvicorn
-from fastapi.middleware.cors import CORSMiddleware
+"""Embedding service for Danish parliamentary text.
 
-# mlx_lm is only needed for the commented-out Ministral question generation
-# and is unavailable off Apple Silicon — keep it optional
-try:
-    from mlx_lm import load, generate  # noqa: F401
-except ImportError:
-    load = generate = None
-import os
-from typing import List
+Model: intfloat/multilingual-e5-large (1024-dim, MIT). E5 requires literal
+"query: " / "passage: " prefixes at encode time; chunks are stored WITHOUT
+the prefix. Input text is fed to the model as-is apart from HTML stripping
+and whitespace collapsing — no lowercasing, no stopword removal (both
+degrade sentence-embedding quality; the NLTK Danish stopword list even
+contains "ikke", which deletes negation).
+
+Endpoints do blocking torch work, so they are plain `def` (FastAPI runs
+them in a threadpool) and model access is serialized with a lock — MPS
+forward passes are not usefully parallel.
+"""
+
 import re
-import nltk
-from nltk.corpus import stopwords
+import threading
+from typing import List
+
+import uvicorn
+from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
+from sentence_transformers import SentenceTransformer
+from transformers import AutoTokenizer
+
+MODEL_NAME = "intfloat/multilingual-e5-large"
+EMBEDDING_DIMS = 1024
+# Content tokens per chunk: 512 model limit minus headroom for the
+# "passage: " prefix and special tokens
+MAX_CHUNK_TOKENS = 480
+ENCODE_BATCH_SIZE = 32
+MAX_TEXTS_PER_REQUEST = 256
 
 app = FastAPI()
 
-# Download Danish stopwords
-nltk.download("stopwords")
-danish_stopwords = set(stopwords.words("danish"))
+model = SentenceTransformer(MODEL_NAME)  # auto-selects MPS when available
+model_lock = threading.Lock()
 
-# Add parliamentary-specific stopwords
-parliamentary_stopwords = {
-    "folketinget",
-    "minister",
-    "lovforslag",
-    "beslutningsforslag",
-    "udvalg",
-    "afstemning",
-    "paragraf",
-    "stk",
-    "behandling",
-    "møde",
-    "dagsorden",
-}
-danish_stopwords.update(parliamentary_stopwords)
-
-# Load the Danish BERT model (on Apple-Silicon GPU when available)
-model_name = "Maltehb/danish-bert-botxo"
-device = torch.device("mps" if torch.backends.mps.is_available() else "cpu")
-tokenizer = AutoTokenizer.from_pretrained(model_name)
-model = AutoModel.from_pretrained(model_name).to(device).eval()
+# Chunking gets its own tokenizer + lock: sharing model.tokenizer across
+# threads races with model.encode's padding/truncation setup (the Rust fast
+# tokenizer raises "Already borrowed"), and fast tokenizers are not
+# thread-safe between concurrent threadpool requests either.
+chunk_tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
+chunk_lock = threading.Lock()
 
 
-def preprocess_danish_text(text):
-    # Convert to lowercase
-    text = text.lower()
-
-    # Remove extra whitespace
-    text = re.sub(r"\s+", " ", text).strip()
-
-    # Remove stopwords
-    words = text.split()
-    words = [word for word in words if word not in danish_stopwords]
-
-    # # Join words back into a string
-    text = " ".join(words)
-
-    # Remove any HTML tags or script tags and other non-text content and their contents
-    text = re.sub(r"<[^>]*>", "", text)
-
-    return text
+def clean_text(text: str) -> str:
+    text = re.sub(r"<[^>]*>", " ", text)
+    return re.sub(r"\s+", " ", text).strip()
 
 
-def split_text_into_chunks(text, chunk_size=512, overlap=50) -> List[str]:
+def split_into_chunks(text: str) -> List[str]:
+    """Split text into chunks of at most MAX_CHUNK_TOKENS tokens.
+
+    Speech segments are the atomic unit and ~96% fit in one chunk; longer
+    ones are split at sentence boundaries, never mid-sentence (except
+    pathological single sentences longer than the limit).
     """
-    Splits the input text into sub-chunks of at most `chunk_size` tokens,
-    allowing for a given token overlap between consecutive chunks. This
-    ensures we never exceed the model's 512-token limit. 
-    """
-    paragraphs = text.split("\n\n")  # attempt to split on paragraph boundaries
-    chunks = []
-    current_chunk = []
-    current_length = 0
+    if not text:
+        return []
+    with chunk_lock:
+        if len(chunk_tokenizer.encode(text, add_special_tokens=False)) <= MAX_CHUNK_TOKENS:
+            return [text]
 
-    for paragraph in paragraphs:
-        tokens = tokenizer.encode(paragraph, add_special_tokens=False)
-        
-        # If adding this paragraph to the current chunk stays under the limit, do it
-        if current_length + len(tokens) <= chunk_size:
-            current_chunk.append(paragraph)
-            current_length += len(tokens)
-        else:
-            # Finish the current chunk
-            if current_chunk:
-                chunks.append("\n\n".join(current_chunk))
-            
-            # Handle paragraphs that exceed the chunk size individually
-            if len(tokens) > chunk_size:
-                for i in range(0, len(tokens), chunk_size - overlap):
-                    chunk_tokens = tokens[i : i + chunk_size]
-                    chunk_text = tokenizer.decode(chunk_tokens, skip_special_tokens=True)
-                    chunks.append(chunk_text)
-                current_chunk = []
-                current_length = 0
+        sentences = re.split(r"(?<=[.!?])\s+", text)
+        chunks: List[str] = []
+        current: List[str] = []
+        current_tokens = 0
+
+        for sentence in sentences:
+            n_tokens = len(chunk_tokenizer.encode(sentence, add_special_tokens=False))
+            if n_tokens > MAX_CHUNK_TOKENS:
+                # Pathological sentence: flush, then hard-split by token windows
+                if current:
+                    chunks.append(" ".join(current))
+                    current, current_tokens = [], 0
+                tokens = chunk_tokenizer.encode(sentence, add_special_tokens=False)
+                for i in range(0, len(tokens), MAX_CHUNK_TOKENS):
+                    chunks.append(
+                        chunk_tokenizer.decode(tokens[i : i + MAX_CHUNK_TOKENS], skip_special_tokens=True)
+                    )
+            elif current_tokens + n_tokens <= MAX_CHUNK_TOKENS:
+                current.append(sentence)
+                current_tokens += n_tokens
             else:
-                current_chunk = [paragraph]
-                current_length = len(tokens)
+                chunks.append(" ".join(current))
+                current, current_tokens = [sentence], n_tokens
 
-    # Add the final partial chunk (if any)
-    if current_chunk:
-        chunks.append("\n\n".join(current_chunk))
-
-    return chunks
+        if current:
+            chunks.append(" ".join(current))
+        return chunks
 
 
-# # Load Ministral 8B
-# llm_model, llm_tokenizer = load("mlx-community/Ministral-8B-Instruct-2410-8bit")
+def encode_passages(chunks: List[str]) -> List[List[float]]:
+    if not chunks:
+        return []
+    with model_lock:
+        embeddings = model.encode(
+            [f"passage: {chunk}" for chunk in chunks],
+            batch_size=ENCODE_BATCH_SIZE,
+            normalize_embeddings=True,
+        )
+    return embeddings.tolist()
 
 
-# Modify the DocumentRequest and DocumentResponse classes
 class DocumentRequest(BaseModel):
     text: str
 
@@ -124,117 +114,80 @@ class DocumentResponse(BaseModel):
     original_text: str
 
 
-class TextEmbeddingRequest(BaseModel):
+class BatchDocumentsRequest(BaseModel):
+    texts: List[str]
+
+
+class DocumentResult(BaseModel):
+    chunks: List[str]
+    embeddings: List[List[float]]
+
+
+class BatchDocumentsResponse(BaseModel):
+    results: List[DocumentResult]
+
+
+class QueryRequest(BaseModel):
     text: str
 
 
-class TextEmbeddingResponse(BaseModel):
+class QueryResponse(BaseModel):
     embedding: List[float]
 
 
-class QuestionRequest(BaseModel):
-    text: str
+@app.post("/embed_documents", response_model=BatchDocumentsResponse)
+def embed_documents(request: BatchDocumentsRequest):
+    """Chunk and embed a batch of documents in one model pass."""
+    if len(request.texts) > MAX_TEXTS_PER_REQUEST:
+        raise HTTPException(status_code=400, detail=f"Max {MAX_TEXTS_PER_REQUEST} texts per request")
+    try:
+        per_text_chunks = [split_into_chunks(clean_text(t)) for t in request.texts]
+        flat_embeddings = encode_passages([c for chunks in per_text_chunks for c in chunks])
 
-
-class QuestionResponse(BaseModel):
-    question: str
+        results = []
+        offset = 0
+        for chunks in per_text_chunks:
+            results.append(
+                DocumentResult(chunks=chunks, embeddings=flat_embeddings[offset : offset + len(chunks)])
+            )
+            offset += len(chunks)
+        return BatchDocumentsResponse(results=results)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.post("/process_document_embeddings", response_model=DocumentResponse)
-async def process_document(request: DocumentRequest):
+def process_document(request: DocumentRequest):
+    """Single-document variant (used by the meeting parser and document scripts)."""
     try:
-        # Store original content
-        original_text = request.text
-        
-        # Preprocess for embedding
-        preprocessed_text = preprocess_danish_text(original_text)
-        
-        # Split into chunks of ≤512 tokens
-        chunks = split_text_into_chunks(preprocessed_text, chunk_size=512, overlap=50)
-        
-        embeddings = []
-        for chunk in chunks:
-            # Make sure each chunk is still ≤512 tokens; truncation=True ensures no indexing error
-            inputs = tokenizer(
-                chunk,
-                return_tensors="pt",
-                truncation=True,
-                max_length=512,
-                padding=True
-            )
-            inputs = {k: v.to(device) for k, v in inputs.items()}
-            with torch.no_grad():
-                outputs = model(**inputs)
-            
-            # Mean-pool the token embeddings across dimension 1
-            pooled_embedding = outputs.last_hidden_state.mean(dim=1)[0].tolist()
-            embeddings.append(pooled_embedding)
-            
+        chunks = split_into_chunks(clean_text(request.text))
         return DocumentResponse(
-            status="success",
+            # 'empty' keeps pre-rewrite callers fail-closed: updateEmbeddings.ts
+            # deletes rows before re-inserting and must not do so for 0 chunks
+            status="success" if chunks else "empty",
             chunks=chunks,
-            embeddings=embeddings,
-            original_text=original_text
+            embeddings=encode_passages(chunks),
+            original_text=request.text,
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.post("/get_embedding", response_model=TextEmbeddingResponse)
-async def get_embedding(request: TextEmbeddingRequest):
+@app.post("/embed_query", response_model=QueryResponse)
+def embed_query(request: QueryRequest):
     try:
-        print(f"Received request: {request.text}")  # Add logging
-
-        # Preprocess the text before generating embedding
-        preprocessed_text = preprocess_danish_text(request.text)
-
-        # Tokenize and generate embedding; truncation will avoid out-of-range errors
-        inputs = tokenizer(
-            preprocessed_text,
-            return_tensors="pt",
-            truncation=True,
-            max_length=512,
-            padding=True
-        )
-        inputs = {k: v.to(device) for k, v in inputs.items()}
-        with torch.no_grad():
-            outputs = model(**inputs)
-
-        # Mean-pool the token embeddings across dimension 1
-        pooled_embedding = outputs.last_hidden_state.mean(dim=1)[0].tolist()
-
-        print(f"Generated embedding (mean-pooled): {pooled_embedding[:5]}...")  # Log part of the embedding
-        return TextEmbeddingResponse(embedding=pooled_embedding)
+        with model_lock:
+            embedding = model.encode(
+                f"query: {clean_text(request.text)}", normalize_embeddings=True
+            )
+        return QueryResponse(embedding=embedding.tolist())
     except Exception as e:
-        print(f"Error in get_embedding: {str(e)}")  # Log any errors
         raise HTTPException(status_code=500, detail=str(e))
-
-
-# @app.post("/generate_question", response_model=QuestionResponse)
-# async def generate_question(request: QuestionRequest):
-#     try:
-#         # Preprocess the text before generating question
-#         preprocessed_text = preprocess_danish_text(request.text)
-#         prompt = f"Based on the following Danish text, generate a relevant question:\n\n{preprocessed_text}\n\nQuestion:"
-
-#         response = generate(
-#             llm_model,
-#             llm_tokenizer,
-#             prompt=prompt,
-#             max_tokens=100,
-#             verbose=True,
-#             temp=0.7,
-#         )
-#         generated_question = response.strip()
-#         return QuestionResponse(question=generated_question)
-#     except Exception as e:
-#         print(f"Error in generate_question: {str(e)}")
-#         raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.get("/health")
-async def health_check():
-    return {"status": "ok"}
+def health_check():
+    return {"status": "ok", "model": MODEL_NAME, "dims": EMBEDDING_DIMS, "device": str(model.device)}
 
 
 app.add_middleware(
@@ -246,4 +199,4 @@ app.add_middleware(
 )
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000, reload=True)
+    uvicorn.run(app, host="0.0.0.0", port=8000)

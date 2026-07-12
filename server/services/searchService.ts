@@ -17,12 +17,13 @@ export interface SearchResult {
 async function getQueryEmbedding(searchQuery: string): Promise<number[] | null> {
   const config = useRuntimeConfig();
   try {
-    const response = await $fetch<{ embedding?: number[] }>('/get_embedding', {
+    // The service prepends the "query: " prefix that e5 models require
+    const response = await $fetch<{ embedding?: number[] }>('/embed_query', {
       baseURL: config.public.llmServiceUrl,
       method: 'POST',
       body: JSON.stringify({ text: searchQuery }),
       headers: { 'Content-Type': 'application/json' },
-      timeout: 5000,
+      timeout: 15000,
     });
     return response?.embedding ?? null;
   } catch {
@@ -57,8 +58,7 @@ async function vectorSearch(embeddingVector: number[]): Promise<SearchResult[]> 
   const taleSegmentResults = await db
     .select({
       id: taleSegmentChunk.id,
-      // Chunks hold stopword-stripped text (embedding input) — show the
-      // readable original segment instead
+      // Show the start of the full segment — chunks may be mid-speech windows
       content: sql<string>`left(${taleSegmentRaw.content}, 300)`,
       similarity: similaritytaleSegment,
       source: sql<string>`'tale'`,
@@ -142,13 +142,15 @@ export async function performSearch(
 ): Promise<SearchResult[]> {
   if (!searchQuery || !searchQuery.trim()) return [];
 
-  // Vector search needs both the LLM service and a populated chunk table
-  const [chunkExists] = await db
-    .select({ id: taleSegmentChunk.id })
-    .from(taleSegmentChunk)
-    .limit(1);
+  // Vector search needs the LLM service AND the HNSW index. The backfill
+  // only creates the index once it completes, so gating on the index (not
+  // on chunk rows) keeps mid-backfill queries on the fast FTS path instead
+  // of multi-second unindexed 1024-dim seq scans.
+  const indexExists = await db.execute(sql`
+    SELECT 1 FROM pg_indexes WHERE indexname = 'tale_segment_chunk_embedding_idx' LIMIT 1
+  `);
 
-  if (chunkExists) {
+  if (indexExists.rows.length > 0) {
     const embedding = await getQueryEmbedding(searchQuery);
     if (embedding) {
       const [sagResults, vectorResults] = await Promise.all([

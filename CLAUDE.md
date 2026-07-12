@@ -6,8 +6,8 @@ Danish parliamentary transparency platform making Folketinget data accessible th
 
 **Frontend**: Nuxt 3 (SPA mode, `ssr: false`) + Vue 3 + Tailwind CSS + Nuxt UI
 **Backend**: Nuxt server API routes (h3) + Drizzle ORM
-**Database**: PostgreSQL 16 with pgvector extension (768-dim embeddings)
-**LLM Service**: FastAPI (Python) using Danish BERT (`Maltehb/danish-bert-botxo`)
+**Database**: PostgreSQL 16 with pgvector extension (1024-dim embeddings)
+**LLM Service**: FastAPI (Python) serving `intfloat/multilingual-e5-large` sentence embeddings
 **Runtime**: Bun (package manager + runtime)
 **Data Source**: Folketingets Åbne Data (ODA) API — `oda.ft.dk`
 
@@ -98,7 +98,7 @@ layouts/           # Default layout with HeaderMenu
 types/             # TypeScript interfaces
 
 llm_service/       # FastAPI Python service
-  main.py          # Endpoints: /process_document_embeddings, /get_embedding, /health
+  main.py          # Endpoints: /embed_documents, /embed_query, /process_document_embeddings, /health
 
 scripts/           # Data pipeline scripts
   parseMeetings.ts # Parse meeting XML → DB
@@ -129,7 +129,7 @@ config/            # Setup and migration scripts
 ### Documents & Files
 - **dokument** — Parliamentary documents
 - **fil** — Files (PDF, HTML) attached to documents
-- **filContent** — Extracted text chunks + 768-dim embeddings
+- **filContent** — Extracted text chunks + 1024-dim embeddings
 
 ### Voting
 - **afstemning** — Votes on cases
@@ -187,7 +187,7 @@ The Nuxt config also proxies `/llm/**` → `http://127.0.0.1:8000/**`.
 
 ```bash
 bun dev                    # Dev server (port 3000)
-# LLM embedding service (port 8000; Danish BERT on MPS):
+# LLM embedding service (port 8000; multilingual-e5-large on MPS):
 #   cd llm_service && uv run --project .. uvicorn main:app --port 8000
 # Live transcription service (port 8001; Whisper + OCR):
 #   cd live_transcription_service && uv run uvicorn main:app --port 8001
@@ -211,7 +211,6 @@ bun new:component          # Scaffold new component (hygen)
 - `oda.bak` is disposable (`*.bak` is gitignored) — download a fresh nightly copy before re-migrating (`config/download_oda_bak.py`).
 - `.env` is gitignored — must be created manually
 - The PostgreSQL Docker image builds pgvector v0.5.0 from source
-- Embedding dimension is 768 (Danish BERT output size)
-- The LLM service imports `mlx_lm` (Apple Silicon ML) — may fail on non-Mac; the import is only used for a commented-out Ministral 8B feature
+- Embedding dimension is 1024 (multilingual-e5-large). e5 needs literal "query: "/"passage: " prefixes — the LLM service adds them; never embed raw text through another path. No lowercasing/stopword stripping before embedding.
 - Column names use Danish: `opdateringsdato`, `mødeid`, `aktørid`, etc.
 - Table names are mixed-case from the MSSQL migration: `Aktør`, `Møde`, `SagAktør`, etc.

@@ -41,7 +41,7 @@ CREATE TABLE public."FilContent" (
     id bigint NOT NULL,
     filid integer NOT NULL,
     content text NOT NULL,
-    embedding public.vector(768) NOT NULL,
+    embedding public.vector(1024) NOT NULL,
     chunkindex integer NOT NULL,
     totalchunks integer NOT NULL,
     version integer DEFAULT 1 NOT NULL,
@@ -135,7 +135,7 @@ CREATE TABLE public."taleSegment" (
     sagid integer,
     "aktørid" integer NOT NULL,
     opdateringsdato timestamp with time zone NOT NULL,
-    embedding public.vector(768) NOT NULL,
+    embedding public.vector(1024) NOT NULL,
     chunk_index integer NOT NULL
 );
 
@@ -147,7 +147,7 @@ CREATE TABLE public."taleSegmentChunk" (
     id bigint NOT NULL,
     tale_segment_id integer NOT NULL,
     content text NOT NULL,
-    embedding public.vector(768) NOT NULL,
+    embedding public.vector(1024) NOT NULL,
     chunk_index integer NOT NULL,
     total_chunks integer NOT NULL
 );

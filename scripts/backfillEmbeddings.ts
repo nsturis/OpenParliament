@@ -16,7 +16,11 @@ import { $fetch } from 'ofetch'
 import { db, setDbLogging } from '../server/utils/db'
 import { taleSegmentChunk, taleSegmentRaw } from '../server/database/schema'
 
-const BATCH_SIZE = 64
+// Large request batches matter: encode() sorts inputs by length to minimize
+// padding waste, which only pays off with a big pool (64-segment pools ran at
+// ~19 seg/s on length-varied corpus slices; 256+ pools reach the ~45 seg/s
+// hardware ceiling). 256 is the service's MAX_TEXTS_PER_REQUEST.
+const BATCH_SIZE = 256
 const IN_FLIGHT = 2
 const LLM_URL = process.env.LLM_SERVICE_URL || 'http://127.0.0.1:8000'
 

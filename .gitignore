@@ -17,3 +17,6 @@ __pycache__
 *.bak
 assets
 
+
+# Visual brainstorming sessions
+.superpowers/

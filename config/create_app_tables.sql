@@ -360,6 +360,10 @@ ALTER TABLE ONLY public."taleSegment"
 -- Danish full-text index backing /api/search's text-search path
 CREATE INDEX IF NOT EXISTS tale_segment_raw_fts_idx ON public."taleSegmentRaw" USING gin (to_tsvector('danish', content));
 
+-- Case-transcript timeline (/api/sag/transcript) and meeting speeches lookups
+CREATE INDEX IF NOT EXISTS tale_segment_raw_sagid_idx ON public."taleSegmentRaw" (sagid, "mødeid", sequence);
+CREATE INDEX IF NOT EXISTS tale_segment_raw_mødeid_idx ON public."taleSegmentRaw" ("mødeid", sequence);
+
 -- Valgtest (election quiz) persistence
 CREATE TABLE IF NOT EXISTS public."valgtestVote" (
     id bigserial PRIMARY KEY,

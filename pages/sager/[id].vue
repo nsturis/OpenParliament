@@ -98,6 +98,8 @@ const getStatusText = (statusId: number) => {
       </div>
       <div v-else>Ingen sagstrin tilgængelige</div>
 
+      <SagTranscript :sag-id="Number(id)" />
+
       <h3 class="mb-4 mt-6 text-xl font-semibold">Dokumenter</h3>
       <div v-if="isLoading">Indlæser dokumenter …</div>
       <div v-else-if="error">{{ error }}</div>

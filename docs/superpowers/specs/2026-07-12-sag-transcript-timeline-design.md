@@ -20,9 +20,10 @@ Add a "Forhandlinger" section: the case's debates as a timeline grouped by meeti
   is NOT used — show meeting date + `itemNo`-derived label when dagsordenspunkt is absent).
 - Party: `AktørAktør` (rolleid 15 = medlem) → `Aktør` typeid 4 with `gruppenavnkort`
   (S, V, SF …). 1,982 persons linked, 138 party-switchers, 16,036 dated memberships.
-  Attribution: membership valid at the meeting date when dated rows exist, else the
-  person's undated/most-frequent membership. Ministers frequently have no party link —
-  chip simply omitted.
+  Attribution: one chip per speaker per case, preferring the membership valid at the
+  case's *last* debate date (per-meeting attribution deliberately descoped — only
+  3 speaker-case pairs in the corpus would flip chips across a mid-case party switch).
+  Ministers frequently have no party link — chip simply omitted.
 - Danish FTS: GIN index `tale_segment_raw_fts_idx` + `websearch_to_tsquery('danish')`,
   highlights via `ts_headline` (`**` markers → `<mark>`).
 
@@ -33,7 +34,7 @@ Add a "Forhandlinger" section: the case's debates as a timeline grouped by meeti
 | param | meaning |
 |---|---|
 | `id` (required) | sag id |
-| `aktørid` | only segments by this speaker (`-1` = unmatched/orator-only speakers) |
+| `taler` | only segments by this aktørid (`-1` = unmatched/orator-only speakers). ASCII name because it travels in URLs |
 | `q` | Danish websearch FTS within the case; response content becomes highlighted excerpts |
 | `skjulFormand` | `true` drops segments with oratorRolle formand/midlertidig formand |
 | `mødeid` + `offset` | continuation for one meeting's segments (cap 300/meeting/request) |
@@ -42,21 +43,27 @@ Response:
 
 ```ts
 {
-  speakers: { id: number | null, navn: string, rolle: string, parti: string | null, count: number }[],
+  speakers: { id: number | null, navn: string, rolle: string | null, parti: string | null, count: number }[],
   meetings: {
-    mødeid: number, dato: string, label: string,        // "1. behandling" or itemNo fallback
+    mødeid: number, dato: string,
+    label: string | null,             // "1. behandling", else "Punkt {itemNo}", null only if both absent
     totalSegments: number, matchingSegments: number,
-    segments: { id, content, starttid, sequence,
-                taler: { id: number | null, navn: string, rolle: string, parti: string | null } }[]
+    segments: { id, content, starttid, sequence, mødeid,
+                aktørid: number | null, navn: string, rolle: string | null }[]
   }[]
 }
 ```
 
+- Segment fields are flat; the client resolves `parti` chips from the `speakers`
+  roster by `aktørid`.
+- Continuation requests (`mødeid` set) return only
+  `{ meetings: [{ mødeid, segments }] }` — the roster/skeleton/count work is skipped.
 - Segments ordered by `sequence` within meeting; meetings by `dato`.
 - Filters compose with AND. Meetings with zero matches are returned with empty
   `segments` (UI shows them collapsed, so the timeline shape stays stable).
-- 400 on missing/invalid id; empty `meetings` when the case has no transcript
-  (UI hides the section).
+- 400 on missing/invalid `id`, non-integer `taler`/`mødeid`; negative or
+  non-numeric `offset` is clamped to 0; empty `meetings` when the case has no
+  transcript (UI hides the section).
 
 ## UI
 
@@ -65,7 +72,8 @@ Response:
   bemærkninger"), vertical timeline (left border, date nodes), per-meeting collapsible
   groups with "Vis flere" continuation. Filter state syncs to URL query
   (`?taler=&soeg=&skjulFormand=`) via `router.replace` so views are shareable.
-  Data via TanStack vue-query keyed on `[sagId, filters]`.
+  Data via `$fetch` in a watcher with a request-generation guard (latest wins;
+  in-flight "Vis flere" pages are dropped when filters change underneath them).
 - `components/Sag/SpeechCard.vue` — speaker line (name, role badge — minister colored,
   formand muted; party chip with `gruppenavnkort`), HH:MM time, content
   (highlighted `<mark>` when searching), link to `/meeting/:mødeid`.

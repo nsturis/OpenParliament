@@ -18,7 +18,9 @@
         </h2>
         <ul class="space-y-1">
           <li v-for="actor in group.items" :key="actor.id">
-            {{ actor.navn }}
+            <NuxtLink :to="`/aktoerer/${actor.id}`" class="text-primary-600 hover:text-primary-800 dark:text-primary-400">
+              {{ actor.navn }}
+            </NuxtLink>
           </li>
         </ul>
         <p v-if="!group.items.length" class="text-sm text-gray-500">Ingen fundet.</p>

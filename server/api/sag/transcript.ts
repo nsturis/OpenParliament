@@ -9,6 +9,8 @@ import { db } from '../../utils/db'
  *   q             Danish websearch FTS; content becomes highlighted excerpts
  *   skjulFormand  drop the chair's procedural remarks
  *   mødeid+offset continuation of a single meeting's segments
+ *   mødeid+fra+til window mode: ALL segments in the sequence range (≤100 wide)
+ *                 with content, ignoring taler/skjulFormand; q only highlights
  */
 
 const MEETING_PAGE = 300
@@ -20,7 +22,16 @@ type SpeakerRow = {
   navn: string
   rolle: string | null
   parti: string | null
+  partiid: number | null
   count: number
+}
+
+type IndexRow = {
+  id: number
+  sequence: number
+  aktørid: number | null
+  mødeid: number
+  match: boolean
 }
 
 type MeetingRow = {
@@ -61,14 +72,28 @@ export default defineEventHandler(async (event) => {
   const rawOffset = Number(query.offset)
   const offset = Number.isFinite(rawOffset) ? Math.max(0, Math.trunc(rawOffset)) : 0
 
-  const filters: SQL[] = [sql`t.sagid = ${sagId}`]
-  if (taler === -1) filters.push(sql`t."aktørid" IS NULL`)
-  else if (taler) filters.push(sql`t."aktørid" = ${taler}`)
+  const fra = query.fra !== undefined ? Number(query.fra) : undefined
+  if (fra !== undefined && (!Number.isInteger(fra) || fra < 0)) {
+    throw createError({ statusCode: 400, statusMessage: 'Ugyldig fra' })
+  }
+  const til = query.til !== undefined ? Number(query.til) : undefined
+  if (til !== undefined && (!Number.isInteger(til) || til < 0)) {
+    throw createError({ statusCode: 400, statusMessage: 'Ugyldig til' })
+  }
+  if (fra !== undefined && til !== undefined && (til < fra || til - fra > 99)) {
+    throw createError({ statusCode: 400, statusMessage: 'Ugyldigt interval' })
+  }
+
+  // Non-sagid filters kept separately so the index query can evaluate them as
+  // a per-row match expression instead of a WHERE clause.
+  const matchFilters: SQL[] = []
+  if (taler === -1) matchFilters.push(sql`t."aktørid" IS NULL`)
+  else if (taler) matchFilters.push(sql`t."aktørid" = ${taler}`)
   if (skjulFormand)
-    filters.push(sql`(t."oratorRolle" IS NULL OR t."oratorRolle" NOT IN ('formand', 'midlertidig formand'))`)
+    matchFilters.push(sql`(t."oratorRolle" IS NULL OR t."oratorRolle" NOT IN ('formand', 'midlertidig formand'))`)
   if (q)
-    filters.push(sql`to_tsvector('danish', t.content) @@ websearch_to_tsquery('danish', ${q})`)
-  const where = sql.join(filters, sql` AND `)
+    matchFilters.push(sql`to_tsvector('danish', t.content) @@ websearch_to_tsquery('danish', ${q})`)
+  const where = sql.join([sql`t.sagid = ${sagId}`, ...matchFilters], sql` AND `)
 
   const contentExpr = q
     ? sql`ts_headline('danish', t.content, websearch_to_tsquery('danish', ${q}),
@@ -98,6 +123,24 @@ export default defineEventHandler(async (event) => {
     return rows.rows
   }
 
+  // Window mode: every segment in the sequence range, with content, ignoring
+  // the taler/skjulFormand filters entirely (q still highlights via
+  // contentExpr but never excludes). Used by run-expanders and minimap jumps.
+  if (onlyMødeid && fra !== undefined && til !== undefined) {
+    const rows = await db.execute<SegmentRow>(sql`
+      SELECT t.id, ${contentExpr} AS content, t.starttid, t.sequence, t."mødeid",
+             t."aktørid",
+             coalesce(a.navn, nullif(trim(concat(t."oratorFornavn", ' ', t."oratorEfternavn")), ''), 'Ukendt taler') AS navn,
+             t."oratorRolle" AS rolle
+      FROM "taleSegmentRaw" t
+      LEFT JOIN "Aktør" a ON a.id = t."aktørid"
+      WHERE t.sagid = ${sagId} AND t."mødeid" = ${onlyMødeid}
+        AND t.sequence BETWEEN ${fra} AND ${til}
+      ORDER BY t.sequence, t.id
+    `)
+    return { meetings: [{ mødeid: onlyMødeid, segments: rows.rows }] }
+  }
+
   // Continuation of a single meeting: the client only reads the extra
   // segments, so skip the roster/skeleton/count work entirely.
   if (onlyMødeid) {
@@ -124,10 +167,10 @@ export default defineEventHandler(async (event) => {
       WHERE t.sagid = ${sagId}
       GROUP BY 1, 2
     )
-    SELECT s.id, s.navn, s.rolle, s.count, p.parti
+    SELECT s.id, s.navn, s.rolle, s.count, p.parti, p.partiid
     FROM speakers s
     LEFT JOIN LATERAL (
-      SELECT g.gruppenavnkort AS parti
+      SELECT g.id AS partiid, g.gruppenavnkort AS parti
       FROM "AktørAktør" aa
       JOIN "Aktør" g ON g.id = aa."tilaktørid" AND g.typeid = 4
       WHERE aa."fraaktørid" = s.id AND aa.rolleid = 15 AND g.gruppenavnkort IS NOT NULL
@@ -163,11 +206,24 @@ export default defineEventHandler(async (event) => {
   `)
   const matchingByMeeting = new Map(matchCounts.rows.map((r) => [r.mødeid, r.matching]))
 
+  // Full segment index (no content, ~30 bytes/row) for the minimap, match
+  // navigator and collapse-runs. match = the active filters; all-true bare.
+  const matchExpr = matchFilters.length ? sql.join(matchFilters, sql` AND `) : sql`true`
+  const indexRows = await db.execute<IndexRow>(sql`
+    SELECT t.id, t.sequence, t."aktørid", t."mødeid", (${matchExpr}) AS match
+    FROM "taleSegmentRaw" t
+    WHERE t.sagid = ${sagId}
+    ORDER BY t."mødeid", t.sequence, t.id
+  `)
+
   const result = []
   for (const meeting of meetings.rows) {
     result.push({
       ...meeting,
       matchingSegments: matchingByMeeting.get(meeting.mødeid) ?? 0,
+      index: indexRows.rows
+        .filter((r) => r.mødeid === meeting.mødeid)
+        .map(({ mødeid: _m, ...r }) => r),
       segments: await fetchSegments(meeting.mødeid, 0),
     })
   }

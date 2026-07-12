@@ -19,8 +19,12 @@ export default defineEventHandler(async (event): Promise<SagApiResponse> => {
     const result = await db.query.sag.findFirst({
       where: eq(sag.id, id),
       with: {
+        sagsstatus: true,
+        sagstype: true,
+        periode: true,
         sagstrin: {
           with: {
+            sagstrinstype: true,
             dagsordenspunkt: true,
             sagstrinAktør: {
               with: {

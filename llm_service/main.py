@@ -16,6 +16,7 @@ import re
 import threading
 from typing import List
 
+import torch
 import uvicorn
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -100,6 +101,11 @@ def encode_passages(chunks: List[str]) -> List[List[float]]:
             batch_size=ENCODE_BATCH_SIZE,
             normalize_embeddings=True,
         )
+        # The MPS caching allocator never returns freed blocks to the OS, and
+        # length-sorted batches produce a new buffer shape almost every call —
+        # without this the process footprint grows past 14 GB on long backfills.
+        if model.device.type == "mps":
+            torch.mps.empty_cache()
     return embeddings.tolist()
 
 

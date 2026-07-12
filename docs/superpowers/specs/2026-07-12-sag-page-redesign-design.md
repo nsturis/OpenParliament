@@ -117,11 +117,20 @@ variant: non-matching stretches collapse to expander lines.
 
 ## Voting
 
-- **Fix `/api/sag/partyStances` zero counts**: audit confirmed the endpoint
-  returns all-zero per-party counts despite real totals (93/18 on sag 105278).
-  Investigate the party-membership date-window join first (suspect: the same dated
-  AktørAktør recipe the transcript endpoint got right). Acceptance: party counts
-  for sag 105278 are non-zero and sum to 93 for / 18 imod.
+- **Rewrite `/api/sag/partyStances`** (diagnosed): it joined `stemme.typeid` to
+  the wrong lookup table (`afstemningstype` instead of `stemmetype` — overlapping
+  ids made the join silently succeed with wrong labels, zeroing every counter),
+  the absent label is `Fravær` not `fraværende`, pg returns `count(*)` as a
+  string, and the membership date-window bucketing emits ~28 duplicate party
+  entries. The endpoint has no active consumers (its only user is commented out),
+  so it is rewritten in place with a per-afstemning contract — one block per
+  afstemning (a case can have several), party resolution via the known-good dated
+  lateral recipe keyed by `gruppenavnkort`:
+  `{ afstemninger: [{ id, nummer, type, dato, vedtaget, konklusion, partier:
+  [{ parti, for, imod, hverken, fravær }], stemmer: [{ aktørid, navn, parti,
+  stemme }] }] }`. Acceptance: sag 105278 → one afstemning (id 10578, "Endelig
+  vedtagelse", vedtaget) with party counts summing to 93 for / 18 imod / 68
+  fravær (psql-verified: S 27 for, DF 8 imod, …).
 - `VotingWidget`: one row per party — gruppenavnkort chip (partyColor), for/imod
   bars (green/red), counts; totals bar + `afstemningskonklusion` text; multiple
   afstemninger on one case → one block per afstemning (typed: endelig vedtagelse
@@ -132,15 +141,17 @@ variant: non-matching stretches collapse to expander lines.
 
 ## Minimal aktør page
 
-- `GET /api/actors/[id]` — 400 on non-integer id, 404 when absent. Returns `{ id,
-  navn, typeid, type (aktørtype text), biografi: string | null (plain text,
-  XML/HTML stripped server-side), parti: { id, navn, gruppenavnkort } | null (dated
-  AktørAktør recipe from transcript.ts) }`.
-- `pages/aktoerer/[id].vue` — header (name, party chip linking to
-  `/aktoerer/[partyId]`, type badge), biografi text (paragraphs, collapsed to ~15
-  lines with "Vis mere"), "Sager" section: paginated list via existing
-  `/api/sag/list?aktørid=` reusing `SagTable`. Works for persons, parties,
-  committees (all aktører); sections hide when empty.
+- `GET /api/actors/[id]` — 400 on non-integer id, 404 when absent. `aktør.biografi`
+  is structured XML (`<member>` root with `pictureMiRes`, `profession`, `born`,
+  `title` … tags — raw stripping produces garbage), so the endpoint extracts
+  fields instead: returns `{ id, navn, typeid, type (aktørtype text),
+  gruppenavnkort, parti: { id, gruppenavnkort } | null (dated AktørAktør recipe
+  from transcript.ts, valid today), biografi: { foto, profession, født } | null }`.
+- `pages/aktoerer/[id].vue` — header (photo when available, name, party chip
+  linking to `/aktoerer/[partyId]`, type badge, profession/født line), "Sager"
+  section: paginated list via existing `/api/sag/list?aktørid=` reusing
+  `SagTable`. Works for persons, parties, committees (all aktører); sections hide
+  when empty.
 - **Linkification** (link-or-span pattern, plain span when aktørid is null):
   ActorsWidget entries, roll-call members, `SpeechCard` speaker names, transcript
   speaker dropdown stays a filter (no link), party chips link to the party's aktør

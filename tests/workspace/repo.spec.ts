@@ -1,3 +1,7 @@
+// @vitest-environment node
+// The repo is a pure Dexie wrapper with no Nuxt runtime deps. Run it in the
+// node env, where fake-indexeddb/auto reliably installs the indexedDB globals
+// (the 'nuxt' env's happy-dom shadows them and Dexie throws MissingAPIError).
 import 'fake-indexeddb/auto'
 import { beforeEach, describe, expect, it } from 'vitest'
 import { useWorkspaceRepo } from '../../composables/useWorkspaceRepo'

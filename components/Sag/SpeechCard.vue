@@ -68,6 +68,14 @@ const contentHtml = computed(() => {
         {{ roleBadge.label }}
       </UBadge>
       <span v-if="time" class="ml-auto text-xs text-gray-500 dark:text-gray-400">{{ time }}</span>
+      <WorkspaceAddToDossier
+        :class="time ? '' : 'ml-auto'"
+        :item-ref="{
+          type: 'speech',
+          id: segment.id,
+          meta: { label: parti ? `${segment.navn} (${parti.navn})` : segment.navn },
+        }"
+      />
     </header>
     <!-- eslint-disable-next-line vue/no-v-html — escaped above -->
     <p class="text-sm leading-relaxed" v-html="contentHtml" />

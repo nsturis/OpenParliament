@@ -21,6 +21,10 @@ const fmtPct = (v: number | null) => (v === null ? '–' : `${v}%`)
         {{ actor.parti.gruppenavnkort }}
       </NuxtLink>
       <UBadge v-if="actor.type" color="gray" variant="soft">{{ actor.type }}</UBadge>
+      <WorkspaceAddToDossier
+        class="ml-auto"
+        :item-ref="{ type: 'actor', id: actor.id, meta: { label: actor.navn } }"
+      />
     </div>
     <p v-if="cvLine" class="text-sm text-gray-500 dark:text-gray-400">{{ cvLine }}</p>
     <dl v-if="stats" class="flex flex-wrap gap-6 text-sm">

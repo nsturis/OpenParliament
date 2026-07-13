@@ -9,9 +9,14 @@
       {{ formatDate(row.opdateringsdato) }}
     </template>
     <template #actions-data="{ row }">
-      <UButton :to="`/sager/${row.id}`" color="primary" variant="soft" size="sm">
-        Se detaljer
-      </UButton>
+      <div class="flex items-center gap-2">
+        <UButton :to="`/sager/${row.id}`" color="primary" variant="soft" size="sm">
+          Se detaljer
+        </UButton>
+        <WorkspaceAddToDossier
+          :item-ref="{ type: 'sag', id: row.id, meta: { label: row.titelkort || row.titel } }"
+        />
+      </div>
     </template>
   </UTable>
 </template>

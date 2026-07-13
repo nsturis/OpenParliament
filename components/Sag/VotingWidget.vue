@@ -94,6 +94,18 @@ const stemmeFarve = (stemme: string) => STEMME_FARVER[stemme] ?? 'gray'
             >
               {{ p.for }} for · {{ p.imod }} imod
             </span>
+            <WorkspaceAddToDossier
+              :item-ref="{
+                type: 'vote',
+                id: blok.id,
+                meta: {
+                  label: `${p.parti || 'Uden gruppe'} · ${blok.titel}`,
+                  party: p.parti || undefined,
+                  forCount: p.for,
+                  imodCount: p.imod,
+                },
+              }"
+            />
           </div>
         </div>
 

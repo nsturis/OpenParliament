@@ -116,7 +116,12 @@ onMounted(opdaterAktivSektion)
       {{ sagFejl }}
     </div>
     <div v-else-if="sag" class="space-y-6">
-      <SagHero :sag="sag" />
+      <div class="flex items-start justify-between gap-2">
+        <SagHero :sag="sag" class="flex-1" />
+        <WorkspaceAddToDossier
+          :item-ref="{ type: 'sag', id: sag.id, meta: { label: sag.titelkort || sag.titel } }"
+        />
+      </div>
 
       <SagProcessStepper
         v-if="sag.sagstrin.length"

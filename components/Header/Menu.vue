@@ -14,6 +14,7 @@
                 <div class="ml-10 flex items-baseline space-x-4">
                   <NuxtLink
 v-for="item in navigation" :key="item.name" :to="item.href"
+                    active-class="text-primary-500 dark:text-primary-400"
                     class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white">
                     {{ item.name }}</NuxtLink>
                 </div>
@@ -45,6 +46,7 @@ v-for="item in navigation" :key="item.name" :to="item.href"
         <div class="space-y-1 px-2 py-3 sm:px-3">
           <DisclosureButton
 v-for="item in navigation" :key="item.name" :as="NuxtLink" :to="item.href"
+            active-class="text-primary-500 dark:text-primary-400"
             class="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white">{{
               item.name }}</DisclosureButton>
         </div>
@@ -73,7 +75,7 @@ const route = useRoute()
 const mainStore = useMainStore()
 
 const navigation = [
-  { name: 'Om Parlamentet.dk', href: '/' },
+  { name: 'Forsiden', href: '/' },
   { name: 'Live', href: '/live' },
   { name: 'Valgtest', href: '/folketingsvalg-2022-valgtest' },
   { name: 'Ugeplan', href: '/ugeplan' },

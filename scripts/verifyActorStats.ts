@@ -12,9 +12,9 @@ for (const c of CASES) {
   const r = await db.execute<{ loyalty: number; attendance: number }>(sql`
     WITH a AS (SELECT id FROM "Aktør" WHERE navn = ${c.navn} AND typeid = 5 ORDER BY id LIMIT 1)
     SELECT round(100.0*count(*) FILTER (WHERE vp.typeid<>3 AND vp.typeid=d.majority_typeid)
-                 /NULLIF(count(*) FILTER (WHERE vp.typeid<>3 AND vp.partiid IS NOT NULL AND d.majority_typeid IS NOT NULL),0),1) loyalty,
+                 /NULLIF(count(*) FILTER (WHERE vp.typeid<>3 AND vp.parti_key IS NOT NULL AND d.majority_typeid IS NOT NULL),0),1) loyalty,
            round(100.0*count(*) FILTER (WHERE vp.typeid<>3)/count(*),1) attendance
-    FROM vote_party vp LEFT JOIN division_party_majority d USING (afstemningid, partiid)
+    FROM vote_party vp LEFT JOIN division_party_majority d USING (afstemningid, parti_key)
     WHERE vp.aktørid = (SELECT id FROM a)`)
   const { loyalty, attendance } = r.rows[0]
   const ok = loyalty >= c.minLoyalty && attendance >= c.minAttendance

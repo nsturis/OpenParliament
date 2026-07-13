@@ -61,13 +61,15 @@ useHead({ title: computed(() => actor.value?.navn ? `${actor.value.navn} – Par
       <ActorHeader :actor="actor" :stats="overview?.stats ?? null" />
       <UTabs v-model="tabIndex" :items="tabItems">
         <template #item="{ item }">
-          <div class="pt-4">
+          <!-- Lazy: only the active tab's panel mounts (UTabs renders every
+               item slot, so without this gate all four components fetch on load). -->
+          <div v-if="item.key === tab" class="pt-4">
             <ActorOverview v-if="item.key === 'oversigt' && overview" :id="actor.id" :overview="overview" @goto="tab = $event as TabKey" />
             <ActorVotingRecord v-else-if="item.key === 'afstemninger'" :id="actor.id" />
             <ActorSpeechList v-else-if="item.key === 'taler'" :id="actor.id" :navn="actor.navn" />
             <template v-else-if="item.key === 'sager'">
               <SagTable v-if="sagData" :sager="sagData.items" />
-              <PaginationControls v-if="sagData" :current-page="sagData.currentPage" :total-pages="sagData.totalPages" @change-page="casePage = $event" />
+              <PaginationControls v-if="sagData && sagData.totalPages > 1" :current-page="sagData.currentPage" :total-pages="sagData.totalPages" @change-page="casePage = $event" />
             </template>
           </div>
         </template>

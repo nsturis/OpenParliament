@@ -406,14 +406,17 @@ CREATE INDEX IF NOT EXISTS fil_content_embedding_idx ON public."FilContent" USIN
 -- stemmetype ids (verified live): 1=For 2=Imod 3=Fravær 4=Hverken. Fravær is
 -- absence, excluded from party position and from loyalty.
 
--- One resolved party (Folketingsgruppe id) per vote, in-window-first else latest.
+-- One resolved party per vote, in-window-first else latest. Carries both the
+-- per-period Folketingsgruppe id (partiid) and the STABLE party symbol
+-- (parti_key = gruppenavnkort, e.g. 'V'/'S'/'EL'). The bloc math keys off
+-- parti_key, not partiid — see division_party_majority.
 CREATE MATERIALIZED VIEW IF NOT EXISTS public.vote_party AS
-SELECT s.id AS stemme_id, s.afstemningid, s."aktørid" AS aktørid, s.typeid, p.partiid
+SELECT s.id AS stemme_id, s.afstemningid, s."aktørid" AS aktørid, s.typeid, p.partiid, p.parti_key
 FROM stemme s
 JOIN afstemning a ON a.id = s.afstemningid
 LEFT JOIN "Møde" m ON m.id = a."mødeid"
 LEFT JOIN LATERAL (
-  SELECT g.id AS partiid
+  SELECT g.id AS partiid, g.gruppenavnkort AS parti_key
   FROM "AktørAktør" aa
   JOIN "Aktør" g ON g.id = aa."tilaktørid" AND g.typeid = 4
   WHERE aa."fraaktørid" = s."aktørid" AND aa.rolleid = 15
@@ -426,22 +429,35 @@ LEFT JOIN LATERAL (
 
 CREATE UNIQUE INDEX IF NOT EXISTS vote_party_stemme_id_idx ON public.vote_party (stemme_id);
 CREATE INDEX IF NOT EXISTS vote_party_aktør_idx ON public.vote_party (aktørid);
-CREATE INDEX IF NOT EXISTS vote_party_div_parti_idx ON public.vote_party (afstemningid, partiid);
+CREATE INDEX IF NOT EXISTS vote_party_div_parti_idx ON public.vote_party (afstemningid, parti_key);
 
--- Each party's bloc position per division, Fravær excluded.
+-- Bloc position per (division, PARTY). Party = the stable gruppenavnkort, NOT the
+-- per-folketingsår Folketingsgruppe actor id: "Venstre" is ~98 distinct actor ids
+-- across periods, so grouping by the fragment id splits a party into up to ~13
+-- blocs in one division and mislabels loyalty (an MP alone on a stale fragment is
+-- always "loyal" to himself, masking a real rebellion). Fravær excluded. majority
+-- is NULL on a tie (no bloc position) so mode()'s lowest-typeid bias can't
+-- fabricate a For majority and brand the Imod voters as rebels.
 CREATE MATERIALIZED VIEW IF NOT EXISTS public.division_party_majority AS
-SELECT afstemningid, partiid,
-       mode() WITHIN GROUP (ORDER BY typeid) AS majority_typeid,
-       count(*) FILTER (WHERE typeid = 1) AS for_n,
-       count(*) FILTER (WHERE typeid = 2) AS imod_n,
-       count(*) FILTER (WHERE typeid = 4) AS hverken_n,
-       count(*) AS present_n
-FROM public.vote_party
-WHERE partiid IS NOT NULL AND typeid IS NOT NULL AND typeid <> 3
-GROUP BY afstemningid, partiid;
+WITH agg AS (
+  SELECT afstemningid, parti_key,
+         count(*) FILTER (WHERE typeid = 1) AS for_n,
+         count(*) FILTER (WHERE typeid = 2) AS imod_n,
+         count(*) FILTER (WHERE typeid = 4) AS hverken_n,
+         count(*) AS present_n
+  FROM public.vote_party
+  WHERE parti_key IS NOT NULL AND typeid IS NOT NULL AND typeid <> 3
+  GROUP BY afstemningid, parti_key
+)
+SELECT afstemningid, parti_key, for_n, imod_n, hverken_n, present_n,
+       CASE WHEN for_n > imod_n AND for_n > hverken_n THEN 1
+            WHEN imod_n > for_n AND imod_n > hverken_n THEN 2
+            WHEN hverken_n > for_n AND hverken_n > imod_n THEN 4
+            ELSE NULL END AS majority_typeid
+FROM agg;
 
 CREATE UNIQUE INDEX IF NOT EXISTS division_party_majority_idx
-  ON public.division_party_majority (afstemningid, partiid);
+  ON public.division_party_majority (afstemningid, parti_key);
 
 -- Actor speech history browse (taleSegmentRaw WHERE aktørid ORDER BY starttid DESC)
 CREATE INDEX IF NOT EXISTS tale_segment_raw_aktør_idx

@@ -38,7 +38,7 @@ export default defineEventHandler(async (event) => {
     FROM vote_party vp
     JOIN afstemning a ON a.id = vp.afstemningid
     LEFT JOIN "Møde" m ON m.id = a."mødeid"
-    LEFT JOIN division_party_majority d ON d.afstemningid = vp.afstemningid AND d.partiid = vp.partiid
+    LEFT JOIN division_party_majority d ON d.afstemningid = vp.afstemningid AND d.parti_key = vp.parti_key
     LEFT JOIN sagstrin st ON st.id = a.sagstrinid
     LEFT JOIN sag s ON s.id = st.sagid
     WHERE vp.aktørid = ${id} ${filters[0]} ${filters[1]} ${filters[2]}`

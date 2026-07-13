@@ -4,7 +4,9 @@ const props = defineProps<{ id: number; navn: string }>()
 const page = ref(1)
 const includeProcedural = ref(false)
 watch(includeProcedural, () => { page.value = 1 })
-const { data, pending } = await useFetch<SpeechesResponse>(() => `/api/actors/${props.id}/speeches`, {
+// Not awaited: mounts lazily on tab activation, so it shows its skeleton while
+// loading instead of suspending the page.
+const { data, pending } = useFetch<SpeechesResponse>(() => `/api/actors/${props.id}/speeches`, {
   query: { page, includeProcedural: computed(() => (includeProcedural.value ? 'true' : undefined)) },
 })
 const link = (s: SpeechRow) =>
@@ -31,7 +33,7 @@ const link = (s: SpeechRow) =>
           <NuxtLink :to="link(sp)" class="mt-1 inline-block text-sm text-primary-600 dark:text-primary-400">Gå til debatten →</NuxtLink>
         </li>
       </ul>
-      <PaginationControls :current-page="data.currentPage" :total-pages="data.totalPages" @change-page="page = $event" />
+      <PaginationControls v-if="data.totalPages > 1" :current-page="data.currentPage" :total-pages="data.totalPages" @change-page="page = $event" />
     </template>
   </div>
 </template>

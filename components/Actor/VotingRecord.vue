@@ -10,7 +10,9 @@ const rebellions = ref(false)
 watch([periodeid, position, rebellions], () => { page.value = 1 })
 
 const { data: perioder } = useFetch<{ id: number; titel: string }[]>('/api/perioder')
-const { data, pending } = await useFetch<VotesResponse>(() => `/api/actors/${props.id}/votes`, {
+// Not awaited: this component mounts lazily on tab activation, so it renders its
+// skeleton while loading instead of suspending the page.
+const { data, pending } = useFetch<VotesResponse>(() => `/api/actors/${props.id}/votes`, {
   query: { page, periodeid, position, rebellions: computed(() => (rebellions.value ? 'true' : undefined)) },
 })
 const AGREE: Record<string, { t: string; c: string }> = {
@@ -47,7 +49,7 @@ const periodeOptions = computed<{ value: number | undefined; label: string }[]>(
           <UBadge :color="v.vedtaget ? 'green' : 'red'" variant="soft" size="xs">{{ v.vedtaget ? 'Vedtaget' : 'Forkastet' }}</UBadge>
         </li>
       </ul>
-      <PaginationControls :current-page="data.currentPage" :total-pages="data.totalPages" @change-page="page = $event" />
+      <PaginationControls v-if="data.totalPages > 1" :current-page="data.currentPage" :total-pages="data.totalPages" @change-page="page = $event" />
     </template>
   </div>
 </template>

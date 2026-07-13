@@ -2,6 +2,7 @@
 import { sql } from 'drizzle-orm'
 import { createError, defineEventHandler, getRouterParam } from 'h3'
 import { db } from '../../../utils/db'
+import { collapseParties, inferGroupEnds } from '../../../utils/memberships'
 import type { Membership, MembershipsResponse } from '~/types/actor'
 
 export default defineEventHandler(async (event): Promise<MembershipsResponse> => {
@@ -25,5 +26,11 @@ export default defineEventHandler(async (event): Promise<MembershipsResponse> =>
     else if (m.gruppetypeid === 1 || m.gruppetypeid === 2 || m.gruppetypeid === 8) out.ministerielle.push(m)
     else out.øvrige.push(m)
   }
+  // Parties are exclusive → collapse per-period fragments into continuous spans;
+  // the rest run concurrently → keep every row but repair the "– nu" end dates.
+  out.parti = collapseParties(out.parti)
+  out.udvalg = inferGroupEnds(out.udvalg)
+  out.ministerielle = inferGroupEnds(out.ministerielle)
+  out.øvrige = inferGroupEnds(out.øvrige)
   return out
 })

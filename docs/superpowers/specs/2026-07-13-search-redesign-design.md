@@ -42,9 +42,11 @@ Three retrieval branches run in parallel:
 2. **Vector**: embed q via the LLM service (`/embed_query`, 15 s timeout, adds
    the `query: ` prefix); HNSW cosine over `taleSegmentChunk` with over-fetch
    (LIMIT 200 **before** joins/filters — filtered HNSW must over-fetch or it
-   misses), join `taleSegmentRaw`, apply filters, keep the existing ≥ 80-char
-   chunk heuristic, trim to 50. Multiple chunks of the same segment collapse to
-   the segment's best rank.
+   misses). **Requires `SET LOCAL hnsw.ef_search = 200` in a transaction** —
+   the GUC defaults to 40 and silently caps results below LIMIT (verified:
+   LIMIT 200 returned 40 rows without it). Join `taleSegmentRaw`, apply
+   filters, keep the existing ≥ 80-char chunk heuristic, trim to 50. Multiple
+   chunks of the same segment collapse to the segment's best rank.
 3. **Sag titles**: `ilike` over titel/titelkort/nummer, top 5 — presented as a
    slim "Sager" strip above the speech groups (see /soeg below), not fused.
 
@@ -105,11 +107,15 @@ pattern from Transcript.vue).
 Layout top-to-bottom:
 
 1. Large search input (autofocus when q empty).
-2. Filter row: `PeriodSelector` (reused); party chips colored via
-   `utils/partyColor.ts` (multi-select OFF — single party per the API); speaker
-   autocomplete (debounced name lookup against the existing actors API, shows
-   party chip in suggestions, stores aktørid in `taler`). Active filters clear
-   individually; all Danish labels.
+2. Filter row: period via `USelectMenu` with an "Alle samlinger" null option
+   (PeriodSelector can't express "no period" — it always has a selection, so it
+   is NOT reused); party chips for the 16 parties in `PARTY_COLORS` (the DB has
+   46 historical gruppenavnkort values — historical parties are reachable via
+   the speaker filter instead; single-select); speaker autocomplete backed by a
+   NEW `GET /api/actors/suggest?q=` endpoint (no existing endpoint searches
+   actors by name or returns party): top 8 persons by navn ilike with dated
+   party, `[{ id, navn, parti, partiid }]`; <2 chars → `[]`. Active filters
+   clear individually; all Danish labels.
 3. `sagTitleMatches` strip when non-empty: compact rows (nummer, titelkort||titel,
    status pill) linking to `/sager/[id]`.
 4. Result groups: card per group — header = status pill + type badge +
@@ -142,10 +148,13 @@ Esc closes, click-outside closes, arrow keys navigate suggestions. On mobile
 
 ## Deep-link into the forhandling timeline
 
-Hit link: `/sager/{sagid}?q={query}&jump={mødeid}:{sequence}#forhandling`.
+Hit link: `/sager/{sagid}?soeg={query}&jump={mødeid}:{sequence}#forhandling`.
 
-- Transcript.vue already URL-syncs its filters (q applies as the transcript
-  search → match navigator + collapsed runs active on arrival).
+- Transcript.vue already URL-syncs its filters — the URL param for the
+  transcript search is **`soeg`** (`q` is only the internal API param name), so
+  the carried query MUST use `soeg` (verified in code; `?q=` would arrive dead).
+  It applies as the transcript search → match navigator + collapsed runs active
+  on arrival.
 - New `jump` param (parsed `{mødeid}:{sequence}`, both int4-validated,
   silently ignored when malformed or when the meeting isn't in the case's
   index): once the transcript index has loaded, jump to that exact segment via

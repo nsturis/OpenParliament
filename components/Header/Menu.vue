@@ -19,6 +19,7 @@ v-for="item in navigation" :key="item.name" :to="item.href"
                 </div>
               </div>
             </div>
+            <HeaderSearch v-if="route.path !== '/soeg'" class="hidden md:block" />
             <ColorModeButton />
             <div class="hidden md:block">
               <div class="ml-4 flex items-center md:ml-6">
@@ -40,6 +41,7 @@ v-for="item in navigation" :key="item.name" :to="item.href"
       </div>
 
       <DisclosurePanel class="border-b border-gray-700 md:hidden">
+        <HeaderSearch v-if="route.path !== '/soeg'" class="px-2 pb-2 md:hidden" />
         <div class="space-y-1 px-2 py-3 sm:px-3">
           <DisclosureButton
 v-for="item in navigation" :key="item.name" :as="NuxtLink" :to="item.href"
@@ -67,6 +69,7 @@ import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 
 const NuxtLink = resolveComponent('NuxtLink')
 
+const route = useRoute()
 const mainStore = useMainStore()
 
 const navigation = [

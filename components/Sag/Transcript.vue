@@ -336,6 +336,31 @@ const jumpToSequence = (meeting: Meeting, sequence: number) => {
   if (entry) jumpTo(meeting.mødeid, entry)
 }
 
+// Deep link from search: ?jump={mødeid}:{sequence} — jump once after the
+// first data load, then never again (filter changes must not re-jump).
+const INT4_MAX = 2147483647
+let hasJumped = false
+const parseJump = (): { mødeid: number; sequence: number } | null => {
+  const raw = route.query.jump
+  if (typeof raw !== 'string') return null
+  const m = raw.match(/^(\d{1,10}):(\d{1,10})$/)
+  if (!m) return null
+  const mødeid = Number(m[1])
+  const sequence = Number(m[2])
+  if (mødeid <= 0 || mødeid > INT4_MAX || sequence > INT4_MAX) return null
+  return { mødeid, sequence }
+}
+watch(data, async (d) => {
+  if (hasJumped || !d) return
+  hasJumped = true
+  const target = parseJump()
+  if (!target) return
+  const meeting = d.meetings.find((m) => m.mødeid === target.mødeid)
+  if (!meeting) return
+  await nextTick()
+  jumpToSequence(meeting, target.sequence)
+}, { flush: 'post' })
+
 // Match navigator: prev/next over the flattened matching index across meetings
 const allMatches = computed(() => {
   if (!harFiltre.value) return []

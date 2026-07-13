@@ -232,7 +232,11 @@ const startLoading = (mødeid: number, fra: number, til: number) => {
   return range
 }
 const stopLoading = (range: { mødeid: number; fra: number; til: number }) => {
-  loadingRanges.value = loadingRanges.value.filter((r) => r !== range)
+  // Compare by value: the deep ref yields reactive proxies on iteration, so
+  // identity against the raw pushed object would never match
+  loadingRanges.value = loadingRanges.value.filter(
+    (r) => r.mødeid !== range.mødeid || r.fra !== range.fra || r.til !== range.til,
+  )
 }
 
 const fetchWindow = async (mødeid: number, fra: number, til: number) => {
@@ -295,19 +299,24 @@ const visFlere = async (meeting: Meeting, gap: GapEntry) => {
 }
 
 // Scroll a segment into view, fetching its surrounding window first if its
-// content isn't loaded yet; flash it on arrival
-const jumpTo = async (mødeid: number, entry: IndexEntry) => {
+// content isn't loaded yet; flash it on arrival. Returns whether the jump
+// actually happened, so callers can avoid committing state on failure
+const jumpTo = async (mødeid: number, entry: IndexEntry): Promise<boolean> => {
   if (!loadedContent.value.has(entry.id)) {
     const gen = requestGen
     const fra = Math.max(0, entry.sequence - 5)
     const til = entry.sequence + 5
     const range = startLoading(mødeid, fra, til)
+    loadMoreError.value = { ...loadMoreError.value, [mødeid]: false }
     try {
       const segments = await fetchWindow(mødeid, fra, til)
-      if (gen !== requestGen) return
+      if (gen !== requestGen) return false
       for (const segment of segments) loadedContent.value.set(segment.id, segment)
     } catch {
-      return
+      if (gen === requestGen) {
+        loadMoreError.value = { ...loadMoreError.value, [mødeid]: true }
+      }
+      return false
     } finally {
       stopLoading(range)
     }
@@ -319,6 +328,7 @@ const jumpTo = async (mødeid: number, entry: IndexEntry) => {
   flashTimer = setTimeout(() => {
     flashId.value = null
   }, 2000)
+  return true
 }
 
 const jumpToSequence = (meeting: Meeting, sequence: number) => {
@@ -337,10 +347,13 @@ const allMatches = computed(() => {
 const gåTilMatch = async (delta: 1 | -1) => {
   const total = allMatches.value.length
   if (total === 0) return
-  navPos.value =
+  const nextPos =
     delta === 1 ? (navPos.value % total) + 1 : navPos.value <= 1 ? total : navPos.value - 1
-  const target = allMatches.value[navPos.value - 1]
-  if (target) await jumpTo(target.mødeid, target.entry)
+  const target = allMatches.value[nextPos - 1]
+  if (!target) return
+  // Commit the counter only when the jump actually happened, so a failed
+  // window fetch doesn't advance past a match that was never shown
+  if (await jumpTo(target.mødeid, target.entry)) navPos.value = nextPos
 }
 
 // Viewport tracking for the minimaps: fraction of each meeting's card column

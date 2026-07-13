@@ -22,7 +22,7 @@ const tag = (xml: string, name: string): string | null => {
 
 export default defineEventHandler(async (event) => {
   const id = Number(getRouterParam(event, 'id'))
-  if (!Number.isInteger(id) || id <= 0) {
+  if (!Number.isInteger(id) || id <= 0 || id > 2147483647) {
     throw createError({ statusCode: 400, statusMessage: 'Ugyldigt aktør-id' })
   }
   const result = await db.execute<ActorRow>(sql`
@@ -48,7 +48,8 @@ export default defineEventHandler(async (event) => {
 
   const bio = row.biografi?.includes('<member>')
     ? {
-        foto: tag(row.biografi, 'pictureMiRes'),
+        // ft.dk serves fotos with CORP: same-origin and a Cloudflare bot challenge (403 even server-side), so the URL can never render.
+        foto: null as string | null,
         profession: tag(row.biografi, 'profession'),
         født: tag(row.biografi, 'born'),
       }

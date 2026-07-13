@@ -14,6 +14,7 @@ import { db } from '../../utils/db'
  */
 
 const MEETING_PAGE = 300
+const INT4_MAX = 2147483647
 
 // Type aliases, not interfaces: db.execute's TRow extends Record<string, unknown>
 // constraint needs the implicit index signature only aliases get.
@@ -55,29 +56,29 @@ type SegmentRow = {
 export default defineEventHandler(async (event) => {
   const query = getQuery(event)
   const sagId = Number(query.id)
-  if (!Number.isInteger(sagId) || sagId <= 0) {
+  if (!Number.isInteger(sagId) || sagId <= 0 || sagId > INT4_MAX) {
     throw createError({ statusCode: 400, statusMessage: 'Ugyldigt sag-id' })
   }
 
   const taler = query.taler !== undefined ? Number(query.taler) : undefined
-  if (taler !== undefined && !Number.isInteger(taler)) {
+  if (taler !== undefined && (!Number.isInteger(taler) || Math.abs(taler) > INT4_MAX)) {
     throw createError({ statusCode: 400, statusMessage: 'Ugyldig taler' })
   }
   const q = typeof query.q === 'string' && query.q.trim() ? query.q.trim() : undefined
   const skjulFormand = query.skjulFormand === 'true'
   const onlyMødeid = query.mødeid !== undefined ? Number(query.mødeid) : undefined
-  if (onlyMødeid !== undefined && (!Number.isInteger(onlyMødeid) || onlyMødeid <= 0)) {
+  if (onlyMødeid !== undefined && (!Number.isInteger(onlyMødeid) || onlyMødeid <= 0 || onlyMødeid > INT4_MAX)) {
     throw createError({ statusCode: 400, statusMessage: 'Ugyldigt møde-id' })
   }
   const rawOffset = Number(query.offset)
-  const offset = Number.isFinite(rawOffset) ? Math.max(0, Math.trunc(rawOffset)) : 0
+  const offset = Number.isFinite(rawOffset) ? Math.min(INT4_MAX, Math.max(0, Math.trunc(rawOffset))) : 0
 
   const fra = query.fra !== undefined ? Number(query.fra) : undefined
-  if (fra !== undefined && (!Number.isInteger(fra) || fra < 0)) {
+  if (fra !== undefined && (!Number.isInteger(fra) || fra < 0 || fra > INT4_MAX)) {
     throw createError({ statusCode: 400, statusMessage: 'Ugyldig fra' })
   }
   const til = query.til !== undefined ? Number(query.til) : undefined
-  if (til !== undefined && (!Number.isInteger(til) || til < 0)) {
+  if (til !== undefined && (!Number.isInteger(til) || til < 0 || til > INT4_MAX)) {
     throw createError({ statusCode: 400, statusMessage: 'Ugyldig til' })
   }
   if (fra !== undefined && til !== undefined && (til < fra || til - fra > 99)) {
@@ -124,11 +125,16 @@ export default defineEventHandler(async (event) => {
   }
 
   // Window mode: every segment in the sequence range, with content, ignoring
-  // the taler/skjulFormand filters entirely (q still highlights via
-  // contentExpr but never excludes). Used by run-expanders and minimap jumps.
+  // the taler/skjulFormand filters entirely. q highlights the rows it matches;
+  // non-matching rows keep their full content (ts_headline would otherwise
+  // excerpt them). Used by run-expanders and minimap jumps.
   if (onlyMødeid && fra !== undefined && til !== undefined) {
+    const windowContentExpr = q
+      ? sql`CASE WHEN to_tsvector('danish', t.content) @@ websearch_to_tsquery('danish', ${q})
+            THEN ${contentExpr} ELSE t.content END`
+      : contentExpr
     const rows = await db.execute<SegmentRow>(sql`
-      SELECT t.id, ${contentExpr} AS content, t.starttid, t.sequence, t."mødeid",
+      SELECT t.id, ${windowContentExpr} AS content, t.starttid, t.sequence, t."mødeid",
              t."aktørid",
              coalesce(a.navn, nullif(trim(concat(t."oratorFornavn", ' ', t."oratorEfternavn")), ''), 'Ukendt taler') AS navn,
              t."oratorRolle" AS rolle

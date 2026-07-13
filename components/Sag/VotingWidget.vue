@@ -14,7 +14,7 @@ type AfstemningBlock = {
 
 const props = defineProps<{ sagId: number }>()
 
-const { data, pending } = useFetch<{ afstemninger: AfstemningBlock[] }>(
+const { data, pending, error } = useFetch<{ afstemninger: AfstemningBlock[] }>(
   '/api/sag/partyStances',
   { query: computed(() => ({ id: props.sagId })) },
 )
@@ -139,4 +139,7 @@ const stemmeFarve = (stemme: string) => STEMME_FARVER[stemme] ?? 'gray'
       </div>
     </SagWidgetCard>
   </div>
+  <p v-else-if="error" class="text-sm text-gray-500 dark:text-gray-400">
+    Afstemningen kunne ikke hentes.
+  </p>
 </template>

@@ -5,10 +5,13 @@ import { TERMINAL_STATUS_IDS } from '~/components/Sag/ProcessStepper.vue'
 const route = useRoute()
 const sagId = Number(route.params.id)
 
-const { data: sagData, error: fetchError } = await useFetch<SagApiResponse>(
-  '/api/sag',
-  { params: { id: sagId } },
-)
+// No await: suspending setup would blank the page until /api/sag resolves;
+// unawaited, the pending branch paints skeletons immediately
+const {
+  data: sagData,
+  pending: sagPending,
+  error: fetchError,
+} = useFetch<SagApiResponse>('/api/sag', { params: { id: sagId } })
 
 const sag = computed<SagWithRelations | null>(() => {
   if (sagData.value && 'data' in sagData.value) return sagData.value.data
@@ -34,15 +37,21 @@ useHead({
   ),
 })
 
-// Aktører for the widget: /api/sag already carries sagAktør with roles
-const aktører = computed(
-  () =>
-    sag.value?.sagAktør.map((sa) => ({
-      id: sa.aktør.id,
-      navn: sa.aktør.navn ?? 'Ukendt',
-      rolle: sa.sagAktørRolle?.rolle ?? null,
-    })) ?? [],
-)
+// Aktører for the widget: /api/sag already carries sagAktør with roles.
+// ODA holds exact duplicate sagAktør rows, so dedupe on (aktørid, rolle) —
+// the pair ActorsWidget uses as v-for key
+const aktører = computed(() => {
+  const set = new Set<string>()
+  const result: { id: number; navn: string; rolle: string | null }[] = []
+  for (const sa of sag.value?.sagAktør ?? []) {
+    const rolle = sa.sagAktørRolle?.rolle ?? null
+    const key = `${sa.aktør.id}-${rolle ?? ''}`
+    if (set.has(key)) continue
+    set.add(key)
+    result.push({ id: sa.aktør.id, navn: sa.aktør.navn ?? 'Ukendt', rolle })
+  }
+  return result
+})
 
 // Documents gate only their own widget; the widget renders titles/links only,
 // so the English placeholder content ('Content not available') never renders.
@@ -65,11 +74,45 @@ const dokumenter = computed(() =>
     format: dok.format ?? null,
   })),
 )
+
+// SagTranscript self-hides when no transcript exists; mirror that in the nav
+// link by tracking whether the section wrapper has rendered content
+const forhandlingEl = ref<HTMLElement | null>(null)
+const harForhandling = ref(false)
+const opdaterHarForhandling = () => {
+  harForhandling.value = (forhandlingEl.value?.childElementCount ?? 0) > 0
+}
+watch(forhandlingEl, opdaterHarForhandling)
+useMutationObserver(forhandlingEl, opdaterHarForhandling, { childList: true })
+
+// Scrollspy for the sticky section nav: active = last section whose top has
+// passed the line just under the sticky bar (scroll-mt-14 lands anchors there)
+const SEKTIONER = ['overblik', 'resume', 'forhandling'] as const
+const aktivSektion = ref<string>('overblik')
+const opdaterAktivSektion = () => {
+  let aktiv = 'overblik'
+  for (const id of SEKTIONER) {
+    if (id === 'forhandling' && !harForhandling.value) continue
+    const el = document.getElementById(id)
+    if (el && el.getBoundingClientRect().top <= 100) aktiv = id
+  }
+  aktivSektion.value = aktiv
+}
+useEventListener(window, 'scroll', opdaterAktivSektion, { passive: true })
+useEventListener(window, 'resize', opdaterAktivSektion, { passive: true })
+watch([sag, harForhandling], () => nextTick(opdaterAktivSektion))
+onMounted(opdaterAktivSektion)
 </script>
 
 <template>
   <div class="container mx-auto py-10">
-    <div v-if="sagFejl" class="text-red-600 dark:text-red-400">
+    <div v-if="sagPending" class="space-y-6">
+      <USkeleton class="h-40 w-full rounded-lg" />
+      <div class="grid gap-4 sm:grid-cols-2">
+        <USkeleton v-for="n in 4" :key="n" class="h-24 w-full rounded-lg" />
+      </div>
+    </div>
+    <div v-else-if="sagFejl" class="text-red-600 dark:text-red-400">
       {{ sagFejl }}
     </div>
     <div v-else-if="sag" class="space-y-6">
@@ -87,20 +130,33 @@ const dokumenter = computed(() =>
       >
         <a
           href="#overblik"
-          class="text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white"
+          :class="
+            aktivSektion === 'overblik'
+              ? 'border-b-2 border-primary-600 text-primary-600 dark:border-primary-400 dark:text-primary-400'
+              : 'text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white'
+          "
         >
           Overblik
         </a>
         <a
           v-if="sag.resume"
           href="#resume"
-          class="text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white"
+          :class="
+            aktivSektion === 'resume'
+              ? 'border-b-2 border-primary-600 text-primary-600 dark:border-primary-400 dark:text-primary-400'
+              : 'text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white'
+          "
         >
           Resumé
         </a>
         <a
+          v-if="harForhandling"
           href="#forhandling"
-          class="text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white"
+          :class="
+            aktivSektion === 'forhandling'
+              ? 'border-b-2 border-primary-600 text-primary-600 dark:border-primary-400 dark:text-primary-400'
+              : 'text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white'
+          "
         >
           Forhandling
         </a>
@@ -140,7 +196,7 @@ const dokumenter = computed(() =>
         </p>
       </section>
 
-      <section id="forhandling" class="scroll-mt-14">
+      <section id="forhandling" ref="forhandlingEl" class="scroll-mt-14">
         <SagTranscript :sag-id="sagId" />
       </section>
     </div>

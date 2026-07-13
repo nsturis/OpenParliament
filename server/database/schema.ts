@@ -79,24 +79,36 @@ export const aktør = pgTable('Aktør', {
   slutdato: timestamp('slutdato', { withTimezone: true, mode: 'string' }),
 })
 
-export const aktørAktør = pgTable('AktørAktør', {
-  id: bigserial('id', { mode: 'number' }).primaryKey().notNull(),
-  fraaktørid: integer('fraaktørid')
-    .notNull()
-    .references(() => aktør.id),
-  tilaktørid: integer('tilaktørid')
-    .notNull()
-    .references(() => aktør.id),
-  startdato: timestamp('startdato', { withTimezone: true, mode: 'string' }),
-  slutdato: timestamp('slutdato', { withTimezone: true, mode: 'string' }),
-  opdateringsdato: timestamp('opdateringsdato', {
-    withTimezone: true,
-    mode: 'string',
-  }).notNull(),
-  rolleid: integer('rolleid')
-    .notNull()
-    .references(() => aktørAktørRolle.id),
-})
+export const aktørAktør = pgTable(
+  'AktørAktør',
+  {
+    id: bigserial('id', { mode: 'number' }).primaryKey().notNull(),
+    fraaktørid: integer('fraaktørid')
+      .notNull()
+      .references(() => aktør.id),
+    tilaktørid: integer('tilaktørid')
+      .notNull()
+      .references(() => aktør.id),
+    startdato: timestamp('startdato', { withTimezone: true, mode: 'string' }),
+    slutdato: timestamp('slutdato', { withTimezone: true, mode: 'string' }),
+    opdateringsdato: timestamp('opdateringsdato', {
+      withTimezone: true,
+      mode: 'string',
+    }).notNull(),
+    rolleid: integer('rolleid')
+      .notNull()
+      .references(() => aktørAktørRolle.id),
+  },
+  (table) => {
+    return {
+      aktørAktørFraaktørRolleIdx: index('aktør_aktør_fraaktør_rolle_idx').using(
+        'btree',
+        table.fraaktørid,
+        table.rolleid
+      ),
+    }
+  }
+)
 
 export const aktørAktørRolle = pgTable('AktørAktørRolle', {
   id: integer('id').primaryKey().notNull(),

@@ -3,16 +3,25 @@ import type { SagWithRelations } from '~/types/sag'
 
 // /api/sag returns these lookup relations (wave A); SagWithRelations doesn't
 // declare them yet, so extend locally — a plain SagWithRelations stays assignable.
-type SagMedOpslag = SagWithRelations & {
+type SagMedOpslag = Omit<SagWithRelations, 'sagstrin'> & {
   sagsstatus?: { id: number; status: string } | null
   sagstype?: { id: number; type: string } | null
   periode?: { id: number; titel: string; kode: string } | null
+  sagstrin: Array<
+    SagWithRelations['sagstrin'][number] & {
+      sagstrinstype?: { type: string } | null
+    }
+  >
 }
 
 const props = defineProps<{ sag: SagMedOpslag }>()
 
+// Only actual fremsættelse steps count ("Fremsættelse", "Fremsættelse (en
+// beh.)") — for most cases the earliest step is something else (Besvarelse,
+// Rådsmødepunkt, …) and the row must be omitted.
 const fremsat = computed(() => {
   const datoer = props.sag.sagstrin
+    .filter((trin) => /fremsæt/i.test(trin.sagstrinstype?.type ?? ''))
     .map((trin) => trin.dato)
     .filter((dato): dato is string => !!dato)
     .sort()

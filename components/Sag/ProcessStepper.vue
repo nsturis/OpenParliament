@@ -63,12 +63,16 @@ const steps = computed(() =>
   })),
 )
 
-// >6 steps: compress to first + behandling steps + last, note the rest.
+// >6 steps: compress to first + behandling steps + current + last, note the rest.
 const visible = computed(() => {
   const all = steps.value
   if (all.length <= 6) return all
   return all.filter(
-    (step, i) => i === 0 || i === all.length - 1 || step.behandling,
+    (step, i) =>
+      i === 0 ||
+      i === all.length - 1 ||
+      i === currentIndex.value ||
+      step.behandling,
   )
 })
 

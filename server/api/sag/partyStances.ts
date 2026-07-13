@@ -28,7 +28,7 @@ type StemmeRow = {
 
 export default defineEventHandler(async (event) => {
   const sagId = Number(getQuery(event).id)
-  if (!Number.isInteger(sagId) || sagId <= 0) {
+  if (!Number.isInteger(sagId) || sagId <= 0 || sagId > 2147483647) {
     throw createError({ statusCode: 400, statusMessage: 'Ugyldigt sag-id' })
   }
 

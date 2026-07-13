@@ -122,7 +122,7 @@ useHead({ title: computed(() => q.value.trim() ? `Søg — ${q.value.trim()}` : 
       </div>
 
       <div class="space-y-4">
-        <SearchResultGroup v-for="(g, i) in groups" :key="`${g.sag?.id ?? 'm' + g.møde?.id}-${i}`" :group="g" :query="sidsteQ" />
+        <SearchResultGroup v-for="(g, i) in groups" :key="`${g.sag?.id ?? 'm' + g.møde?.id}-${i}`" :group="g" />
       </div>
 
       <UButton v-if="data?.hasMore" variant="soft" :loading="pending" @click="søg(groups.length)">

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { SearchGroup, SearchHit } from '~/types/search'
 
-const props = defineProps<{ group: SearchGroup; query: string }>()
+const props = defineProps<{ group: SearchGroup }>()
 
 const visesAlle = ref(false)
 const visibleHits = computed(() =>
@@ -9,9 +9,14 @@ const visibleHits = computed(() =>
 
 const hitLink = (hit: SearchHit) => {
   if (props.group.sag && hit.sequence !== null) {
+    // Deep-link with `jump` only — NOT the search query as `soeg`. A vector
+    // (semantic) hit need not lexically match q, so carrying q would filter the
+    // transcript to FTS matches and hide the target meeting entirely (0 matches
+    // → its segment column never renders → the jump lands nowhere). The jump
+    // locates the segment via the unfiltered full index and window-fetches it.
     return {
       path: `/sager/${props.group.sag.id}`,
-      query: { soeg: props.query, jump: `${hit.mødeid}:${hit.sequence}` },
+      query: { jump: `${hit.mødeid}:${hit.sequence}` },
       hash: '#forhandling',
     }
   }

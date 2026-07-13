@@ -80,15 +80,23 @@ function whereFrom(clauses: SQL[]): SQL {
 async function ftsBranch(q: string, filters: SearchFilters): Promise<FtsRow[]> {
   // An all-stopword q parses to an empty tsquery, which matches nothing —
   // the branch naturally returns [] (no explicit guard needed).
+  const tsq = sql`websearch_to_tsquery('danish', ${q})`
+  // Match and rank against the stored `content_tsv` column, not the
+  // to_tsvector(...) expression: ranking on the expression re-tokenises every
+  // matched row (≈4 s for a common word like "regeringen"); the materialised
+  // column ranks in ≈0.2 s. `, t.id` gives a deterministic total order so ties
+  // in ts_rank do not shuffle between identical requests (offset pagination
+  // would otherwise skip/duplicate groups). ts_headline keeps using the raw
+  // content — it needs the original text, not the lexeme vector.
   const rows = await db.execute<FtsRow>(sql`
     SELECT t.id,
-           ts_headline('danish', t.content, websearch_to_tsquery('danish', ${q}),
+           ts_headline('danish', t.content, ${tsq},
              'MaxWords=60, MinWords=30, StartSel=**, StopSel=**') AS snippet
     FROM "taleSegmentRaw" t
     JOIN "Møde" m ON m.id = t."mødeid"
-    WHERE to_tsvector('danish', t.content) @@ websearch_to_tsquery('danish', ${q})
+    WHERE t.content_tsv @@ ${tsq}
     ${whereFrom(filterClauses(filters))}
-    ORDER BY ts_rank(to_tsvector('danish', t.content), websearch_to_tsquery('danish', ${q})) DESC
+    ORDER BY ts_rank(t.content_tsv, ${tsq}) DESC, t.id
     LIMIT ${BRANCH_LIMIT}
   `)
   return rows.rows
@@ -96,30 +104,57 @@ async function ftsBranch(q: string, filters: SearchFilters): Promise<FtsRow[]> {
 
 async function vectorBranch(embedding: number[], filters: SearchFilters): Promise<VecRow[]> {
   const vec = `[${embedding.join(',')}]`
-  // SET LOCAL only lives inside a transaction. Without it hnsw.ef_search
-  // defaults to 40 and the inner LIMIT silently returns ≤40 rows.
-  const rows = await db.transaction(async (tx) => {
-    await tx.execute(sql.raw(`SET LOCAL hnsw.ef_search = ${VECTOR_OVERFETCH}`))
-    return tx.execute<VecRow & { dist: number }>(sql`
-      SELECT t.id, c.chunk, c.dist
-      FROM (
-        SELECT tale_segment_id, content AS chunk,
-               embedding <=> ${vec}::vector AS dist
-        FROM "taleSegmentChunk"
-        WHERE char_length(content) > 80
-        ORDER BY dist
-        LIMIT ${VECTOR_OVERFETCH}
-      ) c
-      JOIN "taleSegmentRaw" t ON t.id = c.tale_segment_id
-      JOIN "Møde" m ON m.id = t."mødeid"
-      WHERE true ${whereFrom(filterClauses(filters))}
-      ORDER BY c.dist
-    `)
-  })
+  const clauses = filterClauses(filters)
+
+  const result = clauses.length
+    // Filtered: exact KNN over the filtered set. The HNSW over-fetch below
+    // applies filters only AFTER the top-200 ANN cut, so a selective filter
+    // (e.g. a single speaker's ~2.4k of 897k chunks) matches almost none of
+    // the global nearest 200 and the branch returns [] — semantic search
+    // silently vanishes for every filtered query. The filtered set is small
+    // enough (≤~90k chunks, the largest party) for an exact scan within
+    // budget (~0.15–0.8 s); `jit = off` trims the cold JIT-compile overhead
+    // that dominates the larger scans.
+    ? await db.transaction(async (tx) => {
+        await tx.execute(sql.raw('SET LOCAL jit = off'))
+        return tx.execute<VecRow & { dist: number }>(sql`
+          SELECT t.id, c.content AS chunk,
+                 c.embedding <=> ${vec}::vector AS dist
+          FROM "taleSegmentChunk" c
+          JOIN "taleSegmentRaw" t ON t.id = c.tale_segment_id
+          JOIN "Møde" m ON m.id = t."mødeid"
+          WHERE char_length(c.content) > 80 ${whereFrom(clauses)}
+          ORDER BY dist, t.id
+          LIMIT ${VECTOR_OVERFETCH}
+        `)
+      })
+    // Unfiltered: HNSW ANN over-fetch. SET LOCAL only lives in a transaction;
+    // without hnsw.ef_search the GUC defaults to 40 and the LIMIT silently
+    // returns ≤40 rows. The inner ORDER BY must stay the bare distance
+    // operator (adding a tiebreak column defeats the HNSW index and forces a
+    // full scan of 897k rows), so the deterministic `, t.id` tiebreak goes on
+    // the outer sort over the 200 fetched rows.
+    : await db.transaction(async (tx) => {
+        await tx.execute(sql.raw(`SET LOCAL hnsw.ef_search = ${VECTOR_OVERFETCH}`))
+        return tx.execute<VecRow & { dist: number }>(sql`
+          SELECT t.id, c.chunk, c.dist
+          FROM (
+            SELECT tale_segment_id, content AS chunk,
+                   embedding <=> ${vec}::vector AS dist
+            FROM "taleSegmentChunk"
+            WHERE char_length(content) > 80
+            ORDER BY dist
+            LIMIT ${VECTOR_OVERFETCH}
+          ) c
+          JOIN "taleSegmentRaw" t ON t.id = c.tale_segment_id
+          ORDER BY c.dist, t.id
+        `)
+      })
+
   // Collapse multiple chunks of the same segment to its best-ranked chunk
   const seen = new Set<number>()
   const out: VecRow[] = []
-  for (const r of rows.rows) {
+  for (const r of result.rows) {
     if (seen.has(r.id)) continue
     seen.add(r.id)
     out.push({ id: r.id, chunk: r.chunk })
@@ -129,7 +164,11 @@ async function vectorBranch(embedding: number[], filters: SearchFilters): Promis
 }
 
 async function sagTitleBranch(q: string): Promise<TitleRow[]> {
-  const pattern = `%${q}%`
+  // Escape LIKE metacharacters: a literal % or _ in the query must match
+  // itself, not act as a wildcard (q="%" would otherwise ILIKE '%%%' and
+  // return five arbitrary cases). q is already a bound param, so this is a
+  // correctness fix, not injection hardening.
+  const pattern = `%${q.replace(/[\\%_]/g, '\\$&')}%`
   const rows = await db.execute<TitleRow>(sql`
     SELECT s.id, s.titel, s.titelkort, s.nummer,
            ss.status AS "statusText", st.type AS "typeText"
@@ -200,19 +239,22 @@ export async function performSearch(q: string, filters: SearchFilters, offset: n
   })
 
   const ranked = [...fused.entries()]
-    .sort((a, b) => b[1].score - a[1].score)
+    // `|| a[0] - b[0]`: break equal RRF scores by segment id for a stable
+    // total order (an FTS-only and a vector-only hit at the same branch rank
+    // score identically), otherwise group membership drifts between requests.
+    .sort((a, b) => b[1].score - a[1].score || a[0] - b[0])
     .slice(0, MAX_FUSED)
   const meta = await fetchMeta(ranked.map(([id]) => id))
 
   // Group by sagid (meeting when sagid is null)
-  const groupMap = new Map<string, { sag: MetaRow | null; møde: MetaRow | null; score: number; hits: unknown[] }>()
+  const groupMap = new Map<string, { key: string; sag: MetaRow | null; møde: MetaRow | null; score: number; hits: unknown[] }>()
   for (const [id, f] of ranked) {
     const m = meta.get(id)
     if (!m) continue
     const key = m.sagid != null ? `sag:${m.sagid}` : `møde:${m.mødeid}`
     let group = groupMap.get(key)
     if (!group) {
-      group = { sag: m.sagid != null ? m : null, møde: m.sagid == null ? m : null, score: f.score, hits: [] }
+      group = { key, sag: m.sagid != null ? m : null, møde: m.sagid == null ? m : null, score: f.score, hits: [] }
       groupMap.set(key, group)
     }
     group.score = Math.max(group.score, f.score)
@@ -224,7 +266,9 @@ export async function performSearch(q: string, filters: SearchFilters, offset: n
   }
 
   const allGroups = [...groupMap.values()]
-    .sort((a, b) => b.score - a.score)
+    // Break equal group scores by the stable group key so offset pagination
+    // returns a consistent slice across the two requests it spans.
+    .sort((a, b) => b.score - a.score || a.key.localeCompare(b.key))
     .map((g) => ({
       sag: g.sag && g.sag.sagid != null
         ? {

@@ -188,7 +188,11 @@ CREATE TABLE public."taleSegmentRaw" (
     "sequence" integer,
     opdateringsdato timestamp with time zone NOT NULL,
     status text DEFAULT 'final'::text NOT NULL,
-    confidence real
+    confidence real,
+    -- Materialised tsvector for /api/search ranking. Ranking on the
+    -- to_tsvector(content) expression re-tokenises every matched row (~4 s for
+    -- a common word like "regeringen"); ranking on this stored column is ~0.2 s.
+    content_tsv tsvector GENERATED ALWAYS AS (to_tsvector('danish'::regconfig, content)) STORED
 );
 
 
@@ -357,12 +361,23 @@ ALTER TABLE ONLY public."taleSegment"
 
 
 
--- Danish full-text index backing /api/search's text-search path
+-- Danish full-text index backing /api/sag/transcript's to_tsvector(content) match
 CREATE INDEX IF NOT EXISTS tale_segment_raw_fts_idx ON public."taleSegmentRaw" USING gin (to_tsvector('danish', content));
+
+-- Match index for /api/search's FTS branch (WHERE content_tsv @@ query). Ranking
+-- reads the stored content_tsv column directly, so no re-tokenisation.
+CREATE INDEX IF NOT EXISTS tale_segment_raw_content_tsv_idx ON public."taleSegmentRaw" USING gin (content_tsv);
 
 -- Case-transcript timeline (/api/sag/transcript) and meeting speeches lookups
 CREATE INDEX IF NOT EXISTS tale_segment_raw_sagid_idx ON public."taleSegmentRaw" (sagid, "mødeid", sequence);
 CREATE INDEX IF NOT EXISTS tale_segment_raw_mødeid_idx ON public."taleSegmentRaw" ("mødeid", sequence);
+
+-- Trigram indexes for /api/search's sag-title branch (ILIKE '%q%' substring
+-- match) so it uses an index instead of a full scan of the sag table.
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
+CREATE INDEX IF NOT EXISTS sag_titel_trgm_idx ON public.sag USING gin (titel gin_trgm_ops);
+CREATE INDEX IF NOT EXISTS sag_titelkort_trgm_idx ON public.sag USING gin (titelkort gin_trgm_ops);
+CREATE INDEX IF NOT EXISTS sag_nummer_trgm_idx ON public.sag USING gin (nummer gin_trgm_ops);
 
 -- Valgtest (election quiz) persistence
 CREATE TABLE IF NOT EXISTS public."valgtestVote" (

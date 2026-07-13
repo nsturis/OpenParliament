@@ -23,7 +23,7 @@ export default defineEventHandler(async (event) => {
                aa.startdato DESC NULLS LAST
       LIMIT 1
     ) p ON true
-    WHERE a.typeid = 5 AND a.navn ILIKE ${'%' + q + '%'}
+    WHERE a.typeid = 5 AND a.navn ILIKE ${'%' + q.replace(/[\\%_]/g, '\\$&') + '%'}
     ORDER BY a.navn
     LIMIT 8
   `)

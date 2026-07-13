@@ -91,8 +91,8 @@ const getResults = async () => {
   })
   const json = await response.json()
   json.parties.sort((a: Party, b: Party) => {
-    let aaa = a.agreements / (a.disagreements + a.disagreements)
-    let bbb = b.agreements / (b.disagreements + b.disagreements)
+    let aaa = a.agreements / (a.agreements + a.disagreements)
+    let bbb = b.agreements / (b.agreements + b.disagreements)
     if (a.agreements + a.disagreements === 0) {
       aaa = 0
     }

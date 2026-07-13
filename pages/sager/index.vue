@@ -63,6 +63,9 @@ const { data: sagData, pending: isSagLoading } = useAsyncData(
       () => currentSagstype.value?.id,
       () => currentPeriode.value?.id,
       () => filters.search,
+      // handleSearch reassigns filters.aktører to a new array, so watching it by
+      // reference refetches on a mention-only filter (empty search text).
+      () => filters.aktører,
       () => pagination.currentPage,
     ],
     transform: (response) => {

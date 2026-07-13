@@ -223,6 +223,12 @@ function onKeyDown(e: KeyboardEvent) {
       e.preventDefault()
       showDropdown.value = false
     }
+    return
+  }
+  // Dropdown closed: Enter submits the current query (free text and/or mentions).
+  if (e.key === 'Enter') {
+    e.preventDefault()
+    emitSearch()
   } else if (e.key === 'Backspace' && mainInputValue.value === '' && selectedMentions.value.length > 0) {
     // Remove the last mention when backspace is pressed on empty input
     e.preventDefault()
@@ -258,21 +264,21 @@ function applyMention(index: number) {
 
 
 function emitSearch() {
-  if (selectedMentions.value.length > 0) {
-    const query = {
-      politicians: selectedMentions.value
-        .filter((mention) => mention.type === 'politician')
-        .map((mention) => mention.id),
-      committees: selectedMentions.value
-        .filter((mention) => mention.type === 'committee')
-        .map((mention) => mention.id),
-      ministers: selectedMentions.value
-        .filter((mention) => mention.type === 'minister')
-        .map((mention) => mention.id),
-      text: mainInputValue.value
-    }
-    emit('search', query)
+  // Always emit: a plain-text query with no mentions is valid, and so is a
+  // mention-only query. Consumers filter on whichever of text/ids are present.
+  const query = {
+    politicians: selectedMentions.value
+      .filter((mention) => mention.type === 'politician')
+      .map((mention) => mention.id),
+    committees: selectedMentions.value
+      .filter((mention) => mention.type === 'committee')
+      .map((mention) => mention.id),
+    ministers: selectedMentions.value
+      .filter((mention) => mention.type === 'minister')
+      .map((mention) => mention.id),
+    text: mainInputValue.value
   }
+  emit('search', query)
 }
 
 function removeMention(mentionToRemove: SelectedMention) {

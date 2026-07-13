@@ -49,7 +49,10 @@ onMounted(() => {
 })
 
 electionQuizStore.$subscribe((_mutation, state) => {
-  if (state.step === state.quiz.length - 1) {
+  // reply() records the answer then increments step, so the quiz is fully
+  // answered when step reaches quiz.length — save then, or the final answer
+  // is dropped from the persisted result.
+  if (state.step === state.quiz.length) {
     if (!resultIsSaved.value) {
       resultIsSaved.value = true
       saveResult()
@@ -58,11 +61,9 @@ electionQuizStore.$subscribe((_mutation, state) => {
 })
 
 const saveResult = async () => {
-  // Remove title
-  const data = electionQuizStore.quizResult.map((item) => {
-    delete item.title
-    return item
-  })
+  // Strip `title` via destructuring rather than `delete`, so the live store
+  // party objects aren't mutated as a side effect of serialization.
+  const data = electionQuizStore.quizResult.map(({ title: _title, ...rest }) => rest)
   await fetch('/api/election', {
     method: 'POST',
     headers: {

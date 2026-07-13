@@ -82,7 +82,7 @@ export interface MembershipsResponse {
   parti: Membership[]
   udvalg: Membership[]
   ministerielle: Membership[]
-  øvrige: Membership[]
+  delegationer: Membership[] // parliamentary assemblies, boards, cross-political networks
 }
 
 export interface OverviewResponse {

@@ -5,7 +5,7 @@ const sections: { key: keyof MembershipsResponse; titel: string }[] = [
   { key: 'parti', titel: 'Partigrupper' },
   { key: 'udvalg', titel: 'Udvalg' },
   { key: 'ministerielle', titel: 'Ministerposter' },
-  { key: 'øvrige', titel: 'Øvrige' },
+  { key: 'delegationer', titel: 'Delegationer og netværk' },
 ]
 const periode = (m: Membership) =>
   `${formatDato(m.startdato, 'short') || '?'} – ${m.slutdato ? formatDato(m.slutdato, 'short') : 'nu'}`

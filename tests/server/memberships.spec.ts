@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { Membership } from '../../types/actor'
-import { collapseParties, inferGroupEnds } from '../../server/utils/memberships'
+import { collapseConcurrent, collapseParties } from '../../server/utils/memberships'
 
 const m = (o: Partial<Membership>): Membership => ({
   id: 0, gruppeid: 0, gruppe: '', gruppetypeid: 4, rolle: null,
@@ -48,30 +48,47 @@ describe('collapseParties', () => {
   })
 })
 
-describe('inferGroupEnds', () => {
-  // Committees run concurrently, so infer each open fragment's end only from the
-  // next fragment of the SAME committee — never from an unrelated concurrent one.
-  it('infers per-committee ends without crossing between committees', () => {
+describe('collapseConcurrent', () => {
+  const now = new Date('2026-07-13') // cutoff = 2025-06-13
+
+  // Committees run concurrently and are re-minted each folketingsår. Each group
+  // name collapses to one span (earliest start → latest fragment's end), carrying
+  // the most-recent fragment's role, without merging across different committees.
+  it('collapses per committee, shows current role, keeps concurrency', () => {
     const rows = [
-      m({ id: 1, gruppetypeid: 3, gruppe: 'Retsudvalget', startdato: '2022-10-04' }),
-      m({ id: 2, gruppetypeid: 3, gruppe: 'Retsudvalget', startdato: '2023-10-03' }), // current
-      m({ id: 3, gruppetypeid: 3, gruppe: 'Skatteudvalget', startdato: '2023-01-01' }), // concurrent, current
+      m({ id: 1, gruppetypeid: 3, gruppe: 'Retsudvalget', gruppeid: 10, rolle: 'medlem', startdato: '2019-10-01' }),
+      m({ id: 2, gruppetypeid: 3, gruppe: 'Retsudvalget', gruppeid: 11, rolle: 'formand', startdato: '2025-10-07' }), // current, promoted
+      m({ id: 3, gruppetypeid: 3, gruppe: 'Skatteudvalget', gruppeid: 20, rolle: 'medlem', startdato: '2025-10-07' }),
     ]
-    const out = inferGroupEnds(rows)
-    const byId = Object.fromEntries(out.map((r) => [r.id, r]))
-    expect(byId[1].slutdato).toBe('2023-10-03') // ended when the next Retsudvalget fragment began
-    expect(byId[2].slutdato).toBeNull() // newest Retsudvalget fragment → still current
-    expect(byId[3].slutdato).toBeNull() // Skatteudvalget not truncated by Retsudvalget renewal
+    const spans = collapseConcurrent(rows, now)
+    const ret = spans.find((s) => s.gruppe === 'Retsudvalget')!
+    expect(ret.startdato).toBe('2019-10-01') // earliest fragment
+    expect(ret.slutdato).toBeNull() // latest fragment in current folketingsår → nu
+    expect(ret.rolle).toBe('formand') // current role, not the original 'medlem'
+    expect(ret.gruppeid).toBe(11) // links to most-recent fragment
+    expect(spans.find((s) => s.gruppe === 'Skatteudvalget')!.slutdato).toBeNull()
+    expect(spans).toHaveLength(2) // two committees, not five fragments
   })
 
-  it('preserves input ordering and real end dates', () => {
+  // ODA never closes the final fragment, so an open-but-old committee must not
+  // read as current — its span ends at the last fragment's start (best-effort).
+  it('ends stale open committees at their last fragment instead of "nu"', () => {
     const rows = [
-      m({ id: 1, gruppe: 'X', startdato: '2020-01-01', slutdato: '2020-06-01' }),
-      m({ id: 2, gruppe: 'X', startdato: '2021-01-01' }),
+      m({ id: 1, gruppe: 'Kulturudvalget', startdato: '2015-07-09' }),
+      m({ id: 2, gruppe: 'Kulturudvalget', startdato: '2018-10-03' }), // open but pre-cutoff
     ]
-    const out = inferGroupEnds(rows)
-    expect(out.map((r) => r.id)).toEqual([1, 2])
-    expect(out[0].slutdato).toBe('2020-06-01') // real end untouched
-    expect(out[1].slutdato).toBeNull()
+    const [span] = collapseConcurrent(rows, now)
+    expect(span.startdato).toBe('2015-07-09')
+    expect(span.slutdato).toBe('2018-10-03') // not "nu"
+  })
+
+  it('keeps a real end date and orders ongoing spans first', () => {
+    const rows = [
+      m({ id: 1, gruppe: 'Gammelt', startdato: '2015-01-01', slutdato: '2018-06-01' }), // ended
+      m({ id: 2, gruppe: 'Nyt', startdato: '2025-11-01' }), // still open, current
+    ]
+    const spans = collapseConcurrent(rows, now)
+    expect(spans.map((s) => s.gruppe)).toEqual(['Nyt', 'Gammelt']) // ongoing first
+    expect(spans[1].slutdato).toBe('2018-06-01') // real end preserved
   })
 })

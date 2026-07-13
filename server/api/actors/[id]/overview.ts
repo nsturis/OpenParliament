@@ -33,6 +33,7 @@ export default defineEventHandler(async (event): Promise<OverviewResponse> => {
       LEFT JOIN "AktørAktørRolle" r ON r.id = aa.rolleid
       WHERE aa."fraaktørid" = ${id} AND aa.slutdato IS NULL
         AND aa.startdato >= now() - interval '13 months'
+        AND g.typeid NOT IN (5, 11) -- drop "Folketinget" + person relations (see memberships.ts)
       ORDER BY g.navn, aa.startdato DESC NULLS LAST`),
     db.execute<{ afstemningid: number; nummer: number | null; dato: string | null; vedtaget: boolean; konklusion: string | null; mine: number | null; majority: number | null; partiid: number | null; sagid: number | null; sagtitel: string | null }>(sql`
       SELECT vp.afstemningid, a.nummer, m.dato, a.vedtaget, a.konklusion, vp.typeid AS mine,

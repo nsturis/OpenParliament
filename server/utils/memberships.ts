@@ -29,22 +29,38 @@ export function collapseParties(rows: Membership[]): Membership[] {
   return spans.reverse() // current-first
 }
 
-// Committees and ministerposter run concurrently, so an open fragment's end can
-// only be inferred from the next fragment of the SAME group name — never from an
-// unrelated concurrent one. Keeps every row and its original ordering.
-export function inferGroupEnds(rows: Membership[]): Membership[] {
+// Committees, ministerposter and delegations run concurrently and are re-minted
+// each folketingsår. Collapse all fragments of one group name into a single span:
+// earliest start → the latest fragment's end, carrying the most-recent fragment's
+// identity and role. ODA never closes the final fragment, so an open span counts
+// as ongoing ("nu") only if that fragment falls in the current folketingsår
+// (latest start within 13 months of `now`); otherwise it ends at the last
+// fragment's start — a best-effort lower bound. Ongoing spans first, then recent.
+export function collapseConcurrent(rows: Membership[], now: Date): Membership[] {
+  const cutoff = new Date(now)
+  cutoff.setMonth(cutoff.getMonth() - 13)
+  const cutoffDay = cutoff.toISOString().slice(0, 10)
+
   const byName = new Map<string, Membership[]>()
   for (const m of rows) {
     const arr = byName.get(m.gruppe)
     if (arr) arr.push(m)
     else byName.set(m.gruppe, [m])
   }
-  const inferred = new Map<number, string | null>()
+  const spans: Membership[] = []
   for (const arr of byName.values()) {
     const sorted = [...arr].sort(byStart)
-    sorted.forEach((m, i) => {
-      inferred.set(m.id, m.slutdato ?? sorted[i + 1]?.startdato ?? null)
-    })
+    const latest = sorted[sorted.length - 1]
+    const isCurrent = (latest.startdato ?? '').slice(0, 10) >= cutoffDay
+    const slutdato = latest.slutdato ?? (isCurrent ? null : latest.startdato)
+    spans.push({ ...latest, startdato: sorted[0].startdato, slutdato })
   }
-  return rows.map((m) => ({ ...m, slutdato: inferred.get(m.id) ?? m.slutdato }))
+  return spans.sort((a, b) => {
+    const aOpen = a.slutdato === null
+    const bOpen = b.slutdato === null
+    if (aOpen !== bOpen) return aOpen ? -1 : 1 // ongoing first
+    if (aOpen) return byStart(b, a) // both ongoing: newest start first
+    // both ended: most recently ended first, then newest start
+    return (b.slutdato ?? '').localeCompare(a.slutdato ?? '') || byStart(b, a)
+  })
 }

@@ -1,6 +1,7 @@
 import { sql } from 'drizzle-orm'
 import { createError, defineEventHandler, getRouterParam } from 'h3'
 import { db } from '../../utils/db'
+import { parseBioCv } from '../../utils/bioCv'
 
 // Type alias, not interface: db.execute's TRow extends Record<string, unknown>
 // constraint needs the implicit index signature only aliases get.
@@ -13,11 +14,6 @@ type ActorRow = {
   biografi: string | null
   partiid: number | null
   parti: string | null
-}
-
-const tag = (xml: string, name: string): string | null => {
-  const m = xml.match(new RegExp(`<${name}>([^<]*)</${name}>`))
-  return m?.[1]?.trim() || null
 }
 
 export default defineEventHandler(async (event) => {
@@ -46,14 +42,7 @@ export default defineEventHandler(async (event) => {
   const row = result.rows[0]
   if (!row) throw createError({ statusCode: 404, statusMessage: 'Aktør ikke fundet' })
 
-  const bio = row.biografi?.includes('<member>')
-    ? {
-        // ft.dk serves fotos with CORP: same-origin and a Cloudflare bot challenge (403 even server-side), so the URL can never render.
-        foto: null as string | null,
-        profession: tag(row.biografi, 'profession'),
-        født: tag(row.biografi, 'born'),
-      }
-    : null
+  const cv = parseBioCv(row.biografi)
   return {
     id: row.id,
     navn: row.navn,
@@ -61,6 +50,6 @@ export default defineEventHandler(async (event) => {
     type: row.type,
     gruppenavnkort: row.gruppenavnkort,
     parti: row.partiid && row.parti ? { id: row.partiid, gruppenavnkort: row.parti } : null,
-    biografi: bio && (bio.foto || bio.profession || bio.født) ? bio : null,
+    cv,
   }
 })

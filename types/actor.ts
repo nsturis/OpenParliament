@@ -65,7 +65,10 @@ export interface SpeechesResponse {
   totalCount: number
 }
 
-export interface Membership {
+// `type`, not `interface`: this shape is passed to db.execute<Membership>, whose
+// TRow extends Record<string, unknown> constraint is satisfied by the implicit
+// index signature that only type aliases get (see partyStances.ts).
+export type Membership = {
   id: number
   gruppeid: number
   gruppe: string

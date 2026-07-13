@@ -397,3 +397,52 @@ CREATE TABLE IF NOT EXISTS public."valgtestResult" (
 -- Vector indexes for /api/search's semantic path
 CREATE INDEX IF NOT EXISTS tale_segment_chunk_embedding_idx ON public."taleSegmentChunk" USING hnsw (embedding vector_cosine_ops);
 CREATE INDEX IF NOT EXISTS fil_content_embedding_idx ON public."FilContent" USING hnsw (embedding vector_cosine_ops);
+
+-- ── Actor experience: precomputed voting views ────────────────────────────
+-- Party-loyalty needs each vote's party at the division date (date-windowed
+-- AktørAktør) and each party's bloc position per division. Computing this live
+-- measured 3.7-5.8s/MP (the date-windowed join fans out); against these views
+-- the same read is ~19ms. Rebuilt on the hourly ODA sync (scripts/refreshVoteStats.ts).
+-- stemmetype ids (verified live): 1=For 2=Imod 3=Fravær 4=Hverken. Fravær is
+-- absence, excluded from party position and from loyalty.
+
+-- One resolved party (Folketingsgruppe id) per vote, in-window-first else latest.
+CREATE MATERIALIZED VIEW IF NOT EXISTS public.vote_party AS
+SELECT s.id AS stemme_id, s.afstemningid, s."aktørid" AS aktørid, s.typeid, p.partiid
+FROM stemme s
+JOIN afstemning a ON a.id = s.afstemningid
+LEFT JOIN "Møde" m ON m.id = a."mødeid"
+LEFT JOIN LATERAL (
+  SELECT g.id AS partiid
+  FROM "AktørAktør" aa
+  JOIN "Aktør" g ON g.id = aa."tilaktørid" AND g.typeid = 4
+  WHERE aa."fraaktørid" = s."aktørid" AND aa.rolleid = 15
+    AND g.gruppenavnkort IS NOT NULL
+  ORDER BY (aa.startdato IS NOT NULL AND aa.startdato <= m.dato
+            AND (aa.slutdato IS NULL OR aa.slutdato >= m.dato)) DESC,
+           aa.startdato DESC NULLS LAST
+  LIMIT 1
+) p ON true;
+
+CREATE UNIQUE INDEX IF NOT EXISTS vote_party_stemme_id_idx ON public.vote_party (stemme_id);
+CREATE INDEX IF NOT EXISTS vote_party_aktør_idx ON public.vote_party (aktørid);
+CREATE INDEX IF NOT EXISTS vote_party_div_parti_idx ON public.vote_party (afstemningid, partiid);
+
+-- Each party's bloc position per division, Fravær excluded.
+CREATE MATERIALIZED VIEW IF NOT EXISTS public.division_party_majority AS
+SELECT afstemningid, partiid,
+       mode() WITHIN GROUP (ORDER BY typeid) AS majority_typeid,
+       count(*) FILTER (WHERE typeid = 1) AS for_n,
+       count(*) FILTER (WHERE typeid = 2) AS imod_n,
+       count(*) FILTER (WHERE typeid = 4) AS hverken_n,
+       count(*) AS present_n
+FROM public.vote_party
+WHERE partiid IS NOT NULL AND typeid IS NOT NULL AND typeid <> 3
+GROUP BY afstemningid, partiid;
+
+CREATE UNIQUE INDEX IF NOT EXISTS division_party_majority_idx
+  ON public.division_party_majority (afstemningid, partiid);
+
+-- Actor speech history browse (taleSegmentRaw WHERE aktørid ORDER BY starttid DESC)
+CREATE INDEX IF NOT EXISTS tale_segment_raw_aktør_idx
+  ON public."taleSegmentRaw" ("aktørid", starttid DESC);

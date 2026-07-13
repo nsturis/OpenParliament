@@ -1,9 +1,12 @@
 <script setup lang="ts">
 import type { SearchResponse } from '~/types/search'
+import { useWorkspaceRepo } from '~/composables/useWorkspaceRepo'
 
 const route = useRoute()
 const router = useRouter()
 const mainStore = useMainStore()
+const workspace = useWorkspaceRepo()
+const toast = useToast()
 
 const q = ref(typeof route.query.q === 'string' ? route.query.q : '')
 const periodeid = ref<number | null>(Number(route.query.periodeid) > 0 ? Number(route.query.periodeid) : null)
@@ -70,6 +73,22 @@ const opdaterUrl = () => {
 }
 
 const submit = () => { opdaterUrl(); søg(0) }
+
+async function gemSoegning() {
+  const text = q.value.trim()
+  if (!text) return
+  try {
+    await workspace.createSavedSearch(text, {
+      text,
+      periodeid: periodeid.value ?? null,
+      parti: parti.value ?? null,
+      taler: taler.value?.id ?? null,
+    })
+    toast.add({ title: 'Søgning gemt' })
+  } catch {
+    toast.add({ title: 'Kunne ikke gemme lokalt', color: 'red' })
+  }
+}
 // Filter changes re-search immediately (query text only on submit)
 watch([periodeid, parti, taler], () => { if (hasSearched.value) submit() })
 
@@ -87,6 +106,12 @@ useHead({ title: computed(() => q.value.trim() ? `Søg — ${q.value.trim()}` : 
         v-model="q" size="lg" class="flex-1" placeholder="Søg i sager og folketingsdebatter …"
         icon="i-heroicons-magnifying-glass" :autofocus="!q" />
       <UButton type="submit" size="lg" color="primary" :loading="pending">Søg</UButton>
+      <UButton
+        icon="i-heroicons-bookmark" size="lg" color="gray" variant="soft"
+        :disabled="!q.trim()" @click="gemSoegning"
+      >
+        Gem søgning
+      </UButton>
     </form>
 
     <SearchFilterBar v-model:periodeid="periodeid" v-model:parti="parti" v-model:taler="taler" />

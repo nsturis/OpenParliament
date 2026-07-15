@@ -1,32 +1,24 @@
 <script setup lang="ts">
-import { ref } from 'vue'
 import { useRoute } from 'vue-router'
-import { useAsyncData } from 'nuxt/app'
-import { useSagStore } from '@/stores/sag'
 
 const route = useRoute()
-const sagStore = useSagStore()
+
+type FileDoc = { id: number; titel: string | null; filurl?: string; format?: string; content?: string }
 
 const {
   data: content,
   pending,
   error,
-} = useAsyncData(async () => {
-  const id = route.params.id
-  const response = await $fetch(`/api/sag/files/${id}`)
-  return response
-})
-
-if (error.value) {
-  console.error('Failed to fetch content', error.value)
-}
+} = useAsyncData(`sag-files-${route.params.id}`, () =>
+  $fetch<FileDoc[]>('/api/sag/documents', { params: { id: route.params.id } })
+)
 </script>
 
 <template>
   <div class="container mx-auto py-10">
-    <div v-if="pending">Loading ...</div>
-    <div v-else>
-      <FilContent :files="content" />
-    </div>
+    <div v-if="pending" class="text-gray-600">Indlæser dokumenter …</div>
+    <div v-else-if="error" class="text-red-600">Dokumenterne kunne ikke hentes.</div>
+    <div v-else-if="!content?.length" class="text-gray-600">Ingen dokumenter tilgængelige.</div>
+    <FilContent v-else :files="content" />
   </div>
 </template>

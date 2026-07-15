@@ -19,7 +19,26 @@ export default defineNuxtConfig({
     autoImport: true,
   },
 
+  hooks: {
+    // utils/oda.ts is the server-only generated ODA client. Its Danish export
+    // names (mødeGet, …) break unimport's export scanner, which registers a
+    // phantom export 'm' that then gets injected into client components that
+    // use 'mødeid' properties and crashes the app at init. Nothing client-side
+    // uses the module — drop it from auto-imports entirely.
+    'imports:extend'(imports) {
+      for (let i = imports.length - 1; i >= 0; i--) {
+        if (String(imports[i].from).includes('utils/oda')) imports.splice(i, 1)
+      }
+    },
+  },
+
   modules: ['@pinia/nuxt', '@vueuse/nuxt', '@nuxt/ui', '@nuxt/test-utils/module', '@nuxt/icon'],
+
+  ui: {
+    // Colors bound dynamically (e.g. MentionableSearch badges) are skipped by
+    // the safelist extractor and must be listed explicitly
+    safelistColors: ['orange', 'green', 'emerald', 'red', 'yellow'],
+  },
 
   postcss: {
     plugins: {
@@ -47,8 +66,10 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     llmServiceUrl: process.env.LLM_SERVICE_URL || 'http://127.0.0.1:8000',
+    liveTranscriptionUrl: process.env.LIVE_TRANSCRIPTION_URL || 'http://127.0.0.1:8001',
     public: {
       llmServiceUrl: process.env.LLM_SERVICE_URL || 'http://127.0.0.1:8000',
+      liveWsUrl: process.env.LIVE_WS_URL || 'ws://127.0.0.1:8001/ws/live',
     },
   },
 
@@ -56,6 +77,11 @@ export default defineNuxtConfig({
     '/llm/**': {
       proxy: {
         to: 'http://127.0.0.1:8000/**',
+      },
+    },
+    '/live-api/**': {
+      proxy: {
+        to: 'http://127.0.0.1:8001/api/**',
       },
     },
   },

@@ -1,6 +1,6 @@
 import { defineEventHandler, createError, getQuery } from 'h3'
 import { eq, and } from 'drizzle-orm'
-import { db, explainAnalyze } from '../db'
+import { db, explainAnalyze } from '../../utils/db'
 import { sagdokument, fil, filContent } from '../../database/schema'
 
 type FileWithContent = {
@@ -47,11 +47,11 @@ export default defineEventHandler(async (event) => {
       offset: (page - 1) * limit,
     })
 
-    const files: FileWithContent[] = sagDocuments.flatMap((doc) =>
+    const files = sagDocuments.flatMap((doc) =>
       doc.dokument.fil.map((file) => ({
         ...file,
       })),
-    )
+    ) as unknown as FileWithContent[]
 
     const documentsWithContent: FileWithContent[] = await Promise.all(
       files.map(async (file) => {

@@ -20,20 +20,20 @@ export function useSagDocuments(sagId: number) {
     isLoading.value = true
     error.value = null
 
-    try {
-      const { data } = await useFetch<Document[]>('/api/sag/documents', {
-        params: { id: sagId },
-      })
+    // useFetch does not throw — it surfaces failures on its own `error` ref, so
+    // read that instead of relying on try/catch (which never fired before).
+    const { data, error: fetchError } = await useFetch<Document[]>('/api/sag/documents', {
+      params: { id: sagId },
+    })
 
-      if (data.value) {
-        documents.value = data.value
-      }
-    } catch (err) {
-      error.value = 'Failed to fetch documents'
-      console.error(err)
-    } finally {
-      isLoading.value = false
+    if (fetchError.value) {
+      error.value = 'Kunne ikke hente dokumenter'
+      console.error(fetchError.value)
+    } else if (data.value) {
+      documents.value = data.value
     }
+
+    isLoading.value = false
   }
 
   return {

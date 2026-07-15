@@ -1,4 +1,5 @@
 import { CronJob } from 'cron'
+import { refreshVoteStats } from '../../scripts/refreshVoteStats'
 import { syncAllEntities } from './syncEntities'
 
 const syncJob = new CronJob(
@@ -8,6 +9,12 @@ const syncJob = new CronJob(
     try {
       await syncAllEntities()
       console.log('Entity synchronization completed successfully.')
+      try {
+        await refreshVoteStats()
+        console.log('Vote stats refreshed.')
+      } catch (e) {
+        console.error('Vote stats refresh failed (non-fatal):', e)
+      }
     } catch (error) {
       console.error('Error during entity synchronization:', error)
     }
@@ -27,6 +34,12 @@ export async function runManualSync() {
   try {
     await syncAllEntities()
     console.log('Entity synchronization completed successfully.')
+    try {
+      await refreshVoteStats()
+      console.log('Vote stats refreshed.')
+    } catch (e) {
+      console.error('Vote stats refresh failed (non-fatal):', e)
+    }
   } catch (error) {
     console.error('Error during entity synchronization:', error)
   }

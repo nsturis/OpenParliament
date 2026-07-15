@@ -1,6 +1,6 @@
 import { defineEventHandler, getQuery } from 'h3'
 import { eq, and, gte, lte, inArray, or, isNull , sql } from 'drizzle-orm'
-import { db } from '../db'
+import { db } from '../../utils/db'
 import {
   møde,
   dagsordenspunkt,

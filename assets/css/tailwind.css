@@ -6,7 +6,8 @@ div#__nuxt {
   min-height: 100%;
 }
 
-.router-link-active {
+/* Active-state highlight belongs to the header nav only */
+nav .router-link-active {
   @apply bg-gray-900 text-white;
 }
 
@@ -14,12 +15,8 @@ h1 {
   @apply text-3xl;
 }
 
-p {
-  @apply mt-5;
-}
-
 a {
-  color: #47c691;
+  @apply text-primary-600 dark:text-primary-400;
 }
 a:hover {
   text-decoration: underline;

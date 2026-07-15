@@ -1,6 +1,6 @@
 import { defineEventHandler, createError, getQuery } from 'h3'
 import { eq } from 'drizzle-orm'
-import { db } from '../db'
+import { db } from '../../utils/db'
 import { sag } from '../../database/schema'
 import type { SagWithRelations, SagApiResponse } from '~/types/sag'
 
@@ -19,8 +19,12 @@ export default defineEventHandler(async (event): Promise<SagApiResponse> => {
     const result = await db.query.sag.findFirst({
       where: eq(sag.id, id),
       with: {
+        sagsstatus: true,
+        sagstype: true,
+        periode: true,
         sagstrin: {
           with: {
+            sagstrinstype: true,
             dagsordenspunkt: true,
             sagstrinAktør: {
               with: {
@@ -65,8 +69,10 @@ export default defineEventHandler(async (event): Promise<SagApiResponse> => {
       })
     }
 
-    return { data: result as SagWithRelations }
+    return { data: result as unknown as SagWithRelations }
   } catch (error) {
+    // Preserve HTTP semantics for the 404 thrown above
+    if (error && typeof error === 'object' && 'statusCode' in error) throw error
     return {
       error:
         error instanceof Error ? error.message : 'An unknown error occurred',

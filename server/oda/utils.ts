@@ -1,4 +1,4 @@
-import { db } from '../api/db'
+import { db } from '../utils/db'
 import { sql } from 'drizzle-orm'
 
 export async function getLastSyncTime(entity: string): Promise<Date> {
@@ -8,7 +8,8 @@ export async function getLastSyncTime(entity: string): Promise<Date> {
       FROM ${sql.identifier(entity)}
     `)
 
-    const lastUpdate = result[0]?.last_update
+    const rows = result.rows as Array<{ last_update: Date | string }>
+    const lastUpdate = rows[0]?.last_update
 
     return lastUpdate ? new Date(lastUpdate) : new Date(0)
   } catch (error) {

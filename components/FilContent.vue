@@ -26,6 +26,30 @@
         </template>
       </UButton>
     </template>
+
+    <template #item="{ item }">
+      <div class="p-3 space-y-3">
+        <a
+          v-if="item.filurl"
+          :href="item.filurl"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="inline-flex items-center gap-1 text-primary-600 dark:text-primary-400 hover:underline"
+        >
+          <Icon name="heroicons:arrow-top-right-on-square-20-solid" class="w-4 h-4" />
+          Åbn original{{ item.format ? ` (${item.format})` : '' }}
+        </a>
+        <p
+          v-if="item.text"
+          class="whitespace-pre-wrap text-sm leading-relaxed text-gray-700 dark:text-gray-300 max-h-96 overflow-y-auto"
+        >
+          {{ item.text }}
+        </p>
+        <p v-else class="text-sm text-gray-500 dark:text-gray-400">
+          Intet tekstindhold tilgængeligt for dette dokument.
+        </p>
+      </div>
+    </template>
   </UAccordion>
 </template>
 
@@ -33,15 +57,23 @@
 const props = defineProps<{
   files: Array<{
     id: number;
-    title: string;
-    // Add other properties as needed
+    titel: string | null;
+    filurl?: string;
+    format?: string;
+    content?: string;
   }>
 }>()
 
-const accordionItems = computed<{ label: string; content: string }[]>(() => 
+// Sentinel strings the /api/sag/documents endpoint returns when no extracted
+// text exists — treat them as "no content" rather than displaying them.
+const NO_CONTENT = new Set(['Content not available', 'Error fetching content'])
+
+const accordionItems = computed(() =>
   props.files.map(file => ({
-    label: file.title,
-    content: JSON.stringify(file) // Convert the file object to a string
+    label: file.titel || `Dokument ${file.id}`,
+    text: file.content && !NO_CONTENT.has(file.content) ? file.content : '',
+    filurl: file.filurl,
+    format: file.format,
   }))
 )
 </script>

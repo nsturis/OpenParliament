@@ -26,12 +26,12 @@ const props = defineProps<{
 }>()
 
 const emits = defineEmits(['update:current-periode'])
-const selectedPeriode = ref(props.currentPeriode)
+const selectedPeriode = ref(props.currentPeriode ?? undefined)
 
 watch(
   () => props.currentPeriode,
   (newVal) => {
-    selectedPeriode.value = newVal
+    selectedPeriode.value = newVal ?? undefined
   },
 )
 

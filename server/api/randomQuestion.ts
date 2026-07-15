@@ -1,5 +1,5 @@
 import { getRandomSag } from './randomSag';
-import { getSagDetails } from './sagDetails';
+import { getSagDetails } from '../utils/sagDetails';
 import { generateQuestion } from '../llm/generateQuestion';
 import { createHash } from 'crypto';
 import type { SagDetails } from '~/types/sag';

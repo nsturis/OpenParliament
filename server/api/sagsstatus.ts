@@ -1,5 +1,5 @@
 import { defineEventHandler } from 'h3'
-import { db } from './db'
+import { db } from '../utils/db'
 import { sagsstatus } from '../database/schema'
 
 export default defineEventHandler(async (event) => {

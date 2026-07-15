@@ -6,11 +6,13 @@ import {
   uuid,
   boolean,
   smallint,
+  real,
   index,
   uniqueIndex,
   primaryKey,
   timestamp,
   vector,
+  jsonb,
   type AnyPgColumn,
 } from 'drizzle-orm/pg-core'
 
@@ -77,24 +79,36 @@ export const aktør = pgTable('Aktør', {
   slutdato: timestamp('slutdato', { withTimezone: true, mode: 'string' }),
 })
 
-export const aktørAktør = pgTable('AktørAktør', {
-  id: bigserial('id', { mode: 'number' }).primaryKey().notNull(),
-  fraaktørid: integer('fraaktørid')
-    .notNull()
-    .references(() => aktør.id),
-  tilaktørid: integer('tilaktørid')
-    .notNull()
-    .references(() => aktør.id),
-  startdato: timestamp('startdato', { withTimezone: true, mode: 'string' }),
-  slutdato: timestamp('slutdato', { withTimezone: true, mode: 'string' }),
-  opdateringsdato: timestamp('opdateringsdato', {
-    withTimezone: true,
-    mode: 'string',
-  }).notNull(),
-  rolleid: integer('rolleid')
-    .notNull()
-    .references(() => aktørAktørRolle.id),
-})
+export const aktørAktør = pgTable(
+  'AktørAktør',
+  {
+    id: bigserial('id', { mode: 'number' }).primaryKey().notNull(),
+    fraaktørid: integer('fraaktørid')
+      .notNull()
+      .references(() => aktør.id),
+    tilaktørid: integer('tilaktørid')
+      .notNull()
+      .references(() => aktør.id),
+    startdato: timestamp('startdato', { withTimezone: true, mode: 'string' }),
+    slutdato: timestamp('slutdato', { withTimezone: true, mode: 'string' }),
+    opdateringsdato: timestamp('opdateringsdato', {
+      withTimezone: true,
+      mode: 'string',
+    }).notNull(),
+    rolleid: integer('rolleid')
+      .notNull()
+      .references(() => aktørAktørRolle.id),
+  },
+  (table) => {
+    return {
+      aktørAktørFraaktørRolleIdx: index('aktør_aktør_fraaktør_rolle_idx').using(
+        'btree',
+        table.fraaktørid,
+        table.rolleid
+      ),
+    }
+  }
+)
 
 export const aktørAktørRolle = pgTable('AktørAktørRolle', {
   id: integer('id').primaryKey().notNull(),
@@ -746,7 +760,7 @@ export const taleSegment = pgTable(
       withTimezone: true,
       mode: 'string',
     }).notNull(),
-    embedding: vector('embedding', { dimensions: 768 }).notNull(),
+    embedding: vector('embedding', { dimensions: 1024 }).notNull(),
     chunkIndex: integer('chunk_index').notNull(), // Add this line
   },
   (table) => {
@@ -759,16 +773,46 @@ export const taleSegment = pgTable(
   }
 )
 
+// Valgtest (election quiz) persistence
+export const valgtestVote = pgTable('valgtestVote', {
+  id: bigserial('id', { mode: 'number' }).primaryKey().notNull(),
+  ftid: text('ftid').notNull(),
+  samling: text('samling').notNull(),
+  titel: text('titel'),
+  vote: text('vote').notNull(),
+  oprettet: timestamp('oprettet', { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+})
+
+export const valgtestResult = pgTable('valgtestResult', {
+  id: bigserial('id', { mode: 'number' }).primaryKey().notNull(),
+  parties: jsonb('parties').notNull(),
+  oprettet: timestamp('oprettet', { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+})
+
 export const taleSegmentRaw = pgTable('taleSegmentRaw', {
   id: bigserial('id', { mode: 'number' }).primaryKey().notNull(),
   content: text('content').notNull(),
   mødeid: integer('mødeid').notNull().references(() => møde.id),
   starttid: timestamp('starttid', { withTimezone: true, mode: 'string' }).notNull(),
-  sluttid: timestamp('sluttid', { withTimezone: true, mode: 'string' }).notNull(),
+  // The final segment of every meeting transcript has no EndDateTime
+  sluttid: timestamp('sluttid', { withTimezone: true, mode: 'string' }),
   lastModified: timestamp('last_modified', { withTimezone: true, mode: 'string' }),
   sagid: integer('sagid').references(() => sag.id),
-  aktørid: integer('aktørid').notNull().references(() => aktør.id),
+  // NULL when the speaker could not be matched to an Aktør — the orator
+  // fields below preserve the transcript attribution for later healing
+  aktørid: integer('aktørid').references(() => aktør.id),
+  oratorFornavn: text('oratorFornavn'),
+  oratorEfternavn: text('oratorEfternavn'),
+  oratorRolle: text('oratorRolle'),
+  // Agenda-item context: ODA dagsordenspunkt (when resolvable), the item
+  // number from the transcript ("5" or "5.1" for sub-items), and the
+  // segment's document order within the meeting
+  dagsordenspunktid: integer('dagsordenspunktid').references(() => dagsordenspunkt.id),
+  itemNo: text('itemNo'),
+  sequence: integer('sequence'),
   opdateringsdato: timestamp('opdateringsdato', { withTimezone: true, mode: 'string' }).notNull(),
+  status: text('status').notNull().default('final'),
+  confidence: real('confidence'),
 })
 
 export const taleSegmentChunk = pgTable(
@@ -779,7 +823,7 @@ export const taleSegmentChunk = pgTable(
       .notNull()
       .references(() => taleSegmentRaw.id),
     content: text('content').notNull(),
-    embedding: vector('embedding', { dimensions: 768 }).notNull(),
+    embedding: vector('embedding', { dimensions: 1024 }).notNull(),
     chunkIndex: integer('chunk_index').notNull(),
     totalChunks: integer('total_chunks').notNull(),
   },
@@ -801,7 +845,7 @@ export const filContent = pgTable(
       .notNull()
       .references(() => fil.id),
     content: text('content').notNull(),
-    embedding: vector('embedding', { dimensions: 768 }).notNull(),
+    embedding: vector('embedding', { dimensions: 1024 }).notNull(),
     chunkIndex: integer('chunkindex').notNull(),
     totalChunks: integer('totalchunks').notNull(), // Not needed I take it..
     version: integer('version').notNull().default(1),
@@ -828,8 +872,28 @@ export const documentContent = pgTable('DocumentContent', {
   documentId: integer('document_id').notNull(),
   rawContent: text('raw_content').notNull(),
   documentType: text('document_type').notNull(), // 'file' or 'speech'
-  extractedAt: timestamp('extracted_at', { 
+  extractedAt: timestamp('extracted_at', {
     withTimezone: true,
-    mode: 'string' 
+    mode: 'string'
   }).notNull().defaultNow(),
+})
+
+export const liveSession = pgTable('liveSession', {
+  id: bigserial('id', { mode: 'number' }).primaryKey().notNull(),
+  mødeid: integer('mødeid').references(() => møde.id),
+  startedAt: timestamp('started_at', { withTimezone: true, mode: 'string' }).notNull(),
+  endedAt: timestamp('ended_at', { withTimezone: true, mode: 'string' }),
+  status: text('status').notNull().default('active'),
+  streamUrl: text('stream_url').notNull(),
+  reconciliationStatus: text('reconciliation_status'),
+  opdateringsdato: timestamp('opdateringsdato', { withTimezone: true, mode: 'string' }).notNull(),
+})
+
+export const liveSpeakerDetection = pgTable('liveSpeakerDetection', {
+  id: bigserial('id', { mode: 'number' }).primaryKey().notNull(),
+  liveSessionId: integer('live_session_id').notNull().references(() => liveSession.id),
+  aktørid: integer('aktørid').references(() => aktør.id),
+  detectedName: text('detected_name').notNull(),
+  detectedAt: timestamp('detected_at', { withTimezone: true, mode: 'string' }).notNull(),
+  confidence: real('confidence'),
 })

@@ -84,8 +84,8 @@ export const useElectionQuizStore = defineStore('electionQuiz', {
     },
     sortedQuizResult(): Array<Party> {
       return [...this.quizResult].sort((a, b) => {
-        let aaa = a.agreements / (a.disagreements + a.disagreements)
-        let bbb = b.agreements / (b.disagreements + b.disagreements)
+        let aaa = a.agreements / (a.agreements + a.disagreements)
+        let bbb = b.agreements / (b.agreements + b.disagreements)
         if (a.agreements + a.disagreements === 0) {
           aaa = 0
         }

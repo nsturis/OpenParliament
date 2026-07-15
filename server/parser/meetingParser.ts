@@ -1,16 +1,145 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import logger from '../../utils/logger'
-import type { SQL } from 'drizzle-orm'
-import { and, eq, isNull } from 'drizzle-orm'
+import { and, eq, inArray, isNull, sql } from 'drizzle-orm'
 import type { X2jOptions } from 'fast-xml-parser'
-import { XMLParser } from 'fast-xml-parser'
+import { XMLParser, XMLValidator } from 'fast-xml-parser'
 import { glob } from 'glob'
 import { $fetch } from 'ofetch'
-import { db } from '../api/db'
-import { aktør, idmap, møde, periode, sag, taleSegmentChunk, taleSegmentRaw } from '../database/schema'
+import { db } from '../utils/db'
+import { aktør, dagsordenspunkt, idmap, møde, periode, sag, stemme, taleSegmentChunk, taleSegmentRaw } from '../database/schema'
+import { extractTextContent, xmlAttr, xmlText } from './xmlContent'
+import { isPseudoSpeaker, SpeakerIndex } from './speakerMatching'
 
-// Interfaces
+// Configuration
+let skipEmbeddings = false
+
+export function setSkipEmbeddings(skip: boolean) {
+  skipEmbeddings = skip
+}
+
+// ── In-memory caches ────────────────────────────────────────────────────
+// Loaded once at startup via initCaches(), eliminates most DB round-trips.
+
+let speakerIndex: SpeakerIndex | null = null
+const aktørTingdokCache = new Map<string, number>()    // tingdokID (originalid) → aktør id
+const sagTingdokCache = new Map<string, number>()      // tingdokID (originalid) → sag id
+const periodeKodeCache = new Map<string, number>()     // kode (where type=samling) → id
+const mødeCache = new Map<string, number>()            // "periodeId|nummer" → id (where typeid=1)
+const mødePeriodeCache = new Map<number, number>()     // møde id → periodeid
+const sagNummerCache = new Map<string, number | undefined>() // "periodeId|nummer" → sag id (memo)
+const dagsordenspunktCache = new Map<string, number>() // "mødeid|nummer" → id (-1 = ambiguous)
+let cachesInitialized = false
+
+// Distinct unmatched speaker names with occurrence counts — the source for
+// extending NAME_ALIASES in speakerMatching.ts.
+const unmatchedSpeakerCounts = new Map<string, number>()
+
+export function getUnmatchedSpeakerCounts(): Map<string, number> {
+  return unmatchedSpeakerCounts
+}
+
+export async function initCaches(): Promise<void> {
+  if (cachesInitialized) return
+
+  console.log('Loading lookup caches...')
+
+  // Vote counts disambiguate duplicate names: the active politician has
+  // thousands of votes, stray duplicate rows have none.
+  const voteCounts = await db
+    .select({ aktørid: stemme.aktørid, votes: sql<number>`count(*)::int` })
+    .from(stemme)
+    .groupBy(stemme.aktørid)
+  const votesByAktør = new Map<number, number>()
+  for (const v of voteCounts) {
+    if (v.aktørid != null) votesByAktør.set(v.aktørid, v.votes)
+  }
+
+  // Person-type aktører only (typeid=5) — the unfiltered table also holds
+  // thousands of Privatperson rows that collide with MP names.
+  const persons = await db
+    .select({ id: aktør.id, fornavn: aktør.fornavn, efternavn: aktør.efternavn, navn: aktør.navn })
+    .from(aktør)
+    .where(eq(aktør.typeid, 5))
+  speakerIndex = new SpeakerIndex(
+    persons.map((p) => ({ ...p, weight: votesByAktør.get(p.id) ?? 0 })),
+  )
+
+  // Load all perioder (samling type)
+  const allPerioder = await db
+    .select({ id: periode.id, kode: periode.kode })
+    .from(periode)
+    .where(eq(periode.type, 'samling'))
+  for (const p of allPerioder) {
+    if (p.kode) periodeKodeCache.set(p.kode, p.id)
+  }
+
+  // Load all møder (typeid=1)
+  const allMøder = await db
+    .select({ id: møde.id, periodeid: møde.periodeid, nummer: møde.nummer })
+    .from(møde)
+    .where(eq(møde.typeid, 1))
+  for (const m of allMøder) {
+    if (m.periodeid && m.nummer) {
+      mødeCache.set(`${m.periodeid}|${m.nummer}`, m.id)
+    }
+    if (m.periodeid) mødePeriodeCache.set(m.id, m.periodeid)
+  }
+
+  // Agenda items keyed by (mødeid, nummer); duplicate keys resolve to no link
+  const allDagsordenspunkter = await db
+    .select({ id: dagsordenspunkt.id, mødeid: dagsordenspunkt.mødeid, nummer: dagsordenspunkt.nummer })
+    .from(dagsordenspunkt)
+  for (const dp of allDagsordenspunkter) {
+    if (dp.mødeid == null || !dp.nummer) continue
+    const key = `${dp.mødeid}|${dp.nummer}`
+    dagsordenspunktCache.set(key, dagsordenspunktCache.has(key) ? -1 : dp.id)
+  }
+
+  // Load idmap (tingdokID → aktør id / sag id)
+  const allIdmap = await db
+    .select({ id: idmap.id, originalid: idmap.originalid, entity: idmap.entity })
+    .from(idmap)
+    .where(sql`${idmap.entity} IN ('Aktør', 'Sag')`)
+  for (const m of allIdmap) {
+    if (m.entity === 'Aktør') aktørTingdokCache.set(m.originalid, m.id)
+    else sagTingdokCache.set(m.originalid, m.id)
+  }
+
+  cachesInitialized = true
+  console.log(`  Caches loaded: ${persons.length} personer, ${aktørTingdokCache.size} aktør-idmap, ${sagTingdokCache.size} sag-idmap, ${periodeKodeCache.size} perioder, ${mødeCache.size} møder`)
+}
+
+// Load set of all mødeids that already have segments (single query, for skip-already-imported)
+export async function loadImportedMødeIds(): Promise<Set<number>> {
+  const result = await db
+    .selectDistinct({ mødeid: taleSegmentRaw.mødeid })
+    .from(taleSegmentRaw)
+  return new Set(result.map((r) => r.mødeid))
+}
+
+// Resolve a file's mødeid using caches (no DB, no full XML parse)
+export function resolveFileToMødeId(filePath: string): number | undefined {
+  if (!cachesInitialized) return undefined
+
+  const fd = fs.openSync(filePath, 'r')
+  const buf = Buffer.alloc(1024)
+  fs.readSync(fd, buf, 0, 1024, 0)
+  fs.closeSync(fd)
+  const header = buf.toString('utf8')
+
+  const sessionMatch = header.match(/<ParliamentarySession[^>]*>(\d+)<\/ParliamentarySession>/)
+  const numberMatch = header.match(/<MeetingNumber>(\d+)<\/MeetingNumber>/)
+  if (!sessionMatch || !numberMatch) return undefined
+
+  const periodeId = periodeKodeCache.get(sessionMatch[1])
+  if (!periodeId) return undefined
+
+  return mødeCache.get(`${periodeId}|${numberMatch[1]}`)
+}
+
+// ── Interfaces ──────────────────────────────────────────────────────────
+
 interface MeetingData {
   metadata: {
     parlamentariskSession: string
@@ -65,12 +194,14 @@ interface MetaSpeakerMP {
   '@_tingdokID'?: string
   OratorFirstName?: string
   OratorLastName?: string
+  OratorRole?: string
   fornavn?: string
   efternavn?: string
 }
 
 interface MetaSubItem {
-  ItemNo?: string
+  SubItemNo?: string | number
+  ItemNo?: string | number
   FTCase?: { '@_tingdokID': string } | undefined
   FTCaseNumber?: string
   FTCaseType?: string
@@ -82,7 +213,7 @@ interface RawSubItem {
   Tale?: unknown[]
 }
 
-interface MetaFTAgendaItem {  
+interface MetaFTAgendaItem {
   ItemNo?: string
   FTCaseNumber?: string
   FTCaseType?: string
@@ -121,7 +252,7 @@ interface RawTale {
       LastModified: string
       EdixiStatus: string
       StartDateTime: string
-      EndDateTime: string
+      EndDateTime?: string
     }
   }
   Taler: {
@@ -129,10 +260,15 @@ interface RawTale {
   }
 }
 
-interface ParsingStats {
+const MAX_FAILURE_EXAMPLES = 100
+
+export interface ParsingStats {
   totalMeetings: number
   successfulMeetings: number
   failedMeetings: number
+  skippedMeetings: number
+  /** Pseudo-speaker blocks (MødeSlut/Pause markers) skipped by design. */
+  meetingEvents: number
   agendaItems: {
     total: number
     successful: number
@@ -142,10 +278,18 @@ interface ParsingStats {
       error: string
     }>
   }
+  taleErrors: {
+    count: number
+    examples: Array<{ error: string }>
+  }
   sagLookups: {
     total: number
     successful: number
     failed: number
+    /** Agenda items without a case reference (FM/VALG/UVP or no number) — not failures. */
+    skipped: number
+    /** Lookups matching >1 sag row — left unlinked. */
+    ambiguous: number
     failureExamples: Array<{
       caseNumber?: string
       caseType?: string
@@ -156,6 +300,8 @@ interface ParsingStats {
     total: number
     successful: number
     failed: number
+    /** Name maps to several equally plausible aktører — left unlinked. */
+    ambiguous: number
     failureExamples: Array<{
       name?: string
       tingdokID?: string
@@ -164,54 +310,162 @@ interface ParsingStats {
   }
 }
 
-// Utility functions
-async function extractTingdokID(tingdokID: string, entity: string): Promise<number | undefined> {
-  logger.info(`Extracting TingdokID for ${entity}:`, { tingdokID })
+export function newParsingStats(): ParsingStats {
+  return {
+    totalMeetings: 0,
+    successfulMeetings: 0,
+    failedMeetings: 0,
+    skippedMeetings: 0,
+    meetingEvents: 0,
+    agendaItems: { total: 0, successful: 0, failed: 0, failureExamples: [] },
+    taleErrors: { count: 0, examples: [] },
+    sagLookups: { total: 0, successful: 0, failed: 0, skipped: 0, ambiguous: 0, failureExamples: [] },
+    aktørLookups: { total: 0, successful: 0, failed: 0, ambiguous: 0, failureExamples: [] },
+  }
+}
 
-  const mappedId = await db
+// ── Lookup functions (cache-aware) ──────────────────────────────────────
+
+function speakerName(item: MetaSpeakerMP): { fornavn: string; efternavn: string } {
+  return {
+    fornavn: xmlText(item.OratorFirstName ?? item.fornavn ?? ''),
+    efternavn: xmlText(item.OratorLastName ?? item.efternavn ?? ''),
+  }
+}
+
+function findAktørIdCached(item: MetaSpeakerMP, stats: ParsingStats): number | undefined {
+  stats.aktørLookups.total++
+
+  // Try tingdokID first (most reliable)
+  if (item['@_tingdokID']) {
+    const id = aktørTingdokCache.get(String(item['@_tingdokID']))
+    if (id) {
+      stats.aktørLookups.successful++
+      return id
+    }
+  }
+
+  const { fornavn, efternavn } = speakerName(item)
+  if (fornavn || efternavn) {
+    const outcome = speakerIndex!.resolve(fornavn, efternavn)
+    if (outcome.kind === 'match') {
+      stats.aktørLookups.successful++
+      return outcome.id
+    }
+    if (outcome.kind === 'ambiguous') {
+      stats.aktørLookups.ambiguous++
+      return undefined
+    }
+  }
+
+  stats.aktørLookups.failed++
+  const nameKey = `${fornavn}|${efternavn}`
+  unmatchedSpeakerCounts.set(nameKey, (unmatchedSpeakerCounts.get(nameKey) ?? 0) + 1)
+  if (stats.aktørLookups.failureExamples.length < MAX_FAILURE_EXAMPLES) {
+    stats.aktørLookups.failureExamples.push({
+      name: `${fornavn} ${efternavn}`,
+      tingdokID: item['@_tingdokID'],
+      error: 'No matching aktør found',
+    })
+  }
+  return undefined
+}
+
+function findMødeIdCached(metadata: MetaMeeting): number | undefined {
+  const periodeKode = xmlText(metadata.ParliamentarySession)
+  if (!periodeKode) return undefined
+
+  const periodeId = periodeKodeCache.get(periodeKode)
+  if (!periodeId) return undefined
+
+  const meetingNumber = String(metadata.MeetingNumber)
+  return mødeCache.get(`${periodeId}|${meetingNumber}`)
+}
+
+// DB-based tingdokID lookup via idmap table
+async function extractTingdokID(tingdokID: string, entity: string): Promise<number | undefined> {
+  const result = await db
     .select({ id: idmap.id })
     .from(idmap)
     .where(and(eq(idmap.originalid, tingdokID), eq(idmap.entity, entity)))
     .limit(1)
-
-  logger.info(`Mapped ID for ${entity}:`, {
-    tingdokID,
-    mappedId: mappedId[0]?.id,
-  })
-  return mappedId[0]?.id
+  return result[0]?.id
 }
 
-/**
- * Extracts text content from various data structures.
- * This function handles strings, arrays, and nested objects.
- * It removes all attributes in the extracted text content.
- *
- * @param tekstGruppe - The input data structure containing text content
- * @returns A string of extracted and concatenated text content without attributes
- */
-function extractTextContent(tekstGruppe: unknown): string {
-  if (!tekstGruppe) return ''
+async function findAktørId(item: MetaSpeakerMP, stats: ParsingStats): Promise<number | undefined> {
+  if (cachesInitialized) return findAktørIdCached(item, stats)
 
-  if (typeof tekstGruppe === 'string')
-    return tekstGruppe.trim()
+  stats.aktørLookups.total++
+  let aktørId: number | undefined
 
-  if (Array.isArray(tekstGruppe))
-    return tekstGruppe.map(extractTextContent).join(' ')
-
-  if (typeof tekstGruppe === 'object' && tekstGruppe !== null) {
-    // If the node itself has a #text property, return that text.
-    if ('#text' in tekstGruppe && typeof tekstGruppe['#text'] === 'string')
-      return tekstGruppe['#text'].trim()
-
-    // Else, recurse into any child properties that are not attributes (i.e., skip keys starting with "@_").
-    return Object.entries(tekstGruppe)
-      .filter(([key]) => !key.startsWith('@_'))  // <--- Skip all XML attributes
-      .map(([_, value]) => extractTextContent(value))
-      .join(' ')
+  if (item['@_tingdokID']) {
+    aktørId = await extractTingdokID(item['@_tingdokID'], 'Aktør')
   }
 
-  return ''
+  if (!aktørId) {
+    const { fornavn, efternavn } = speakerName(item)
+
+    if (fornavn && efternavn) {
+      const aktørResult = await db
+        .select({ id: aktør.id })
+        .from(aktør)
+        .where(and(eq(aktør.fornavn, fornavn), eq(aktør.efternavn, efternavn)))
+        .limit(1)
+
+      aktørId = aktørResult[0]?.id
+    }
+  }
+
+  if (!aktørId) {
+    stats.aktørLookups.failed++
+    if (stats.aktørLookups.failureExamples.length < MAX_FAILURE_EXAMPLES) {
+      const { fornavn, efternavn } = speakerName(item)
+      stats.aktørLookups.failureExamples.push({
+        name: `${fornavn} ${efternavn}`,
+        tingdokID: item['@_tingdokID'],
+        error: 'No matching aktør found',
+      })
+    }
+  } else {
+    stats.aktørLookups.successful++
+  }
+
+  return aktørId
 }
+
+async function findMødeId(metadata: MetaMeeting): Promise<number | undefined> {
+  if (cachesInitialized) return findMødeIdCached(metadata)
+
+  let periodeId: number | undefined
+
+  const periodeTingdokID = xmlAttr(metadata.ParliamentarySession, '@_tingdokID')
+  if (periodeTingdokID) {
+    periodeId = await extractTingdokID(periodeTingdokID, 'Periode')
+  }
+
+  const periodeKode = xmlText(metadata.ParliamentarySession)
+  if (!periodeId && periodeKode) {
+    const periodeResult = await db
+      .select({ id: periode.id })
+      .from(periode)
+      .where(and(eq(periode.kode, periodeKode), eq(periode.type, 'samling')))
+      .limit(1)
+
+    periodeId = periodeResult[0]?.id
+  }
+
+  if (!periodeId) return undefined
+
+  const mødeResult = await db
+    .select({ id: møde.id })
+    .from(møde)
+    .where(and(eq(møde.periodeid, periodeId), eq(møde.nummer, metadata.MeetingNumber.toString()), eq(møde.typeid, 1)))
+    .limit(1)
+
+  return mødeResult[0]?.id
+}
+
+// ── Embedding generation ────────────────────────────────────────────────
 
 type DocumentResponse = {
   status: string
@@ -237,295 +491,295 @@ async function generateEmbedding(text: string): Promise<DocumentResponse | null>
     return null
   }
 }
-// Main parsing functions
+
+// ── Segment value type for batch inserts ────────────────────────────────
+
+interface SegmentInsertValue {
+  content: string
+  mødeid: number
+  starttid: string
+  sluttid: string | null
+  lastModified: string | null
+  sagid: number | undefined
+  aktørid: number | null
+  oratorFornavn: string | null
+  oratorEfternavn: string | null
+  oratorRolle: string | null
+  dagsordenspunktid: number | null
+  itemNo: string | null
+  sequence: number | null
+  opdateringsdato: string
+}
+
+interface AgendaContext {
+  itemNo: string | null
+  dagsordenspunktid: number | null
+}
+
+// ── Main parsing functions ──────────────────────────────────────────────
+
 /**
- * Processes an array of RawTale segments, checking each one for an existing entry in:
- *  1) taleSegmentRaw (to see if it's already been inserted)
- *  2) taleSegmentChunk (to see if embeddings have already been generated)
- * 
- * If either is missing, it proceeds with insertion or embedding generation accordingly.
+ * Processes tale segments. When caches are initialized:
+ * - Resolves aktørId from in-memory cache (no DB)
+ * - Collects segment values into `meetingBuffer`; the caller writes the
+ *   whole meeting in one transaction (delete + insert = idempotent re-import)
+ * When caches are not initialized, falls back to per-row DB lookups.
  */
 async function processTaleSegments(
   taler: RawTale[],
   mødeid: number,
   sagId: number | undefined,
   stats: ParsingStats,
+  meetingBuffer?: SegmentInsertValue[],
+  agendaCtx?: AgendaContext,
 ): Promise<Tale[]> {
   const parsedTaler: Tale[] = []
 
   for (const tale of taler) {
     try {
-      // A "TaleSegment" can actually be an array in some XML data
+      const speaker = tale.Taler.MetaSpeakerMP
+      const { fornavn, efternavn } = speakerName(speaker)
+
+      // MødeSlut/Pause markers and empty speaker blocks are meeting events,
+      // not speech — skip without touching lookup stats.
+      if (isPseudoSpeaker(fornavn, efternavn, xmlText(speaker.OratorRole ?? ''))) {
+        stats.meetingEvents++
+        continue
+      }
+
       const segments = Array.isArray(tale.TaleSegment) ? tale.TaleSegment : [tale.TaleSegment]
+      const aktørId = await findAktørId(speaker, stats)
 
       for (const segment of segments) {
-        // 1) Extract raw text from the XML
         const rawContent = extractTextContent(segment.TekstGruppe)
+        // The final segment of every meeting has no EndDateTime.
+        const sluttid = segment.MetaSpeechSegment.EndDateTime || null
 
-        // 2) Find aktør (speaker) ID from DB
-        const aktørTingdokID = await findAktørId(tale.Taler.MetaSpeakerMP, stats)
-        if (!aktørTingdokID) {
-          logger.error('No aktørTingdokID found for tale:', tale)
-          continue
-        }
+        if (meetingBuffer) {
+          // Fast path: collect for transactional batch insert, no per-row DB queries.
+          // Unmatched speakers are persisted with aktørid NULL — the orator
+          // fields keep the attribution so the rows can be healed later.
+          meetingBuffer.push({
+            content: rawContent,
+            mødeid,
+            starttid: segment.MetaSpeechSegment.StartDateTime,
+            sluttid,
+            lastModified: segment.MetaSpeechSegment.LastModified || null,
+            sagid: sagId,
+            aktørid: aktørId ?? null,
+            oratorFornavn: fornavn || null,
+            oratorEfternavn: efternavn || null,
+            oratorRolle: xmlText(speaker.OratorRole ?? '') || null,
+            dagsordenspunktid: agendaCtx?.dagsordenspunktid ?? null,
+            itemNo: agendaCtx?.itemNo ?? null,
+            sequence: null, // assigned in document order after the whole meeting is parsed
+            opdateringsdato: new Date().toISOString(),
+          })
 
-        // 3) Check for an existing matching segment in taleSegmentRaw
-        //    We'll match on mødeid, start/end time, aktørID, sagId, and content
-        const existingSegment = await db
-          .select({ id: taleSegmentRaw.id })
-          .from(taleSegmentRaw)
-          .where(
-            and(
-              eq(taleSegmentRaw.mødeid, mødeid),
-              eq(taleSegmentRaw.starttid, segment.MetaSpeechSegment.StartDateTime),
-              eq(taleSegmentRaw.sluttid, segment.MetaSpeechSegment.EndDateTime),
-              eq(taleSegmentRaw.aktørid, aktørTingdokID),
-              sagId == null
-                ? isNull(taleSegmentRaw.sagid)
-                : eq(taleSegmentRaw.sagid, sagId),
-              eq(taleSegmentRaw.content, rawContent),
-            ),
-          )
-          .limit(1)
-
-        let rawSegmentId: number
-
-        if (existingSegment.length > 0) {
-          // 3a) If it exists, re-use its ID so we can check embeddings
-          rawSegmentId = existingSegment[0].id
-          logger.info(
-            `Skipping insertion for existing taleSegmentRaw (id=${rawSegmentId}, mødeid=${mødeid}, aktørid=${aktørTingdokID})`,
-          )
+          parsedTaler.push({
+            aktørTingdokID: aktørId,
+            LastModified: segment?.MetaSpeechSegment?.LastModified || null,
+            EdixiStatus: segment?.MetaSpeechSegment?.EdixiStatus || '',
+            StartDateTime: segment?.MetaSpeechSegment?.StartDateTime || null,
+            EndDateTime: sluttid,
+            content: rawContent,
+            sagId,
+            chunkIndex: 0,
+          })
         } else {
-          // 3b) Insert a new raw segment if none existed
-          const [rawSegment] = await db
-            .insert(taleSegmentRaw)
-            .values({
-              content: rawContent,
-              mødeid,
-              starttid: segment.MetaSpeechSegment.StartDateTime,
-              sluttid: segment.MetaSpeechSegment.EndDateTime,
-              lastModified: segment.MetaSpeechSegment.LastModified,
-              sagid: sagId,
-              aktørid: aktørTingdokID,
-              opdateringsdato: new Date().toISOString(),
-            })
-            .returning()
-          rawSegmentId = rawSegment.id
-          logger.info(`Inserted new taleSegmentRaw (id=${rawSegmentId})`)
-        }
+          // Slow path: per-row dedup check + insert + optional embeddings
+          if (!aktørId) continue
 
-        // 4) Check if embeddings are already generated for this segment
-        const existingChunks = await db
-          .select({ id: taleSegmentChunk.id })
-          .from(taleSegmentChunk)
-          .where(eq(taleSegmentChunk.taleSegmentId, rawSegmentId))
-          .limit(1)
+          const existingSegment = await db
+            .select({ id: taleSegmentRaw.id })
+            .from(taleSegmentRaw)
+            .where(
+              and(
+                eq(taleSegmentRaw.mødeid, mødeid),
+                eq(taleSegmentRaw.starttid, segment.MetaSpeechSegment.StartDateTime),
+                sluttid == null
+                  ? isNull(taleSegmentRaw.sluttid)
+                  : eq(taleSegmentRaw.sluttid, sluttid),
+                eq(taleSegmentRaw.aktørid, aktørId),
+                sagId == null
+                  ? isNull(taleSegmentRaw.sagid)
+                  : eq(taleSegmentRaw.sagid, sagId),
+                eq(taleSegmentRaw.content, rawContent),
+              ),
+            )
+            .limit(1)
 
-        // If no embeddings are found, generate them
-        if (existingChunks.length === 0) {
-          const embeddingResponse = await generateEmbedding(rawContent)
-          if (embeddingResponse?.status === 'success') {
-            // Store each chunk with its embedding
-            for (let i = 0; i < embeddingResponse.chunks.length; i++) {
-              await db.insert(taleSegmentChunk).values({
-                taleSegmentId: rawSegmentId,
-                content: embeddingResponse.chunks[i],
-                embedding: embeddingResponse.embeddings[i],
-                chunkIndex: i,
-                totalChunks: embeddingResponse.chunks.length,
-              })
-            }
-            logger.info(`Generated and inserted embeddings for taleSegmentRaw (id=${rawSegmentId})`)
+          let rawSegmentId: number
+
+          if (existingSegment.length > 0) {
+            rawSegmentId = existingSegment[0].id
           } else {
-            logger.warn(`Failed to generate embedding for taleSegmentRaw (id=${rawSegmentId})`)
+            const [rawSegment] = await db
+              .insert(taleSegmentRaw)
+              .values({
+                content: rawContent,
+                mødeid,
+                starttid: segment.MetaSpeechSegment.StartDateTime,
+                sluttid,
+                lastModified: segment.MetaSpeechSegment.LastModified,
+                sagid: sagId,
+                aktørid: aktørId,
+                oratorFornavn: fornavn || null,
+                oratorEfternavn: efternavn || null,
+                oratorRolle: xmlText(speaker.OratorRole ?? '') || null,
+                dagsordenspunktid: agendaCtx?.dagsordenspunktid ?? null,
+                itemNo: agendaCtx?.itemNo ?? null,
+                opdateringsdato: new Date().toISOString(),
+              })
+              .returning()
+            rawSegmentId = rawSegment.id
           }
-        } else {
-          logger.info(`Embeddings already exist for taleSegmentRaw (id=${rawSegmentId}). Skipping generation.`)
-        }
 
-        // 5) Add the final data to the response structure in memory
-        parsedTaler.push({
-          aktørTingdokID,
-          LastModified: segment?.MetaSpeechSegment?.LastModified || null,
-          EdixiStatus: segment?.MetaSpeechSegment?.EdixiStatus || '',
-          StartDateTime: segment?.MetaSpeechSegment?.StartDateTime || null,
-          EndDateTime: segment?.MetaSpeechSegment?.EndDateTime || null,
-          content: rawContent,
-          sagId,
-          chunkIndex: 0, // for backward compatibility
-        })
+          if (!skipEmbeddings) {
+            // Complete = count matches totalChunks; partial sets self-heal
+            const existingChunks = await db
+              .select({ id: taleSegmentChunk.id, totalChunks: taleSegmentChunk.totalChunks })
+              .from(taleSegmentChunk)
+              .where(eq(taleSegmentChunk.taleSegmentId, rawSegmentId))
+            const complete = existingChunks.length > 0 && existingChunks.length === existingChunks[0].totalChunks
+
+            if (!complete) {
+              const embeddingResponse = await generateEmbedding(rawContent)
+              if (
+                embeddingResponse?.status === 'success'
+                && embeddingResponse.chunks.length === embeddingResponse.embeddings.length
+                && embeddingResponse.chunks.length > 0
+              ) {
+                await db.transaction(async (tx) => {
+                  await tx.delete(taleSegmentChunk).where(eq(taleSegmentChunk.taleSegmentId, rawSegmentId))
+                  await tx.insert(taleSegmentChunk).values(
+                    embeddingResponse.chunks.map((chunk, i) => ({
+                      taleSegmentId: rawSegmentId,
+                      content: chunk,
+                      embedding: embeddingResponse.embeddings[i],
+                      chunkIndex: i,
+                      totalChunks: embeddingResponse.chunks.length,
+                    })),
+                  )
+                })
+              } else if (embeddingResponse) {
+                logger.warn(`Embedding response invalid for segment ${rawSegmentId}: status=${embeddingResponse.status}, chunks=${embeddingResponse.chunks?.length}, embeddings=${embeddingResponse.embeddings?.length}`)
+              }
+            }
+          }
+
+          parsedTaler.push({
+            aktørTingdokID: aktørId,
+            LastModified: segment?.MetaSpeechSegment?.LastModified || null,
+            EdixiStatus: segment?.MetaSpeechSegment?.EdixiStatus || '',
+            StartDateTime: segment?.MetaSpeechSegment?.StartDateTime || null,
+            EndDateTime: sluttid,
+            content: rawContent,
+            sagId,
+            chunkIndex: 0,
+          })
+        }
       }
     } catch (error: unknown) {
-      // Log and collect errors in stats
-      stats.agendaItems.failed++
-      stats.agendaItems.failureExamples.push({
-        error: error instanceof Error ? error.message : 'Unknown tale processing error',
-      })
+      stats.taleErrors.count++
+      if (stats.taleErrors.examples.length < MAX_FAILURE_EXAMPLES) {
+        stats.taleErrors.examples.push({
+          error: error instanceof Error ? error.message : 'Unknown tale processing error',
+        })
+      }
       logger.error('Error processing tale:', error)
-      logger.error('Problematic tale data:', JSON.stringify(tale, null, 2))
     }
   }
 
   return parsedTaler
 }
 
-async function findAktørId(item: MetaSpeakerMP, stats: ParsingStats): Promise<number | undefined> {
-  stats.aktørLookups.total++
+// Agenda-item types that never reference a sag (housekeeping, elections).
+const NON_CASE_TYPES = new Set(['FM', 'VALG', 'UVP'])
 
-  let aktørId: number | undefined
+async function findSagId(
+  metaFTAgendaItem: Pick<MetaFTAgendaItem, 'FTCase' | 'FTCaseNumber' | 'FTCaseType'>,
+  mødeid: number,
+  stats: ParsingStats,
+): Promise<number | undefined> {
+  const tingdokID = metaFTAgendaItem.FTCase
+    ? String(metaFTAgendaItem.FTCase['@_tingdokID'] ?? '').trim()
+    : ''
+  const caseNumber = metaFTAgendaItem.FTCaseNumber != null ? String(metaFTAgendaItem.FTCaseNumber).trim() : ''
+  const caseType = metaFTAgendaItem.FTCaseType != null ? String(metaFTAgendaItem.FTCaseType).trim() : ''
+  const hasNumberKey = caseNumber !== '' && caseType !== '' && !NON_CASE_TYPES.has(caseType)
 
-  // First, try to get the aktørId using the tingdokID
-  if (item['@_tingdokID']) {
-    aktørId = await extractTingdokID(item['@_tingdokID'], 'Aktør')
-  }
-
-  // If aktørId is not found using tingdokID, look it up using name
-  if (!aktørId) {
-    const fornavn = item.OratorFirstName || item.fornavn
-    const efternavn = item.OratorLastName || item.efternavn
-
-    if (fornavn && efternavn) {
-      const aktørResult = await db
-        .select({ id: aktør.id })
-        .from(aktør)
-        .where(and(eq(aktør.fornavn, fornavn), eq(aktør.efternavn, efternavn)))
-        .limit(1)
-
-      aktørId = aktørResult[0]?.id
-    }
-  }
-
-  if (!aktørId) {
-    stats.aktørLookups.failed++
-    stats.aktørLookups.failureExamples.push({
-      name: `${item.OratorFirstName || item.fornavn} ${item.OratorLastName || item.efternavn}`,
-      tingdokID: item['@_tingdokID'],
-      error: 'No matching aktør found',
-    })
-  } else {
-    stats.aktørLookups.successful++
-  }
-
-  return aktørId
-}
-
-async function findMødeId(metadata: MetaMeeting): Promise<number | undefined> {
-  logger.info('Finding møde ID for:', metadata)
-
-  let periodeId: number | undefined
-
-  // First, try to get the periodeId using the periodeTingdokID
-  if (metadata.ParliamentarySession['@_tingdokID']) {
-    periodeId = await extractTingdokID(metadata.ParliamentarySession['@_tingdokID'], 'Periode')
-  }
-
-  // If periodeId is not found using tingdokID, look it up using ParliamentarySession
-  if (!periodeId) {
-    const periodeResult = await db
-      .select({ id: periode.id })
-      .from(periode)
-      .where(and(eq(periode.kode, metadata.ParliamentarySession['#text']), eq(periode.type, 'samling')))
-      .limit(1)
-
-    periodeId = periodeResult[0]?.id
-  }
-
-  logger.info('Found periodeId:', periodeId)
-
-  if (!periodeId) {
-    logger.warn(`No periode found for parlamentariskSession: ${metadata.ParliamentarySession['#text']}`)
+  // No usable case reference — this is not a lookup failure.
+  if (!tingdokID && !hasNumberKey) {
+    stats.sagLookups.skipped++
     return undefined
   }
 
-  // Now, find the correct møde based on the periode, mødeNummer, and typeid = 1
-  const mødeResult = await db
-    .select({
-      id: møde.id,
-      nummer: møde.nummer,
-      typeid: møde.typeid,
-      periodeid: møde.periodeid,
-    })
-    .from(møde)
-    .where(and(eq(møde.periodeid, periodeId), eq(møde.nummer, metadata.MeetingNumber.toString()), eq(møde.typeid, 1)))
-    .limit(1)
-
-  logger.info('Møde query result:', mødeResult)
-
-  if (!mødeResult.length) {
-    logger.warn(`No møde found for periode: ${periodeId}, mødeNummer: ${metadata.MeetingNumber}, typeid: 1`)
-    return undefined
-  }
-
-  return mødeResult[0].id
-}
-
-async function findSagId(metaFTAgendaItem: MetaFTAgendaItem, mødeid: number, stats: ParsingStats): Promise<number | undefined> {
   stats.sagLookups.total++
-  logger.info('Finding sagId for:', { metaFTAgendaItem, mødeid })
 
-  let sagId: number | undefined
-
-  try {
-    if (metaFTAgendaItem.FTCase && metaFTAgendaItem.FTCase['@_tingdokID'] !== '') {
-      sagId = await extractTingdokID(metaFTAgendaItem.FTCase['@_tingdokID'], 'Sag')
-      logger.info('Extracted sagId using FTCaseTingdokID:', {
-        sagId,
-        FTCaseTingdokID: metaFTAgendaItem.FTCase['@_tingdokID'],
-      })
+  // Primary: FTCase tingdokID via idmap (sessions ~20191+, most precise)
+  if (tingdokID) {
+    const sagId = cachesInitialized
+      ? sagTingdokCache.get(tingdokID)
+      : await extractTingdokID(tingdokID, 'Sag')
+    if (sagId) {
+      stats.sagLookups.successful++
+      return sagId
     }
-  } catch (error) {
-    logger.error('Error extracting sagId:', error)
-    const periodeId = await findPeriodeId(mødeid)
-    logger.info('Found periodeId:', { periodeId, mødeid })
-
-    if (!periodeId) {
-      logger.warn(`No periode found for møde: ${mødeid}`)
-      return undefined
-    }
-
-    const conditions: SQL<unknown>[] = [eq(sag.periodeid, periodeId)]
-
-    if (metaFTAgendaItem.FTCaseNumber) {
-      conditions.push(eq(sag.nummernumerisk, metaFTAgendaItem.FTCaseNumber))
-    }
-    if (metaFTAgendaItem.FTCaseType) {
-      conditions.push(eq(sag.nummerprefix, metaFTAgendaItem.FTCaseType))
-    }
-    const sagResult = await db
-      .select({ id: sag.id })
-      .from(sag)
-      .where(and(...conditions))
-      .limit(1)
-
-    sagId = sagResult[0]?.id
-    logger.info('Extracted sagId using fallback method:', {
-      sagId,
-      FTCaseNumber: metaFTAgendaItem.FTCaseNumber,
-      FTCaseType: metaFTAgendaItem.FTCaseType,
-      periodeId,
-    })
   }
 
-  if (!sagId) {
-    stats.sagLookups.failed++
+  // Fallback: sag.nummer = "<type> <number>" within the meeting's periode.
+  // Matching the composite nummer (not nummerprefix/nummernumerisk) is
+  // era-stable and handles split cases like "L 4 A".
+  if (hasNumberKey) {
+    try {
+      let periodeId = mødePeriodeCache.get(mødeid)
+      if (!periodeId) {
+        const mødeResult = await db.select({ periodeid: møde.periodeid }).from(møde).where(eq(møde.id, mødeid)).limit(1)
+        periodeId = mødeResult[0]?.periodeid ?? undefined
+      }
+
+      if (periodeId) {
+        const nummer = `${caseType} ${caseNumber}`
+        const cacheKey = `${periodeId}|${nummer}`
+        if (cachesInitialized && sagNummerCache.has(cacheKey)) {
+          const cached = sagNummerCache.get(cacheKey)
+          if (cached) stats.sagLookups.successful++
+          else stats.sagLookups.failed++
+          return cached
+        }
+
+        const rows = await db
+          .select({ id: sag.id })
+          .from(sag)
+          .where(and(eq(sag.periodeid, periodeId), eq(sag.nummer, nummer)))
+          .limit(2)
+
+        if (rows.length === 1) {
+          if (cachesInitialized) sagNummerCache.set(cacheKey, rows[0].id)
+          stats.sagLookups.successful++
+          return rows[0].id
+        }
+        if (rows.length > 1) {
+          stats.sagLookups.ambiguous++
+          logger.warn(`Ambiguous sag lookup: ${nummer} in periode ${periodeId}`)
+        }
+        if (cachesInitialized) sagNummerCache.set(cacheKey, undefined)
+      }
+    } catch (error) {
+      logger.error('Sag lookup failed:', error)
+    }
+  }
+
+  stats.sagLookups.failed++
+  if (stats.sagLookups.failureExamples.length < MAX_FAILURE_EXAMPLES) {
     stats.sagLookups.failureExamples.push({
-      caseNumber: metaFTAgendaItem.FTCaseNumber,
-      caseType: metaFTAgendaItem.FTCaseType,
+      caseNumber,
+      caseType,
       error: 'No matching sag found',
     })
-  } else {
-    stats.sagLookups.successful++
   }
-
-  return sagId
-}
-
-// Helper function to find periodeId for a given mødeid
-async function findPeriodeId(mødeid: number): Promise<number | undefined> {
-  const mødeResult = await db.select({ periodeid: møde.periodeid }).from(møde).where(eq(møde.id, mødeid)).limit(1)
-
-  return mødeResult[0]?.periodeid
+  return undefined
 }
 
 async function parseSubAgendaItems(
@@ -533,70 +787,69 @@ async function parseSubAgendaItems(
   mødeid: number,
   parentSagId: number | undefined,
   stats: ParsingStats,
+  meetingBuffer?: SegmentInsertValue[],
+  parentCtx?: AgendaContext,
 ): Promise<SubItem[]> {
-  logger.info('Parsing sub-items:', {
-    mødeid,
-    parentSagId,
-    subItemsCount: subItems.length,
-  })
-
   try {
-    return await Promise.all(
-      subItems.map(async (subItem: RawSubItem) => {
-        const metaSubItem = subItem.MetaFTAgendaSubItem || {}
-        logger.info('Processing sub-item:', { metaSubItem })
+    // Sequential so buffered segments keep document order within the item
+    const parsed: SubItem[] = []
+    for (const subItem of subItems) {
+      const metaSubItem = subItem.MetaFTAgendaSubItem || {}
 
-        const newSubItem: SubItem = {
-          ItemNo: metaSubItem.ItemNo || '',
-          FTCaseTingdokID: metaSubItem.FTCase?.['@_tingdokID'] || '',
-          FTCaseNumber: metaSubItem.FTCaseNumber || '',
-          FTCaseType: metaSubItem.FTCaseType || '',
-          ShortTitle: metaSubItem.ShortTitle || '',
-          taler: [],
+      const newSubItem: SubItem = {
+        // Sub-items carry SubItemNo (ItemNo never occurs on them)
+        ItemNo: String(metaSubItem.SubItemNo ?? metaSubItem.ItemNo ?? ''),
+        FTCaseTingdokID: metaSubItem.FTCase?.['@_tingdokID'] || '',
+        FTCaseNumber: metaSubItem.FTCaseNumber || '',
+        FTCaseType: metaSubItem.FTCaseType || '',
+        ShortTitle: metaSubItem.ShortTitle || '',
+        taler: [],
+      }
+
+      const sagId = (metaSubItem.FTCase ? await findSagId(metaSubItem, mødeid, stats) : parentSagId)
+
+      if (subItem.Tale) {
+        const taler = Array.isArray(subItem.Tale) ? subItem.Tale : [subItem.Tale]
+        const subCtx: AgendaContext = {
+          itemNo: [parentCtx?.itemNo, newSubItem.ItemNo].filter(Boolean).join('.') || null,
+          dagsordenspunktid: parentCtx?.dagsordenspunktid ?? null,
         }
-
-        // const sagId = (await extractTingdokID(metaSubItem.FTCase?.['@_tingdokID'] ?? '', 'Sag')) || parentSagId
-
-        const sagId = (metaSubItem.FTCase ? await findSagId(metaSubItem, mødeid, stats) : parentSagId)
-
-        logger.info('Extracted sagId for sub-item:', {
+        newSubItem.taler = await processTaleSegments(
+          taler.map((t): RawTale => t as RawTale),
+          mødeid,
           sagId,
-          FTCaseTingdokID: newSubItem.FTCaseTingdokID,
-        })
+          stats,
+          meetingBuffer,
+          subCtx,
+        )
+      }
 
-        if (subItem.Tale) {
-          const taler = Array.isArray(subItem.Tale) ? subItem.Tale : [subItem.Tale]
-          newSubItem.taler = await processTaleSegments(
-            taler.map((t): RawTale => t as RawTale),
-            mødeid,
-            sagId,
-            stats,
-          )
-        }
-
-        logger.info('Parsed sub-item:', {
-          ItemNo: newSubItem.ItemNo,
-          talerCount: newSubItem.taler.length,
-        })
-        return newSubItem
-      }),
-    )
+      parsed.push(newSubItem)
+    }
+    return parsed
   } catch (error: unknown) {
     logger.error('Error parsing sub-items:', error)
-    if (error instanceof Error) {
-      logger.error('Error details:', error.message)
-    }
     return []
   }
 }
 
-async function parseAgendaItem(item: RawAgendaItem, mødeid: number, stats: ParsingStats): Promise<ParsedAgendaItem> {
+async function parseAgendaItem(
+  item: RawAgendaItem,
+  mødeid: number,
+  stats: ParsingStats,
+  meetingBuffer?: SegmentInsertValue[],
+): Promise<ParsedAgendaItem> {
   stats.agendaItems.total++
   try {
     const metaFTAgendaItem = item.MetaFTAgendaItem || {}
-    logger.info('Parsing agenda item:', { mødeid, metaFTAgendaItem })
 
     const sagId = await findSagId(metaFTAgendaItem, mødeid, stats)
+    const itemNo = metaFTAgendaItem.ItemNo != null ? String(metaFTAgendaItem.ItemNo) : null
+    const dpId = itemNo ? dagsordenspunktCache.get(`${mødeid}|${itemNo}`) : undefined
+    const agendaCtx: AgendaContext = {
+      itemNo,
+      dagsordenspunktid: dpId && dpId !== -1 ? dpId : null,
+    }
     const agendaItem: AgendaItem = {
       ItemNo: metaFTAgendaItem.ItemNo,
       FTCaseNumber: metaFTAgendaItem.FTCaseNumber,
@@ -609,29 +862,33 @@ async function parseAgendaItem(item: RawAgendaItem, mødeid: number, stats: Pars
       taler: [],
     }
 
-
-
     if (item.Aktivitet) {
       const activities = Array.isArray(item.Aktivitet) ? item.Aktivitet : [item.Aktivitet]
 
+      // Agenda items average 1.7 Aktivitet — accumulate across all of them.
       for (const aktivitet of activities) {
         if (aktivitet.DagsordenUnderpunkt) {
-          agendaItem.subItems = await parseSubAgendaItems(
-            aktivitet.DagsordenUnderpunkt.map((p): RawSubItem => p as RawSubItem),
+          const subItems = Array.isArray(aktivitet.DagsordenUnderpunkt) ? aktivitet.DagsordenUnderpunkt : [aktivitet.DagsordenUnderpunkt]
+          agendaItem.subItems!.push(...await parseSubAgendaItems(
+            subItems.map((p): RawSubItem => p as RawSubItem),
             mødeid,
             sagId,
             stats,
-          )
+            meetingBuffer,
+            agendaCtx,
+          ))
         }
 
         if (aktivitet.Tale) {
           const taler = Array.isArray(aktivitet.Tale) ? aktivitet.Tale : [aktivitet.Tale]
-          agendaItem.taler = await processTaleSegments(
+          agendaItem.taler.push(...await processTaleSegments(
             taler.map((t): RawTale => t as RawTale),
             mødeid,
             sagId,
             stats,
-          )
+            meetingBuffer,
+            agendaCtx,
+          ))
         }
       }
     }
@@ -657,12 +914,12 @@ async function parseAgendaItem(item: RawAgendaItem, mødeid: number, stats: Pars
 
 async function extractMeetingMetadata(metaMeeting: MetaMeeting): Promise<MeetingData['metadata']> {
   return {
-    parlamentariskSession: metaMeeting.ParliamentarySession['@_tingdokID'],
-    periodeTingdokID: metaMeeting.ParliamentarySession['@_tingdokID'],
-    aktørGruppe: metaMeeting.ParliamentaryGroup['@_tingdokID'],
-    aktørTingdokID: metaMeeting.ParliamentaryGroup['@_tingdokID'],
+    parlamentariskSession: xmlAttr(metaMeeting.ParliamentarySession, '@_tingdokID') || xmlText(metaMeeting.ParliamentarySession),
+    periodeTingdokID: xmlAttr(metaMeeting.ParliamentarySession, '@_tingdokID') || xmlText(metaMeeting.ParliamentarySession),
+    aktørGruppe: xmlAttr(metaMeeting.ParliamentaryGroup, '@_tingdokID') || xmlText(metaMeeting.ParliamentaryGroup),
+    aktørTingdokID: xmlAttr(metaMeeting.ParliamentaryGroup, '@_tingdokID') || xmlText(metaMeeting.ParliamentaryGroup),
     mødeDato: metaMeeting.DateOfSitting,
-    mødeNummer: Number.parseInt(metaMeeting.MeetingNumber, 10),
+    mødeNummer: Number.parseInt(String(metaMeeting.MeetingNumber), 10),
     lokale: metaMeeting.Location,
   }
 }
@@ -673,6 +930,9 @@ function createParserOptions(): X2jOptions {
     attributeNamePrefix: '@_',
     textNodeName: '#text',
     parseAttributeValue: true,
+    // Transcript text must never be type-coerced: <Char>138</Char> parsed
+    // as a number used to be dropped from the extracted speech text.
+    parseTagValue: false,
     attributeValueProcessor: (attrName: string, attrValue: string) => {
       if (attrName === 'tingdokID') {
         return attrValue.trim()
@@ -683,10 +943,17 @@ function createParserOptions(): X2jOptions {
 }
 
 export async function parseMeetingXML(filePath: string, stats: ParsingStats): Promise<MeetingData> {
-  logger.info('Parsing meeting XML:', filePath)
   const options = createParserOptions()
   const parser = new XMLParser(options)
   const xmlData = fs.readFileSync(filePath, 'utf8')
+
+  // fast-xml-parser silently returns partial trees for truncated files —
+  // everything after the corruption point would be lost without this check.
+  const validation = XMLValidator.validate(xmlData)
+  if (validation !== true) {
+    throw new Error(`Malformed XML (${validation.err.msg} at line ${validation.err.line}) — re-download the file: ${filePath}`)
+  }
+
   const result = parser.parse(xmlData)
 
   const metaMeeting = result.Dokument.MetaMeeting as MetaMeeting
@@ -702,33 +969,46 @@ export async function parseMeetingXML(filePath: string, stats: ParsingStats): Pr
     agendaItems: [],
   }
 
-  const agendaItems = (result.Dokument.DagsordenPunkt || []) as RawAgendaItem[]
-  logger.info(`Parsing agenda items:`, {
-    agendaItemsCount: agendaItems.length,
-    mødeid,
-  })
+  const rawDp = result.Dokument.DagsordenPunkt || []
+  const agendaItems = (Array.isArray(rawDp) ? rawDp : [rawDp]) as RawAgendaItem[]
+
+  // Fast path buffers the whole meeting (one buffer per agenda item, so
+  // concurrent parsing can't interleave document order) and writes it in
+  // one transaction.
+  const buffered = cachesInitialized && skipEmbeddings
+  const itemBuffers = buffered ? agendaItems.map(() => [] as SegmentInsertValue[]) : undefined
 
   const parsedAgendaItems = await Promise.allSettled(
-    agendaItems.map((item: RawAgendaItem) => parseAgendaItem(item, mødeid, stats)),
+    agendaItems.map((item: RawAgendaItem, i: number) => parseAgendaItem(item, mødeid, stats, itemBuffers?.[i])),
   )
 
   const successfulItems = parsedAgendaItems
     .filter((r): r is PromiseFulfilledResult<ParsedAgendaItem> => r.status === 'fulfilled')
     .map((r) => r.value)
 
-  const failedItems = parsedAgendaItems.filter(
-    (r): r is PromiseRejectedResult => r.status === 'rejected',
-  )
-
-  failedItems.forEach((item) => logger.error('Failed to parse agenda item:', item.reason))
-
   meetingData.agendaItems = successfulItems
 
-  logger.info(`Parsed meeting data:`, {
-    metadata: meetingData.metadata,
-    agendaItemsCount: meetingData.agendaItems.length,
-    mødeid,
-  })
+  if (itemBuffers) {
+    const meetingBuffer = itemBuffers.flat()
+    meetingBuffer.forEach((value, i) => { value.sequence = i })
+
+    // Delete + insert in one transaction: re-imports (Foreløbig re-releases,
+    // parser fixes) are idempotent, and a failure leaves the previous state.
+    // Chunks must go first — they reference the raw segments.
+    const BATCH_SIZE = 500
+    await db.transaction(async (tx) => {
+      await tx.delete(taleSegmentChunk).where(
+        inArray(
+          taleSegmentChunk.taleSegmentId,
+          tx.select({ id: taleSegmentRaw.id }).from(taleSegmentRaw).where(eq(taleSegmentRaw.mødeid, mødeid)),
+        ),
+      )
+      await tx.delete(taleSegmentRaw).where(eq(taleSegmentRaw.mødeid, mødeid))
+      for (let i = 0; i < meetingBuffer.length; i += BATCH_SIZE) {
+        await tx.insert(taleSegmentRaw).values(meetingBuffer.slice(i, i + BATCH_SIZE))
+      }
+    })
+  }
 
   return meetingData
 }
@@ -736,29 +1016,7 @@ export async function parseMeetingXML(filePath: string, stats: ParsingStats): Pr
 export async function parseMeetings(
   meetingKey?: string,
 ): Promise<{ meetings: Record<string, MeetingData>; stats: ParsingStats }> {
-  const stats: ParsingStats = {
-    totalMeetings: 0,
-    successfulMeetings: 0,
-    failedMeetings: 0,
-    agendaItems: {
-      total: 0,
-      successful: 0,
-      failed: 0,
-      failureExamples: [],
-    },
-    sagLookups: {
-      total: 0,
-      successful: 0,
-      failed: 0,
-      failureExamples: [],
-    },
-    aktørLookups: {
-      total: 0,
-      successful: 0,
-      failed: 0,
-      failureExamples: [],
-    },
-  }
+  const stats = newParsingStats()
 
   const directory = 'assets/data/meetings'
   logger.info(`Parsing meetings from ${directory}`)
@@ -794,7 +1052,7 @@ export async function parseMeetings(
     }),
   )
 
-  // Log final statistics
+  const pct = (failed: number, total: number) => total > 0 ? `${((failed / total) * 100).toFixed(2)}%` : 'n/a'
   logger.info('Parsing Statistics:', {
     meetings: {
       total: stats.totalMeetings,
@@ -805,23 +1063,25 @@ export async function parseMeetings(
       total: stats.agendaItems.total,
       successful: stats.agendaItems.successful,
       failed: stats.agendaItems.failed,
-      failureRate: `${((stats.agendaItems.failed / stats.agendaItems.total) * 100).toFixed(2)}%`,
+      failureRate: pct(stats.agendaItems.failed, stats.agendaItems.total),
     },
     sagLookups: {
       total: stats.sagLookups.total,
       successful: stats.sagLookups.successful,
       failed: stats.sagLookups.failed,
-      failureRate: `${((stats.sagLookups.failed / stats.sagLookups.total) * 100).toFixed(2)}%`,
+      skipped: stats.sagLookups.skipped,
+      ambiguous: stats.sagLookups.ambiguous,
+      failureRate: pct(stats.sagLookups.failed, stats.sagLookups.total),
     },
     aktørLookups: {
       total: stats.aktørLookups.total,
       successful: stats.aktørLookups.successful,
       failed: stats.aktørLookups.failed,
-      failureRate: `${((stats.aktørLookups.failed / stats.aktørLookups.total) * 100).toFixed(2)}%`,
+      ambiguous: stats.aktørLookups.ambiguous,
+      failureRate: pct(stats.aktørLookups.failed, stats.aktørLookups.total),
     },
   })
 
-  // Log some example failures
   if (stats.agendaItems.failureExamples.length > 0) {
     logger.info('Sample Agenda Item Failures:', stats.agendaItems.failureExamples.slice(0, 3))
   }

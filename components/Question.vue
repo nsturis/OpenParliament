@@ -1,12 +1,11 @@
 <template>
   <UCard class="flex h-full flex-col items-center justify-center">
-    <UTypography
-      variant="h1"
+    <h2
       class="mb-10 mt-8 text-center text-3xl font-bold italic md:mt-0"
       style="word-break: break-word"
     >
       {{ question.title }}
-    </UTypography>
+    </h2>
     <div class="mb-10 flex w-full items-center justify-center">
       <UButton
         v-if="electionQuizStore.step !== 0"
@@ -38,10 +37,9 @@
     <UButton
       :to="question.link"
       target="_blank"
-      class="hidden md:inline-flex"
       color="gray"
     >
-      LÆS MERE OM FORSLAGET
+      Læs mere om forslaget
     </UButton>
   </UCard>
 </template>

@@ -1,7 +1,7 @@
 import { defineEventHandler, createError, getQuery } from 'h3'
 import type { SQL } from 'drizzle-orm'
 import { eq, and } from 'drizzle-orm'
-import { db } from './db'
+import { db } from '../utils/db'
 import { sagAktør, aktør, aktørtype, sagAktørRolle } from '../database/schema'
 import type { Actor, ActorType } from '~/types/actors'
 
@@ -21,12 +21,22 @@ export default defineEventHandler(async (event) => {
   try {
     const conditions: SQL[] = []
 
-    if (periodeId) conditions.push(eq(aktør.periodeid, periodeId))
+    // aktør.periodeid is NULL for persons, so the periode filter would wrongly
+    // exclude them from case-scoped lookups — case membership already scopes those
+    if (periodeId && !sagId) conditions.push(eq(aktør.periodeid, periodeId))
     if (typeId) conditions.push(eq(aktørtype.id, typeId))
     if (sagId) conditions.push(eq(sagAktør.sagid, sagId))
     if (aktørId) conditions.push(eq(aktør.id, aktørId))
     if (type) conditions.push(eq(aktørtype.type, type))
     if (rolle) conditions.push(eq(sagAktørRolle.rolle, rolle))
+
+    if (conditions.length === 0) {
+      // Unfiltered, this join is a 400k-row dump
+      throw createError({
+        statusCode: 400,
+        statusMessage: 'Mindst ét filter (sagId, periodeId, type, rolle …) er påkrævet',
+      })
+    }
 
     const actors = await db
       .select({
@@ -41,13 +51,15 @@ export default defineEventHandler(async (event) => {
       .innerJoin(sagAktørRolle, eq(sagAktør.rolleid, sagAktørRolle.id))
       .where(and(...conditions))
       .orderBy(aktør.navn)
+      .limit(1000)
 
     return actors as Actor[]
   } catch (error) {
+    if (error && typeof error === 'object' && 'statusCode' in error) throw error
     console.error('Error fetching actors:', error)
     throw createError({
       statusCode: 500,
-      statusMessage: 'Failed to fetch actors',
+      statusMessage: 'Kunne ikke hente aktører',
     })
   }
 })

@@ -2,7 +2,7 @@
   <div class="bg-gradient-to-r from-gray-700 via-gray-900 to-black pb-32">
     <Disclosure v-slot="{ open }" as="nav" class="bg-gradient-to-r from-gray-700 via-gray-900 to-black">
       <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
-        <div class="border-b border-gray-200">
+        <div class="border-b border-gray-700">
           <div class="flex h-16 items-center justify-between px-4 sm:px-0">
             <div class="flex items-center">
               <div class="flex-shrink-0">
@@ -14,11 +14,13 @@
                 <div class="ml-10 flex items-baseline space-x-4">
                   <NuxtLink
 v-for="item in navigation" :key="item.name" :to="item.href"
-                    class="$rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white">
+                    active-class="text-primary-500 dark:text-primary-400"
+                    class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white">
                     {{ item.name }}</NuxtLink>
                 </div>
               </div>
             </div>
+            <HeaderSearch v-if="route.path !== '/soeg'" class="hidden md:block" />
             <ColorModeButton />
             <div class="hidden md:block">
               <div class="ml-4 flex items-center md:ml-6">
@@ -40,9 +42,11 @@ v-for="item in navigation" :key="item.name" :to="item.href"
       </div>
 
       <DisclosurePanel class="border-b border-gray-700 md:hidden">
+        <HeaderSearch v-if="route.path !== '/soeg'" class="px-2 pb-2 md:hidden" />
         <div class="space-y-1 px-2 py-3 sm:px-3">
           <DisclosureButton
-v-for="item in navigation" :key="item.name" as="a" :href="item.href"
+v-for="item in navigation" :key="item.name" :as="NuxtLink" :to="item.href"
+            active-class="text-primary-500 dark:text-primary-400"
             class="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white">{{
               item.name }}</DisclosureButton>
         </div>
@@ -65,16 +69,18 @@ v-for="item in navigation" :key="item.name" as="a" :href="item.href"
 <script setup lang="ts">
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 
+const NuxtLink = resolveComponent('NuxtLink')
 
+const route = useRoute()
 const mainStore = useMainStore()
 
 const navigation = [
-  { name: 'Om Parlamentet.dk', href: '/' },
+  { name: 'Forsiden', href: '/' },
+  { name: 'Live', href: '/live' },
   { name: 'Valgtest', href: '/folketingsvalg-2022-valgtest' },
-  { name: 'Ugeplan', href: '/agenda' },
+  { name: 'Ugeplan', href: '/ugeplan' },
   { name: 'Sager', href: '/sager' },
-  { name: 'Lovforslag', href: '/lovforslag' },
-  { name: 'Møder', href: '/moder' },
+  { name: 'Aktører', href: '/actors' },
 ]
 </script>
 

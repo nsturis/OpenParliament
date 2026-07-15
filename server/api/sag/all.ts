@@ -1,6 +1,6 @@
 import { desc } from 'drizzle-orm'
 import { defineEventHandler } from 'h3'
-import { db } from '../db'
+import { db } from '../../utils/db'
 import { sag } from '../../database/schema'
 
 export default defineEventHandler(async (event) => {

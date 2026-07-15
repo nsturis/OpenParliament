@@ -1,7 +1,7 @@
 services:
   MSSQLDB:
     container_name: MSSQLDB
-    image: mcr.microsoft.com/mssql/server:2019-latest
+    image: mcr.microsoft.com/azure-sql-edge:latest
     environment:
       MSSQL_SA_PASSWORD: ${MS_DB_PASSWORD}
       ACCEPT_EULA: 'Y'
@@ -51,13 +51,37 @@ services:
   fastapi:
     container_name: fastapi
     build:
-      context: ./llm_service
+      context: .
       dockerfile: Dockerfile.fastapi
     ports:
       - '8000:8000'
     env_file:
       - .env
       
+  live_transcription:
+    container_name: live_transcription
+    build:
+      context: ./live_transcription_service
+      dockerfile: Dockerfile
+    ports:
+      - '8001:8001'
+    environment:
+      DB_HOST: pgsqldb
+      DB_PORT: 5432
+      DB_NAME: ${POSTGRES_DB}
+      DB_USER: ${POSTGRES_USER}
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
+      LLM_SERVICE_URL: http://fastapi:8000
+      WHISPER_MODEL: ${WHISPER_MODEL:-medium}
+      STREAM_URL: ${STREAM_URL:-https://cdnapi.kaltura.com/p/2158211/sp/327418300/playManifest/entryId/1_24gfa7qq/protocol/https/format/applehttp/a.m3u8}
+    depends_on:
+      - pgsqldb
+      - fastapi
+    env_file:
+      - .env
+    networks:
+      - migration_network
+
   nuxt_app:
     container_name: nuxt_app
     build:
@@ -78,6 +102,10 @@ services:
 volumes:
   MSSQLDB:
   pgsqldb:
+    # Pinned so every checkout/worktree reuses the same seeded database.
+    # Without this, Compose prefixes the volume with the folder name and a
+    # checkout in a different directory would start from an empty volume.
+    name: podgorica_pgsqldb
 
 networks:
   migration_network:

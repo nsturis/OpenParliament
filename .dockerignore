@@ -1,0 +1,12 @@
+node_modules
+.output
+.nuxt
+.venv
+.cloak-profile
+.context
+.git
+*.bak
+*.dump
+assets/data/meetings
+assets/data/html
+assets/data/pdf

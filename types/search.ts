@@ -1,4 +1,5 @@
-export interface SearchHit {
+export interface SpeechHit {
+  kind: 'tale'
   segmentId: number
   sequence: number | null
   mødeid: number
@@ -10,6 +11,16 @@ export interface SearchHit {
   snippet: string          // FTS hits: ts_headline with **…**; vector-only: chunk text ≤300 chars
   score: number
 }
+export interface DocumentHit {
+  kind: 'dokument'
+  filId: number
+  filurl: string
+  dokumentTitel: string
+  dato: string | null
+  snippet: string          // best-matching FilContent chunk ≤300 chars
+  score: number
+}
+export type SearchHit = SpeechHit | DocumentHit
 export interface SearchGroup {
   sag: { id: number; titel: string; titelkort: string | null; nummer: string | null; statusText: string; typeText: string; periodeTitel: string } | null
   møde: { id: number; dato: string | null; titel: string } | null   // exactly one of sag/møde set

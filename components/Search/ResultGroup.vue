@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { SearchGroup, SearchHit } from '~/types/search'
+import type { SearchGroup, SearchHit, SpeechHit } from '~/types/search'
 
 const props = defineProps<{ group: SearchGroup }>()
 
@@ -7,7 +7,9 @@ const visesAlle = ref(false)
 const visibleHits = computed(() =>
   visesAlle.value ? props.group.hits : props.group.hits.slice(0, 3))
 
-const hitLink = (hit: SearchHit) => {
+const hitKey = (hit: SearchHit) => hit.kind === 'dokument' ? `d${hit.filId}` : `t${hit.segmentId}`
+
+const hitLink = (hit: SpeechHit) => {
   if (props.group.sag && hit.sequence !== null) {
     // Deep-link with `jump` only — NOT the search query as `soeg`. A vector
     // (semantic) hit need not lexically match q, so carrying q would filter the
@@ -59,7 +61,21 @@ const highlight = (text: string): string => {
     </header>
 
     <ul class="space-y-3">
-      <li v-for="hit in visibleHits" :key="hit.segmentId" class="border-l-2 pl-3 dark:border-gray-700">
+      <li v-for="hit in visibleHits" :key="hitKey(hit)" class="border-l-2 pl-3 dark:border-gray-700">
+        <template v-if="hit.kind === 'dokument'">
+          <p class="mb-0.5 flex flex-wrap items-center gap-2 text-sm">
+            <span class="font-semibold">{{ hit.dokumentTitel }}</span>
+            <span class="rounded bg-gray-200 px-1.5 py-0.5 text-xs font-medium text-gray-700 dark:bg-gray-700 dark:text-gray-200">Dokument</span>
+            <span class="text-xs text-gray-500 dark:text-gray-400">{{ formatDato(hit.dato, 'short') }}</span>
+          </p>
+          <p class="text-sm text-gray-700 dark:text-gray-300">{{ hit.snippet }}</p>
+          <a
+            :href="hit.filurl" target="_blank" rel="noopener"
+            class="mt-1 inline-block text-sm text-primary-600 hover:text-primary-800 dark:text-primary-400">
+            Åbn dokument →
+          </a>
+        </template>
+        <template v-else>
         <p class="mb-0.5 flex flex-wrap items-center gap-2 text-sm">
           <NuxtLink
             v-if="hit.aktørid" :to="`/aktoerer/${hit.aktørid}`"
@@ -78,6 +94,7 @@ const highlight = (text: string): string => {
           class="mt-1 inline-block text-sm text-primary-600 hover:text-primary-800 dark:text-primary-400">
           Gå til debatten →
         </NuxtLink>
+        </template>
       </li>
     </ul>
 

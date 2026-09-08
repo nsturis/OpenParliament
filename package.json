@@ -15,16 +15,13 @@
     "test:watch": "vitest watch",
     "test:coverage": "vitest run --coverage",
     "drizzle:generate": "drizzle-kit generate",
-    "cli": "tsx utils/cli.ts",
     "parse-meetings": "tsx scripts/parseMeetings.ts",
     "process-documents": "tsx scripts/processDocuments.ts",
+    "sync-oda": "bun scripts/syncFromODA.ts",
+    "sync-idmap": "bun scripts/syncIdmap.ts",
     "update-embeddings": "tsx scripts/update_embeddings.ts",
     "new:page": "hygen page new",
     "new:component": "hygen component new"
-  },
-  "bin": {
-    "cli": "./utils/cli.ts",
-    "parse-meetings": "./scripts/parseMeetings.ts"
   },
   "lint-staged": {
     "*.{js,vue,ts}": [
@@ -37,7 +34,7 @@
     "@nuxt/icon": "^1.5.6",
     "@nuxt/test-utils": "^3.14.3",
     "@pinia/nuxt": "^0.5.5",
-    "@types/cron": "^2.4.0",
+    "@types/mssql": "^12.3.0",
     "@types/pg": "^8.11.10",
     "@typescript-eslint/typescript-estree": "^8.10.0",
     "@vue/test-utils": "^2.4.6",
@@ -51,7 +48,7 @@
     "lint-staged": "^15.2.10",
     "nuxt": "^3.13.2",
     "pinia": "^2.2.4",
-    "playwright-core": "^1.48.1",
+    "playwright-core": "^1.63.0",
     "tailwindcss": "^3.4.14",
     "tsx": "^4.19.1",
     "typescript": "^5.6.3",
@@ -62,8 +59,7 @@
     "@headlessui/vue": "^1.7.23",
     "@nuxt/ui": "^2.18.7",
     "@tanstack/vue-query": "^5.59.13",
-    "@typoas/runtime": "^4.1.0",
-    "cron": "^3.1.7",
+    "cloakbrowser": "^0.5.10",
     "dexie": "^4.4.4",
     "dotenv": "^16.4.5",
     "drizzle-orm": "^0.34.1",

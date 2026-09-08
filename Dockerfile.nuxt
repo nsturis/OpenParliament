@@ -1,21 +1,15 @@
-FROM oven/bun:1 as base
+FROM oven/bun:1
 
-WORKDIR /usr/src/app
+WORKDIR /app
 
-FROM base as install
-
-run mkdir -p /temp/dev
-
-COPY package*.json bun.lockb /temp/dev/
-
-RUN cd /temp/dev && bun install --frozen-lockfile
-
-RUN bun install
+COPY package.json bun.lockb ./
+# --ignore-scripts: skips husky (no .git in the image) and the cloakbrowser binary download
+RUN bun install --frozen-lockfile --ignore-scripts
 
 COPY . .
-
 RUN bun run build
 
+ENV NODE_ENV=production
 EXPOSE 3000
 
-CMD ["bun", "run", "start"]
+CMD ["bun", ".output/server/index.mjs"]

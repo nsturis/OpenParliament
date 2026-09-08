@@ -1,0 +1,11 @@
+# Server crontab for the Open Parliament data pipeline.
+# Install on the server as the deploy user:  crontab config/crontab
+# Adjust REPO and PATH to the server layout. Both jobs are idempotent and resumable,
+# so an overlap or a missed run costs nothing. Docker must be available (MSSQLDB container).
+PATH=/root/.bun/bin:/usr/local/bin:/usr/bin:/bin
+REPO=/srv/openparliament
+
+# hourly: incremental ODA sync (all entities) + vote stats
+0 * * * *  cd $REPO && bun run sync-oda >> /var/log/oda-sync.log 2>&1 && bun scripts/refreshVoteStats.ts >> /var/log/oda-sync.log 2>&1
+# daily 03:00 UTC: idmap from Folketinget's nightly MSSQL backup (published 00:00 UTC)
+0 3 * * *  cd $REPO && bun run sync-idmap >> /var/log/oda-sync.log 2>&1

@@ -1,7 +1,10 @@
 services:
   MSSQLDB:
     container_name: MSSQLDB
-    image: mcr.microsoft.com/azure-sql-edge:latest
+    # Folketinget's nightly oda.bak is written by SQL Server 2025 (engine 17.0); older engines refuse it (error 3169).
+    # amd64 only; on Apple Silicon Docker runs it under Rosetta.
+    image: mcr.microsoft.com/mssql/server:2025-latest
+    platform: linux/amd64
     environment:
       MSSQL_SA_PASSWORD: ${MS_DB_PASSWORD}
       ACCEPT_EULA: 'Y'

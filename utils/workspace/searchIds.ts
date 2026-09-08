@@ -14,7 +14,8 @@ export function resultEntityIds(res: unknown, cap = 50): string[] {
     if (g?.sag && typeof g.sag.id === 'number') ids.push(`sag:${g.sag.id}`)
     else if (g?.møde && typeof g.møde.id === 'number') ids.push(`mode:${g.møde.id}`)
     for (const h of g?.hits ?? []) {
-      if (typeof h?.segmentId === 'number') ids.push(`speech:${h.segmentId}`)
+      if (h?.kind === 'dokument' && typeof h.filId === 'number') ids.push(`fil:${h.filId}`)
+      else if (typeof (h as { segmentId?: unknown })?.segmentId === 'number') ids.push(`speech:${(h as { segmentId: number }).segmentId}`)
     }
   }
   return [...new Set(ids)].slice(0, cap)

@@ -6,7 +6,11 @@ const RRF_K = 60
 const BRANCH_LIMIT = 50
 const VECTOR_OVERFETCH = 200 // must equal the SET LOCAL hnsw.ef_search value
 const GROUPS_PER_PAGE = 10
-const MAX_FUSED = 100 // 50 FTS + 50 vector upper bound
+const MAX_FUSED = 150 // 50 FTS + 50 vector + 50 document upper bound
+// ponytail: documents have no FTS branch to anchor them, so an absolute cosine floor keeps a
+// tiny/unrelated corpus from always contributing its 50 nearest chunks (relevant e5 hits sit at
+// dist 0.14-0.20, unrelated at 0.22+). Revisit once FilContent covers the full corpus.
+const DOC_MAX_DIST = 0.21
 
 export interface SearchFilters {
   periodeid?: number
@@ -33,6 +37,11 @@ type MetaRow = {
   typeText: string | null
   periodeTitel: string | null
   mødeTitel: string | null
+}
+type DocRow = {
+  id: number; filId: number; chunk: string; filurl: string; dokumentTitel: string | null; dato: string | null
+  sagid: number; sagTitel: string | null; sagTitelkort: string | null; sagNummer: string | null
+  statusText: string | null; typeText: string | null; periodeTitel: string | null
 }
 type TitleRow = {
   id: number; titel: string; titelkort: string | null; nummer: string | null
@@ -163,6 +172,52 @@ async function vectorBranch(embedding: number[], filters: SearchFilters): Promis
   return out
 }
 
+async function documentBranch(embedding: number[], filters: SearchFilters): Promise<DocRow[]> {
+  // Documents have no speaker, so a speaker/party filter excludes them entirely.
+  if (filters.taler || filters.parti) return []
+  const vec = `[${embedding.join(',')}]`
+  // HNSW over FilContent, same over-fetch as the speech branch. Only files linked to a sag are
+  // returned, because result groups are keyed by sag. No FTS branch for documents: FilContent has
+  // no tsvector column/index yet.
+  // ponytail: periodeid applies after the ANN cut; switch to an exact scan if filtered document
+  // results come back empty once FilContent is large.
+  const result = await db.transaction(async (tx) => {
+    await tx.execute(sql.raw(`SET LOCAL hnsw.ef_search = ${VECTOR_OVERFETCH}`))
+    return tx.execute<DocRow & { dist: number }>(sql`
+      SELECT c.id, c.filid AS "filId", c.content AS chunk, c.dist,
+             f.filurl, d.titel AS "dokumentTitel", d.dato,
+             s.id AS sagid, s.titel AS "sagTitel", s.titelkort AS "sagTitelkort", s.nummer AS "sagNummer",
+             ss.status AS "statusText", st.type AS "typeText", pe.titel AS "periodeTitel"
+      FROM (
+        SELECT id, filid, content, embedding <=> ${vec}::vector AS dist
+        FROM "FilContent"
+        ORDER BY dist
+        LIMIT ${VECTOR_OVERFETCH}
+      ) c
+      JOIN fil f ON f.id = c.filid
+      JOIN dokument d ON d.id = f.dokumentid
+      JOIN LATERAL (SELECT sagid FROM sagdokument WHERE dokumentid = d.id ORDER BY id LIMIT 1) sd ON true
+      JOIN sag s ON s.id = sd.sagid
+      LEFT JOIN sagsstatus ss ON ss.id = s.statusid
+      LEFT JOIN sagstype st ON st.id = s.typeid
+      LEFT JOIN periode pe ON pe.id = s.periodeid
+      WHERE c.dist < ${DOC_MAX_DIST} ${filters.periodeid ? sql`AND s.periodeid = ${filters.periodeid}` : sql``}
+      ORDER BY c.dist, c.id
+    `)
+  })
+
+  // Collapse multiple chunks of the same file to its best-ranked chunk
+  const seen = new Set<number>()
+  const out: DocRow[] = []
+  for (const r of result.rows) {
+    if (seen.has(r.filId)) continue
+    seen.add(r.filId)
+    out.push(r)
+    if (out.length >= BRANCH_LIMIT) break
+  }
+  return out
+}
+
 async function sagTitleBranch(q: string): Promise<TitleRow[]> {
   // Escape LIKE metacharacters: a literal % or _ in the query must match
   // itself, not act as a wildcard (q="%" would otherwise ILIKE '%%%' and
@@ -182,7 +237,7 @@ async function sagTitleBranch(q: string): Promise<TitleRow[]> {
   return rows.rows
 }
 
-async function fetchMeta(ids: number[]): Promise<Map<number, MetaRow>> {
+async function fetchMeta(ids: number[]): Promise<Map<string, MetaRow>> {
   if (!ids.length) return new Map()
   const rows = await db.execute<MetaRow>(sql`
     SELECT t.id, t.sequence, t."mødeid", t.sagid, m.dato, t."aktørid",
@@ -210,8 +265,14 @@ async function fetchMeta(ids: number[]): Promise<Map<number, MetaRow>> {
     ) p ON true
     WHERE t.id IN (${sql.join(ids.map((i) => sql`${i}`), sql`, `)})
   `)
-  return new Map(rows.rows.map((r) => [r.id, r]))
+  return new Map(rows.rows.map((r) => [String(r.id), r]))
 }
+
+type SagInfo = { id: number; titel: string; titelkort: string | null; nummer: string | null; statusText: string; typeText: string; periodeTitel: string }
+const sagInfo = (r: { sagid: number | null; sagTitel: string | null; sagTitelkort: string | null; sagNummer: string | null; statusText: string | null; typeText: string | null; periodeTitel: string | null }): SagInfo => ({
+  id: r.sagid!, titel: r.sagTitel ?? '', titelkort: r.sagTitelkort, nummer: r.sagNummer,
+  statusText: r.statusText ?? '', typeText: r.typeText ?? '', periodeTitel: r.periodeTitel ?? '',
+})
 
 export async function performSearch(q: string, filters: SearchFilters, offset: number) {
   const indexExists = await db.execute(sql`
@@ -220,46 +281,62 @@ export async function performSearch(q: string, filters: SearchFilters, offset: n
   const embedding = indexExists.rows.length > 0 ? await getQueryEmbedding(q) : null
   const mode: 'hybrid' | 'fts' = embedding ? 'hybrid' : 'fts'
 
-  const [fts, vec, sagTitleMatches] = await Promise.all([
+  const [fts, vec, docs, sagTitleMatches] = await Promise.all([
     ftsBranch(q, filters),
     embedding ? vectorBranch(embedding, filters) : Promise.resolve([]),
+    embedding ? documentBranch(embedding, filters) : Promise.resolve([]),
     sagTitleBranch(q),
   ])
 
-  // RRF fusion over segment ids
-  const fused = new Map<number, { score: number; snippet: string; ftsHit: boolean }>()
-  fts.forEach((r, i) => {
-    fused.set(r.id, { score: 1 / (RRF_K + i + 1), snippet: r.snippet, ftsHit: true })
-  })
-  vec.forEach((r, i) => {
-    const prev = fused.get(r.id)
-    const add = 1 / (RRF_K + i + 1)
-    if (prev) prev.score += add
-    else fused.set(r.id, { score: add, snippet: r.chunk.slice(0, 300), ftsHit: false })
-  })
+  // RRF fusion. Keys: `t:<segment id>` for speeches, `d:<FilContent id>` for documents.
+  const fused = new Map<string, { score: number; snippet: string }>()
+  const add = (key: string, rank: number, snippet: string) => {
+    const prev = fused.get(key)
+    const s = 1 / (RRF_K + rank + 1)
+    if (prev) prev.score += s
+    else fused.set(key, { score: s, snippet })
+  }
+  fts.forEach((r, i) => add(`t:${r.id}`, i, r.snippet))
+  vec.forEach((r, i) => add(`t:${r.id}`, i, r.chunk.slice(0, 300)))
+  docs.forEach((r, i) => add(`d:${r.id}`, i, r.chunk.slice(0, 300)))
+  // FilContent.id is bigint, which pg returns as a string; key by string on both sides
+  const docById = new Map(docs.map((r) => [String(r.id), r]))
 
   const ranked = [...fused.entries()]
-    // `|| a[0] - b[0]`: break equal RRF scores by segment id for a stable
-    // total order (an FTS-only and a vector-only hit at the same branch rank
-    // score identically), otherwise group membership drifts between requests.
-    .sort((a, b) => b[1].score - a[1].score || a[0] - b[0])
+    // `|| localeCompare`: break equal RRF scores by key for a stable total order (an FTS-only and
+    // a vector-only hit at the same branch rank score identically), otherwise group membership
+    // drifts between requests.
+    .sort((a, b) => b[1].score - a[1].score || a[0].localeCompare(b[0]))
     .slice(0, MAX_FUSED)
-  const meta = await fetchMeta(ranked.map(([id]) => id))
+  const meta = await fetchMeta(ranked.filter(([k]) => k.startsWith('t:')).map(([k]) => Number(k.slice(2))))
+  // pg returns bigint ids as strings; look up by string so both id types match the keys
 
-  // Group by sagid (meeting when sagid is null)
-  const groupMap = new Map<string, { key: string; sag: MetaRow | null; møde: MetaRow | null; score: number; hits: unknown[] }>()
-  for (const [id, f] of ranked) {
-    const m = meta.get(id)
-    if (!m) continue
-    const key = m.sagid != null ? `sag:${m.sagid}` : `møde:${m.mødeid}`
-    let group = groupMap.get(key)
-    if (!group) {
-      group = { key, sag: m.sagid != null ? m : null, møde: m.sagid == null ? m : null, score: f.score, hits: [] }
-      groupMap.set(key, group)
+  // Group by sagid (meeting when a speech has no sagid)
+  type Group = { key: string; sag: SagInfo | null; møde: { id: number; dato: string | null; titel: string } | null; score: number; hits: unknown[] }
+  const groupMap = new Map<string, Group>()
+  const groupFor = (key: string, make: () => Omit<Group, 'key' | 'score' | 'hits'>, score: number) => {
+    let g = groupMap.get(key)
+    if (!g) { g = { key, ...make(), score, hits: [] }; groupMap.set(key, g) }
+    g.score = Math.max(g.score, score)
+    return g
+  }
+  for (const [key, f] of ranked) {
+    if (key.startsWith('d:')) {
+      const r = docById.get(key.slice(2))!
+      groupFor(`sag:${r.sagid}`, () => ({ sag: sagInfo(r), møde: null }), f.score).hits.push({
+        kind: 'dokument', filId: r.filId, filurl: r.filurl, dokumentTitel: r.dokumentTitel ?? 'Dokument',
+        dato: r.dato, snippet: f.snippet, score: f.score,
+      })
+      continue
     }
-    group.score = Math.max(group.score, f.score)
-    group.hits.push({
-      segmentId: id, sequence: m.sequence, mødeid: m.mødeid, dato: m.dato,
+    const m = meta.get(key.slice(2))
+    if (!m) continue
+    const id = m.id
+    const g = m.sagid != null
+      ? groupFor(`sag:${m.sagid}`, () => ({ sag: sagInfo(m), møde: null }), f.score)
+      : groupFor(`møde:${m.mødeid}`, () => ({ sag: null, møde: { id: m.mødeid, dato: m.dato, titel: m.mødeTitel ?? '' } }), f.score)
+    g.hits.push({
+      kind: 'tale', segmentId: id, sequence: m.sequence, mødeid: m.mødeid, dato: m.dato,
       aktørid: m.aktørid, taler: m.taler, parti: m.parti, partiid: m.partiid,
       snippet: f.snippet, score: f.score,
     })
@@ -269,20 +346,7 @@ export async function performSearch(q: string, filters: SearchFilters, offset: n
     // Break equal group scores by the stable group key so offset pagination
     // returns a consistent slice across the two requests it spans.
     .sort((a, b) => b.score - a.score || a.key.localeCompare(b.key))
-    .map((g) => ({
-      sag: g.sag && g.sag.sagid != null
-        ? {
-            id: g.sag.sagid, titel: g.sag.sagTitel ?? '', titelkort: g.sag.sagTitelkort,
-            nummer: g.sag.sagNummer, statusText: g.sag.statusText ?? '',
-            typeText: g.sag.typeText ?? '', periodeTitel: g.sag.periodeTitel ?? '',
-          }
-        : null,
-      møde: g.sag && g.sag.sagid != null
-        ? null
-        : { id: g.møde!.mødeid, dato: g.møde!.dato, titel: g.møde!.mødeTitel ?? '' },
-      score: g.score,
-      hits: g.hits,
-    }))
+    .map(({ sag, møde, score, hits }) => ({ sag, møde, score, hits }))
 
   return {
     mode,

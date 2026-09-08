@@ -21,6 +21,8 @@ Danish parliamentary transparency platform making Folketinget data accessible th
 | `fastapi` | LLM embedding service | 8000 |
 | `nuxt_app` | Nuxt frontend | 3000 |
 
+`docker-compose.yaml` is the laptop stack. `docker-compose.prod.yaml` is the Coolify stack (pgsqldb, fastapi, nuxt_app only; no host ports, Traefik routes the domain to nuxt_app). See "Deployment" below.
+
 ## Environment Variables
 
 Create `.env` in project root:
@@ -77,8 +79,6 @@ server/
     schema.ts      # Drizzle schema (all tables)
     relations.ts   # Drizzle relation definitions
     *.sql          # Generated migrations
-  repositories/    # Data access layer (BaseRepository pattern)
-  oda/             # ODA API sync logic + cron scheduler
   parser/          # Meeting XML parser
   services/        # Business logic (search service)
   llm/             # LLM integration helpers
@@ -155,7 +155,7 @@ config/            # Setup and migration scripts
 | GET | `/api/sag/types` | All case types |
 | GET | `/api/actors` | Actors with filters |
 | GET | `/api/actors/by-period` | Actors grouped by type per period |
-| GET | `/api/search?q=X` | Semantic vector search (docs + speeches) |
+| GET | `/api/search?q=X` | Hybrid search: FTS + vector over speeches, vector over FilContent documents |
 | GET | `/api/meeting?id=X` | Meeting details |
 | GET | `/api/perioder` | Parliamentary periods |
 | GET | `/api/sagsstatus` | Case statuses |
@@ -169,7 +169,7 @@ The Nuxt config also proxies `/llm/**` → `http://127.0.0.1:8000/**`.
 
 1. **MSSQL backup** (`oda.bak`) → restored in Docker SQL Server
 2. **pgloader** migrates MSSQL → PostgreSQL (`loadfile.load`)
-3. **ODA sync** (`server/oda/scheduler.ts`) runs hourly cron to pull incremental updates from `oda.ft.dk/api`
+3. **ODA sync** (`scripts/syncFromODA.ts`, `bun run sync-oda`) pulls incremental updates from `oda.ft.dk/api` (hourly on the server, see `config/crontab`); `scripts/syncIdmap.ts` refreshes `idmap` from the nightly `oda.bak`
 4. **Meeting parser** (`scripts/parseMeetings.ts`) parses XML transcripts → speeches → embeddings
 5. **Document processor** (`scripts/processDocuments.ts`) extracts text from PDFs/HTML → embeddings via FastAPI
 
@@ -192,6 +192,11 @@ bun dev                    # Dev server (port 3000)
 # Live transcription service (port 8001; Whisper + OCR):
 #   cd live_transcription_service && uv run uvicorn main:app --port 8001
 bun scripts/backfillEmbeddings.ts   # Embed taleSegmentRaw → taleSegmentChunk (resumable)
+bun run sync-oda           # Incremental ODA sync, all entities (watermark = MAX(opdateringsdato); hourly on the server, see config/crontab)
+bun run sync-idmap         # idmap from nightly oda.bak via MSSQLDB container (daily on the server, see config/crontab)
+bun scripts/fetchFiles.ts N # Download N ft.dk file bodies (CloakBrowser) → assets/data/html → bun process-documents
+scripts/seed-server.sh     # One-time: pg_dump laptop DB → rsync → pg_restore into the Coolify pgsqldb container
+scripts/push-rows.sh T...  # Push new rows of append-only tables (taleSegmentRaw, taleSegmentChunk, FilContent, idmap) laptop → server DB over ssh
 bun build                  # Production build
 bun test                   # Run Vitest
 bun lint                   # ESLint
@@ -202,6 +207,12 @@ bun update-embeddings      # Regenerate embeddings
 bun new:page               # Scaffold new page (hygen)
 bun new:component          # Scaffold new component (hygen)
 ```
+
+## Deployment
+
+Coolify on `unfuckthesystem` (Hetzner, arm64, ssh host in `~/.ssh/config`). Docker Compose resource from this repo, compose path `docker-compose.prod.yaml`, env vars set in the Coolify UI (`POSTGRES_*`). Hourly `bun run sync-oda && bun scripts/refreshVoteStats.ts` runs as a Coolify Scheduled Task in the `nuxt_app` container (`config/crontab` is the plain-cron equivalent).
+
+Data flow: ODA tables sync on both sides independently (idempotent). Tables produced on the laptop (speech embeddings on MPS, FilContent via CloakBrowser, idmap via SQL Server which is amd64-only) go to the server with `scripts/push-rows.sh`. User data lives on the server only. One-time seed: `scripts/seed-server.sh` (dump → rsync → detached `pg_restore -j 4`; the HNSW index rebuild takes 30–60 min).
 
 ## Important Notes
 

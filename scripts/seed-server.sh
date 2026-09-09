@@ -5,7 +5,7 @@
 # this script follows /data/seed.log and Ctrl-C is safe.
 set -euo pipefail
 SERVER=${SERVER:-unfuckthesystem}
-DUMP=~/oda-backups/oda-$(date +%F).dump
+DUMP=${DUMP:-~/oda-backups/oda-$(date +%F).dump}
 
 if [ ! -s "$DUMP" ]; then
   echo "dumping local oda -> $DUMP"
@@ -16,7 +16,7 @@ rsync -avP "$DUMP" "$SERVER:/data/oda.dump"
 ssh "$SERVER" 'PG=$(docker ps -qf name=pgsqldb); [ -n "$PG" ] || { echo "no pgsqldb container on server"; exit 1; }
   nohup bash -c "
     docker cp /data/oda.dump $PG:/tmp/oda.dump &&
-    docker exec $PG pg_restore -U postgres -d oda -j 4 --no-owner --clean --if-exists /tmp/oda.dump;
+    docker exec $PG pg_restore -U \$(docker exec $PG printenv POSTGRES_USER) -d oda -j 4 --no-owner --clean --if-exists /tmp/oda.dump;
     echo pg_restore exit \$?;
     docker exec $PG rm /tmp/oda.dump; rm /data/oda.dump; echo SEED_DONE
   " > /data/seed.log 2>&1 &'

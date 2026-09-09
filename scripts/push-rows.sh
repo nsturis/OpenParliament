@@ -8,7 +8,7 @@ SERVER=${SERVER:-unfuckthesystem}
 
 local_psql() { docker exec -i pgsqldb psql -U postgres -d oda -Atq -c "$1"; }
 remote_psql() {
-  ssh "$SERVER" "docker exec -i \$(docker ps -qf name=pgsqldb) psql -U postgres -d oda -Atq -c $(printf %q "$1")"
+  ssh "$SERVER" "PG=\$(docker ps -qf name=pgsqldb); docker exec -i \$PG psql -U \$(docker exec \$PG printenv POSTGRES_USER) -d oda -Atq -c $(printf %q "$1")"
 }
 
 for t in "$@"; do

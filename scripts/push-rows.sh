@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Push new rows of append-only tables from the laptop DB to the server DB.
 # Both sides sync ODA tables themselves; this is only for tables we produce
-# locally: taleSegmentRaw, taleSegmentChunk, FilContent, idmap.
+# locally: taleSegmentRaw, taleSegmentChunk, FilContent, DocumentContent, idmap.
 # Usage: scripts/push-rows.sh taleSegmentRaw taleSegmentChunk   (parents first)
 set -euo pipefail
 SERVER=${SERVER:-unfuckthesystem}

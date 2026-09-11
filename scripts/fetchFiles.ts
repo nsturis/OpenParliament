@@ -1,27 +1,40 @@
 // Download ft.dk PDFs into assets/data/pdf/{filId}.pdf so scripts/processDocuments.ts
 // can convert them to markdown (LLM service /pdf_to_markdown) and embed them into FilContent.
 // ft.dk sits behind Cloudflare Turnstile; a plain fetch gets 403. CloakBrowser clears it.
-// Usage: DB_LOG=false bun scripts/fetchFiles.ts [limit] [dokumenttype ids, default 21,7,15,1 = Forslagstekst,Fremsættelsestale,Beretning,Redegørelse]
+// Usage: DB_LOG=false bun scripts/fetchFiles.ts [limit] [dokumenttype ids, default 21,7,15,1 = Forslagstekst,Fremsættelsestale,Beretning,Redegørelse] [periode id, default = latest samling]
 import fs from 'node:fs'
 import { launchPersistentContext } from 'cloakbrowser'
-import { desc, eq, inArray, notExists, and } from 'drizzle-orm'
+import { desc, eq, inArray, notExists, and, ne } from 'drizzle-orm'
 import { db } from '../server/utils/db'
-import { dokument, fil, filContent } from '../server/database/schema'
+import { dokument, fil, filContent, periode, sag, sagdokument } from '../server/database/schema'
 
 const limit = Number(process.argv[2] ?? 50)
 const typeIds = (process.argv[3] ?? '21,7,15,1').split(',').map(Number)
+const periodeId =
+  Number(process.argv[4]) ||
+  (await db.select({ id: periode.id }).from(periode).where(eq(periode.type, 'samling')).orderBy(desc(periode.startdato)).limit(1))[0].id
 const outDir = 'assets/data/pdf'
 fs.mkdirSync(outDir, { recursive: true })
 
 const rows = await db
-  .select({ id: fil.id, url: fil.filurl })
+  .selectDistinct({ id: fil.id, url: fil.filurl, opdateringsdato: fil.opdateringsdato })
   .from(fil)
   .innerJoin(dokument, eq(dokument.id, fil.dokumentid))
-  .where(and(eq(fil.format, 'PDF'), inArray(dokument.typeid, typeIds), notExists(db.select().from(filContent).where(eq(filContent.filId, fil.id)))))
+  .innerJoin(sagdokument, eq(sagdokument.dokumentid, dokument.id))
+  .innerJoin(sag, eq(sag.id, sagdokument.sagid))
+  .where(
+    and(
+      eq(fil.format, 'PDF'),
+      ne(fil.filurl, ''),
+      inArray(dokument.typeid, typeIds),
+      eq(sag.periodeid, periodeId),
+      notExists(db.select().from(filContent).where(eq(filContent.filId, fil.id))),
+    ),
+  )
   .orderBy(desc(fil.opdateringsdato))
   .limit(limit)
 const todo = rows.filter((r) => !fs.existsSync(`${outDir}/${r.id}.pdf`))
-console.log(`${todo.length} files to fetch`)
+console.log(`${todo.length} files to fetch (periode ${periodeId})`)
 
 const ctx = await launchPersistentContext({ userDataDir: '.cloak-profile', headless: true })
 const page = ctx.pages()[0] ?? (await ctx.newPage())

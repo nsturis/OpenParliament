@@ -49,7 +49,10 @@ export const afstemning = pgTable('afstemning', {
     withTimezone: true,
     mode: 'string',
   }),
-})
+}, (t) => ({
+  afstemning_sagstrinid_idx: index('afstemning_sagstrinid_idx').on(t.sagstrinid),
+  afstemning_modeid_idx: index('afstemning_mødeid_idx').on(t.mødeid),
+}))
 
 export const afstemningstype = pgTable('afstemningstype', {
   id: integer('id').primaryKey().notNull(),
@@ -144,7 +147,10 @@ export const dagsordenspunkt = pgTable('dagsordenspunkt', {
     withTimezone: true,
     mode: 'string',
   }),
-})
+}, (t) => ({
+  dagsordenspunkt_sagstrinid_idx: index('dagsordenspunkt_sagstrinid_idx').on(t.sagstrinid),
+  dagsordenspunkt_modeid_idx: index('dagsordenspunkt_mødeid_idx').on(t.mødeid),
+}))
 
 export const dagsordenspunktdokument = pgTable('dagsordenspunktdokument', {
   id: bigserial('id', { mode: 'number' }).primaryKey().notNull(),
@@ -216,7 +222,10 @@ export const dokumentAktør = pgTable('DokumentAktør', {
   rolleid: integer('rolleid')
     .notNull()
     .references(() => dokumentAktørRolle.id),
-})
+}, (t) => ({
+  dokumentaktor_dokumentid_idx: index('dokumentaktør_dokumentid_idx').on(t.dokumentid),
+  dokumentaktor_aktorid_idx: index('dokumentaktør_aktørid_idx').on(t.aktørid),
+}))
 
 export const dokumentAktørRolle = pgTable('DokumentAktørRolle', {
   id: integer('id').primaryKey().notNull(),
@@ -292,7 +301,9 @@ export const emneordsag = pgTable('emneordsag', {
     withTimezone: true,
     mode: 'string',
   }).notNull(),
-})
+}, (t) => ({
+  emneordsag_sagid_idx: index('emneordsag_sagid_idx').on(t.sagid),
+}))
 
 export const emneordstype = pgTable('emneordstype', {
   id: integer('id').primaryKey().notNull(),
@@ -328,7 +339,9 @@ export const fil = pgTable('fil', {
   }).notNull(),
   variantkode: text('variantkode').notNull(),
   format: text('format').notNull(),
-})
+}, (t) => ({
+  fil_dokumentid_idx: index('fil_dokumentid_idx').on(t.dokumentid),
+}))
 
 export const kollonebeskrivelse = pgTable('kollonebeskrivelse', {
   id: bigserial('id', { mode: 'number' }).primaryKey().notNull(),
@@ -512,7 +525,10 @@ export const sagAktør = pgTable('SagAktør', {
   rolleid: integer('rolleid')
     .notNull()
     .references(() => sagAktørRolle.id),
-})
+}, (t) => ({
+  sagaktor_sagid_idx: index('sagaktør_sagid_idx').on(t.sagid),
+  sagaktor_aktorid_idx: index('sagaktør_aktørid_idx').on(t.aktørid),
+}))
 
 export const sagAktørRolle = pgTable('SagAktørRolle', {
   id: integer('id').primaryKey().notNull(),
@@ -543,7 +559,10 @@ export const sagdokument = pgTable('sagdokument', {
   rolleid: integer('rolleid')
     .notNull()
     .references(() => sagdokumentrolle.id),
-})
+}, (t) => ({
+  sagdokument_sagid_idx: index('sagdokument_sagid_idx').on(t.sagid),
+  sagdokument_dokumentid_idx: index('sagdokument_dokumentid_idx').on(t.dokumentid),
+}))
 
 export const sagdokumentrolle = pgTable('sagdokumentrolle', {
   id: integer('id').primaryKey().notNull(),
@@ -609,7 +628,10 @@ export const sagstrinAktør = pgTable('SagstrinAktør', {
   rolleid: integer('rolleid')
     .notNull()
     .references(() => sagstrinAktørRolle.id),
-})
+}, (t) => ({
+  sagstrinaktor_sagstrinid_idx: index('sagstrinaktør_sagstrinid_idx').on(t.sagstrinid),
+  sagstrinaktor_aktorid_idx: index('sagstrinaktør_aktørid_idx').on(t.aktørid),
+}))
 
 export const sagstrinAktørRolle = pgTable('SagstrinAktørRolle', {
   id: integer('id').primaryKey().notNull(),
@@ -632,7 +654,10 @@ export const sagstrindokument = pgTable('sagstrindokument', {
     withTimezone: true,
     mode: 'string',
   }).notNull(),
-})
+}, (t) => ({
+  sagstrindokument_sagstrinid_idx: index('sagstrindokument_sagstrinid_idx').on(t.sagstrinid),
+  sagstrindokument_dokumentid_idx: index('sagstrindokument_dokumentid_idx').on(t.dokumentid),
+}))
 
 export const sagstrinsstatus = pgTable('sagstrinsstatus', {
   id: integer('id').primaryKey().notNull(),

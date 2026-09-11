@@ -28,29 +28,23 @@ export default defineEventHandler(async (event): Promise<SagApiResponse> => {
             dagsordenspunkt: true,
             sagstrinAktør: {
               with: {
-                aktør: true,
+                aktør: { columns: { biografi: false } },
                 sagstrinAktørRolle: true,
               },
             },
           },
         },
+        // fil without filContent: the embeddings alone were ~80 % of the payload and the page reads documents from /api/sag/documents
         sagdokument: {
           with: {
-            dokument: {
-              with: {
-                fil: {
-                  with: {
-                    filContent: true,
-                  },
-                },
-              },
-            },
+            dokument: { with: { fil: true } },
             sagdokumentrolle: true,
           },
         },
         sagAktør: {
           with: {
             aktør: {
+              columns: { biografi: false },
               with: {
                 aktørtype: true,
                 periode: true,

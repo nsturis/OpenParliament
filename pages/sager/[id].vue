@@ -69,9 +69,10 @@ onMounted(() => {
 const dokumenter = computed(() =>
   documents.value.map((dok) => ({
     id: dok.id,
-    titel: dok.titel,
+    titel: dok.dokumentTitel || dok.titel,
     filurl: dok.filurl ?? null,
     format: dok.format ?? null,
+    hasContent: !!dok.markdown,
   })),
 )
 

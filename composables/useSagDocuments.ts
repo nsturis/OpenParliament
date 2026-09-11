@@ -4,7 +4,9 @@ import { ref } from 'vue'
 interface Document {
   id: number
   titel: string
+  dokumentTitel?: string
   content?: string
+  markdown?: string
   error?: string
   htmlUrl: string
   filurl: string

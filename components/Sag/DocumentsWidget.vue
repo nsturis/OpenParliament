@@ -1,6 +1,6 @@
 <script setup lang="ts">
 const props = defineProps<{
-  documents: Array<{ id: number; titel: string; filurl: string | null; format: string | null }>
+  documents: Array<{ id: number; titel: string; filurl: string | null; format: string | null; hasContent?: boolean }>
   sagId: number
 }>()
 
@@ -11,7 +11,14 @@ const preview = computed(() => props.documents[0]?.titel ?? '')
   <SagWidgetCard titel="Dokumenter" :count="documents.length" :preview="preview">
     <ul class="space-y-1.5 text-sm">
       <li v-for="dok in documents" :key="dok.id" class="flex items-baseline gap-x-2">
-        <span class="min-w-0 flex-1">{{ dok.titel }}</span>
+        <NuxtLink
+          v-if="dok.hasContent"
+          :to="`/dokument/${dok.id}`"
+          class="min-w-0 flex-1 text-primary-600 hover:text-primary-800 dark:text-primary-400"
+        >
+          {{ dok.titel }}
+        </NuxtLink>
+        <span v-else class="min-w-0 flex-1">{{ dok.titel }}</span>
         <UBadge v-if="dok.format" color="gray" variant="subtle" size="xs">
           {{ dok.format }}
         </UBadge>

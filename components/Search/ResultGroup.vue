@@ -69,11 +69,18 @@ const highlight = (text: string): string => {
             <span class="text-xs text-gray-500 dark:text-gray-400">{{ formatDato(hit.dato, 'short') }}</span>
           </p>
           <p class="text-sm text-gray-700 dark:text-gray-300">{{ hit.snippet }}</p>
-          <a
-            :href="hit.filurl" target="_blank" rel="noopener"
-            class="mt-1 inline-block text-sm text-primary-600 hover:text-primary-800 dark:text-primary-400">
-            Åbn dokument →
-          </a>
+          <p class="mt-1 flex gap-3 text-sm">
+            <NuxtLink
+              :to="`/dokument/${hit.filId}`"
+              class="text-primary-600 hover:text-primary-800 dark:text-primary-400">
+              Læs dokument →
+            </NuxtLink>
+            <a
+              :href="hit.filurl" target="_blank" rel="noopener"
+              class="text-gray-500 hover:text-primary-800 dark:text-gray-400">
+              Original
+            </a>
+          </p>
         </template>
         <template v-else>
         <p class="mb-0.5 flex flex-wrap items-center gap-2 text-sm">

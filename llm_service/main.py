@@ -47,6 +47,7 @@ model_lock = threading.Lock()
 chunk_tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
 chunk_lock = threading.Lock()
 pdf_lock = threading.Lock()  # pymupdf is not thread-safe; concurrent conversions fail intermittently
+PAGE_NUMBER = re.compile(r"(?m)^[ \t]*\d{1,4}[ \t]*\n")
 
 
 def clean_text(text: str) -> str:
@@ -205,6 +206,7 @@ def pdf_to_markdown(request: PdfRequest):
             # ft.dk PDFs are born-digital; OCR only chews minutes on the masthead logo per page
             markdown = pymupdf4llm.to_markdown(doc, show_progress=False, use_ocr=False)
         markdown = markdown.replace("\u00ad", "").replace("\u2010\n", "").replace("\u200b", "").replace("\u00a0", " ")
+        markdown = PAGE_NUMBER.sub("", markdown)  # footer page numbers land as their own paragraph
         return PdfResponse(markdown=markdown, pages=doc.page_count)
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"PDF parse failed: {e}")

@@ -22,7 +22,8 @@ function getDocumentFiles(directory: string): string[] {
 
 async function processDocuments() {
   const documentFiles = getDocumentFiles('assets/data/pdf')
-  const numWorkers = Math.min(documentFiles.length, 8)
+  // ponytail: the LLM service serializes PDF conversion and embedding with one lock each, so 2 workers saturate it; more just queue and time out
+  const numWorkers = Math.min(documentFiles.length, 2)
   const workerPool: Worker[] = []
   const chunkSize = Math.ceil(documentFiles.length / numWorkers)
 

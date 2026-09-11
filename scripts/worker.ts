@@ -3,8 +3,8 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import { db } from '../server/utils/db'
-import { dokument, fil, filContent } from '../server/database/schema'
-import { sql, eq, gt, and } from 'drizzle-orm'
+import { documentContent, filContent } from '../server/database/schema'
+import { sql, eq } from 'drizzle-orm'
 import { $fetch } from 'ofetch'
 
 // Using standard Web Worker types from lib.webworker.d.ts
@@ -14,6 +14,26 @@ type DocumentResponse = {
   status: string
   chunks: string[]
   embeddings: number[][]
+}
+
+const LLM = process.env.LLM_SERVICE_URL ?? 'http://localhost:8000'
+
+// PDF -> GitHub markdown via the LLM service (pymupdf4llm). Kept verbatim in DocumentContent for the reader UI.
+async function pdfToMarkdown(filePath: string): Promise<string> {
+  const r = await $fetch<{ markdown: string }>(`${LLM}/pdf_to_markdown`, {
+    method: 'POST',
+    body: { pdf_base64: fs.readFileSync(filePath).toString('base64') },
+  })
+  return r.markdown
+}
+
+// Markdown -> plain text for embedding: drop picture-text comments and heading/emphasis markers
+function markdownToText(md: string): string {
+  return md
+    .replace(/<!--[\s\S]*?-->/g, ' ')
+    .replace(/<br\s*\/?>/gi, ' ')
+    .replace(/^#{1,6}\s+/gm, '')
+    .replace(/[*_]{1,3}(?=\S)|(?<=\S)[*_]{1,3}/g, '')
 }
 
 // Function to clean up text content by removing fluff
@@ -73,7 +93,7 @@ function extractMainContent(content: string): string {
 
 async function generateEmbedding(text: string): Promise<DocumentResponse> {
   const response: DocumentResponse = await $fetch(
-    'http://localhost:8000/process_document_embeddings',
+    `${LLM}/process_document_embeddings`,
     {
       method: 'POST',
       body: { text },
@@ -98,26 +118,15 @@ async function processDocument(filePath: string) {
       .from(filContent)
       .where(eq(filContent.filId, parseInt(fileId)))
       .limit(1)
-    // Also only process files that are younger than 01-01-2022 by looking up in hte database for the fileId and filter by date
-    // const shouldProcess = await db
-    //   .select()
-    //   .from(fil)
-    //   .innerJoin(dokument, eq(fil.dokumentid, dokument.id))
-    //   .where(
-    //     and(
-    //       eq(fil.id, parseInt(fileId)),
-    //       gt(dokument.dato, new Date('2022-01-01'))
-    //     )
-    //   )
-    //   .limit(1)
-
     if (existingDoc.length > 0) {
       console.log(`Skipping ${fileName} as it has already been processed`)
       return
     }
 
-    const textContent = fs.readFileSync(filePath, 'utf-8')
-    const mainContent = extractMainContent(textContent)
+    const markdown = await pdfToMarkdown(filePath)
+    await db.delete(documentContent).where(eq(documentContent.documentId, parseInt(fileId)))
+    await db.insert(documentContent).values({ documentId: parseInt(fileId), rawContent: markdown, documentType: 'file' })
+    const mainContent = extractMainContent(markdownToText(markdown))
 
     // Get the latest version for this file
     const latestVersion = await db
@@ -148,8 +157,7 @@ async function processDocument(filePath: string) {
       )
     }
   } catch (error) {
-    console.error(`Error processing ${filePath}:`, error)
-    throw error
+    console.error(`Error processing ${filePath}:`, error) // skip the file; the next run retries it
   }
 }
 

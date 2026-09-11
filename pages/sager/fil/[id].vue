@@ -3,7 +3,7 @@ import { useRoute } from 'vue-router'
 
 const route = useRoute()
 
-type FileDoc = { id: number; titel: string | null; filurl?: string; format?: string; content?: string }
+type FileDoc = { id: number; titel: string | null; filurl?: string; format?: string; dokumentTitel?: string; content?: string; markdown?: string }
 
 const {
   data: content,

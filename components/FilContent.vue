@@ -39,8 +39,18 @@
           <Icon name="heroicons:arrow-top-right-on-square-20-solid" class="w-4 h-4" />
           Åbn original{{ item.format ? ` (${item.format})` : '' }}
         </a>
+        <NuxtLink
+          v-if="item.html"
+          :to="`/dokument/${item.id}`"
+          class="ml-4 inline-flex items-center gap-1 text-primary-600 dark:text-primary-400 hover:underline"
+        >
+          <Icon name="heroicons:book-open-20-solid" class="w-4 h-4" />
+          Læs i fuld visning
+        </NuxtLink>
+        <!-- eslint-disable-next-line vue/no-v-html -->
+        <div v-if="item.html" class="prose prose-sm prose-gray max-w-none dark:prose-invert max-h-96 overflow-y-auto" v-html="item.html" />
         <p
-          v-if="item.text"
+          v-else-if="item.text"
           class="whitespace-pre-wrap text-sm leading-relaxed text-gray-700 dark:text-gray-300 max-h-96 overflow-y-auto"
         >
           {{ item.text }}
@@ -54,13 +64,17 @@
 </template>
 
 <script setup lang="ts">
+import { renderMarkdown } from '~/utils/renderMarkdown'
+
 const props = defineProps<{
   files: Array<{
     id: number;
     titel: string | null;
     filurl?: string;
     format?: string;
+    dokumentTitel?: string;
     content?: string;
+    markdown?: string;
   }>
 }>()
 
@@ -70,7 +84,9 @@ const NO_CONTENT = new Set(['Content not available', 'Error fetching content'])
 
 const accordionItems = computed(() =>
   props.files.map(file => ({
-    label: file.titel || `Dokument ${file.id}`,
+    id: file.id,
+    html: file.markdown ? renderMarkdown(file.markdown) : '',
+    label: file.dokumentTitel || file.titel || `Dokument ${file.id}`,
     text: file.content && !NO_CONTENT.has(file.content) ? file.content : '',
     filurl: file.filurl,
     format: file.format,

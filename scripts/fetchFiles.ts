@@ -1,21 +1,23 @@
 // Download ft.dk file bodies (HTML render of each PDF) into assets/data/html/{filId}.html
 // so scripts/processDocuments.ts can embed them into FilContent.
 // ft.dk sits behind Cloudflare Turnstile; a plain fetch gets 403. CloakBrowser clears it.
-// Usage: DB_LOG=false bun scripts/fetchFiles.ts [limit]
+// Usage: DB_LOG=false bun scripts/fetchFiles.ts [limit] [dokumenttype ids, default 21,7,15,1 = Forslagstekst,Fremsættelsestale,Beretning,Redegørelse]
 import fs from 'node:fs'
 import { launchPersistentContext } from 'cloakbrowser'
-import { desc, eq, notExists, and } from 'drizzle-orm'
+import { desc, eq, inArray, notExists, and } from 'drizzle-orm'
 import { db } from '../server/utils/db'
-import { fil, filContent } from '../server/database/schema'
+import { dokument, fil, filContent } from '../server/database/schema'
 
 const limit = Number(process.argv[2] ?? 50)
+const typeIds = (process.argv[3] ?? '21,7,15,1').split(',').map(Number)
 const outDir = 'assets/data/html'
 fs.mkdirSync(outDir, { recursive: true })
 
 const rows = await db
   .select({ id: fil.id, url: fil.filurl })
   .from(fil)
-  .where(and(eq(fil.format, 'PDF'), notExists(db.select().from(filContent).where(eq(filContent.filId, fil.id)))))
+  .innerJoin(dokument, eq(dokument.id, fil.dokumentid))
+  .where(and(eq(fil.format, 'PDF'), inArray(dokument.typeid, typeIds), notExists(db.select().from(filContent).where(eq(filContent.filId, fil.id)))))
   .orderBy(desc(fil.opdateringsdato))
   .limit(limit)
 const todo = rows.filter((r) => !fs.existsSync(`${outDir}/${r.id}.html`))

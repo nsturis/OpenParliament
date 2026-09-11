@@ -202,7 +202,8 @@ def pdf_to_markdown(request: PdfRequest):
     try:
         with pdf_lock:
             doc = pymupdf.open(stream=base64.b64decode(request.pdf_base64), filetype="pdf")
-            markdown = pymupdf4llm.to_markdown(doc, show_progress=False)
+            # ft.dk PDFs are born-digital; OCR only chews minutes on the masthead logo per page
+            markdown = pymupdf4llm.to_markdown(doc, show_progress=False, use_ocr=False)
         markdown = markdown.replace("\u00ad", "").replace("\u2010\n", "").replace("\u200b", "").replace("\u00a0", " ")
         return PdfResponse(markdown=markdown, pages=doc.page_count)
     except Exception as e:

@@ -46,6 +46,7 @@ model_lock = threading.Lock()
 # thread-safe between concurrent threadpool requests either.
 chunk_tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
 chunk_lock = threading.Lock()
+pdf_lock = threading.Lock()  # pymupdf is not thread-safe; concurrent conversions fail intermittently
 
 
 def clean_text(text: str) -> str:
@@ -199,8 +200,9 @@ def pdf_to_markdown(request: PdfRequest):
     typographic characters its text layer carries (soft hyphen, zero-width space, nbsp).
     """
     try:
-        doc = pymupdf.open(stream=base64.b64decode(request.pdf_base64), filetype="pdf")
-        markdown = pymupdf4llm.to_markdown(doc, show_progress=False)
+        with pdf_lock:
+            doc = pymupdf.open(stream=base64.b64decode(request.pdf_base64), filetype="pdf")
+            markdown = pymupdf4llm.to_markdown(doc, show_progress=False)
         markdown = markdown.replace("\u00ad", "").replace("\u2010\n", "").replace("\u200b", "").replace("\u00a0", " ")
         return PdfResponse(markdown=markdown, pages=doc.page_count)
     except Exception as e:

@@ -1,7 +1,7 @@
 import { defineEventHandler, createError, getQuery } from 'h3'
 import { eq, and } from 'drizzle-orm'
 import { db, explainAnalyze } from '../../utils/db'
-import { sagdokument, fil, filContent } from '../../database/schema'
+import { sagdokument, fil, filContent, documentContent } from '../../database/schema'
 
 type FileWithContent = {
   id: number
@@ -13,6 +13,7 @@ type FileWithContent = {
   variantkode: string
   format: string
   content?: string
+  markdown?: string
   error?: string
 }
 
@@ -65,7 +66,11 @@ export default defineEventHandler(async (event) => {
           })
 
           if (storedContent) {
-            return { ...file, content: storedContent.content }
+            const md = await db.query.documentContent.findFirst({
+              where: eq(documentContent.documentId, file.id),
+              orderBy: (t, { desc }) => desc(t.extractedAt),
+            })
+            return { ...file, content: storedContent.content, markdown: md?.rawContent }
           } else {
             // If no stored content, return the file without content
             return { ...file, content: 'Content not available' }

@@ -10,7 +10,7 @@ function getDocumentFiles(directory: string): string[] {
       const fullPath = path.join(dir, entry.name)
       if (entry.isDirectory()) {
         readDirRecursive(fullPath)
-      } else if (entry.isFile() && entry.name.endsWith('.html')) {
+      } else if (entry.isFile() && entry.name.endsWith('.pdf')) {
         files.push(fullPath)
       }
     }
@@ -21,7 +21,7 @@ function getDocumentFiles(directory: string): string[] {
 }
 
 async function processDocuments() {
-  const documentFiles = getDocumentFiles('assets/data/html')
+  const documentFiles = getDocumentFiles('assets/data/pdf')
   const numWorkers = Math.min(documentFiles.length, 8)
   const workerPool: Worker[] = []
   const chunkSize = Math.ceil(documentFiles.length / numWorkers)

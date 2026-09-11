@@ -12,10 +12,13 @@ them in a threadpool) and model access is serialized with a lock — MPS
 forward passes are not usefully parallel.
 """
 
+import base64
 import re
 import threading
 from typing import List
 
+import pymupdf
+import pymupdf4llm
 import torch
 import uvicorn
 from fastapi import FastAPI, HTTPException
@@ -137,6 +140,15 @@ class QueryRequest(BaseModel):
     text: str
 
 
+class PdfRequest(BaseModel):
+    pdf_base64: str
+
+
+class PdfResponse(BaseModel):
+    markdown: str
+    pages: int
+
+
 class QueryResponse(BaseModel):
     embedding: List[float]
 
@@ -177,6 +189,22 @@ def process_document(request: DocumentRequest):
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/pdf_to_markdown", response_model=PdfResponse)
+def pdf_to_markdown(request: PdfRequest):
+    """Born-digital ft.dk PDF -> GitHub markdown (headings, bold numbering, paragraphs).
+
+    Same recipe as finanslov-database's pdftext.py: pymupdf4llm layout, then strip the
+    typographic characters its text layer carries (soft hyphen, zero-width space, nbsp).
+    """
+    try:
+        doc = pymupdf.open(stream=base64.b64decode(request.pdf_base64), filetype="pdf")
+        markdown = pymupdf4llm.to_markdown(doc, show_progress=False)
+        markdown = markdown.replace("\u00ad", "").replace("\u2010\n", "").replace("\u200b", "").replace("\u00a0", " ")
+        return PdfResponse(markdown=markdown, pages=doc.page_count)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"PDF parse failed: {e}")
 
 
 @app.post("/embed_query", response_model=QueryResponse)

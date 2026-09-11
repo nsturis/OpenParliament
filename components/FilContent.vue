@@ -48,7 +48,7 @@
           Læs i fuld visning
         </NuxtLink>
         <!-- eslint-disable-next-line vue/no-v-html -->
-        <div v-if="item.html" v-html="item.html" class="prose prose-sm prose-gray max-w-none dark:prose-invert max-h-96 overflow-y-auto" />
+        <div v-if="item.html" class="prose prose-sm prose-gray max-w-none dark:prose-invert max-h-96 overflow-y-auto" v-html="item.html" />
         <p
           v-else-if="item.text"
           class="whitespace-pre-wrap text-sm leading-relaxed text-gray-700 dark:text-gray-300 max-h-96 overflow-y-auto"

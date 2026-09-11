@@ -7,6 +7,7 @@ type FileWithContent = {
   id: number
   dokumentid: number
   titel: string | null
+  dokumentTitel: string
   versionsdato: Date
   filurl: string
   opdateringsdato: Date
@@ -51,6 +52,7 @@ export default defineEventHandler(async (event) => {
     const files = sagDocuments.flatMap((doc) =>
       doc.dokument.fil.map((file) => ({
         ...file,
+        dokumentTitel: doc.dokument.titel,
       })),
     ) as unknown as FileWithContent[]
 
